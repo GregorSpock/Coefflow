@@ -1,0 +1,32 @@
+from scipy import stats
+
+from .. import common
+
+
+INPUTS = 0
+OUTPUTS = 1
+INPUT_SPECS = []
+OUTPUT_SPECS = [
+    ("Distribution", "in Table mode x, density and cdf (P(X <= x)) across the likely values; in Sample mode one column, student_t, of random draws"),
+]
+
+
+def make(values):
+    if values["df"] <= 0:
+        raise ValueError("df must be above 0")
+    return stats.t(values["df"])
+
+
+DISTRIBUTION = common.Distribution(
+    "Student t", False, [("df", 5)], make,
+    aliases={"df": ["nu", "degrees"]},
+)
+
+
+# Opens a panel to set the degrees of freedom, and choose between a table of probabilities and a random sample
+def on_click(node):
+    return common.open_panel(node, DISTRIBUTION)
+
+
+def run(inputs, settings):
+    return common.run(DISTRIBUTION, settings)

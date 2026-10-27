@@ -1,0 +1,11 @@
+# Descriptions of this pack's modules, shown when the ? on a module is clicked.
+# Each module starts with its name in square brackets, exactly as it is shown on the toolbar.
+# A blank line starts a new paragraph. Lines starting with # are notes and aren't shown.
+
+[Summary Stats]
+Describes every numeric column of a table: the count, mean, standard deviation, minimum, quartiles and maximum.
+
+The output has one row per statistic and one column per numeric field.
+
+[Pearson]
+Gives the Pearson correlation between each pair of numeric columns, as a square table. Values run from -1 (a perfect negative relationship) through 0 (no linear relationship) to 1 (a perfect positive relationship).

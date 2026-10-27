@@ -1,0 +1,146 @@
+{
+ "version": 1,
+ "view": {
+  "x": 300.0,
+  "y": 120.0,
+  "zoom": 0.9
+ },
+ "next_id": 9,
+ "nodes": [
+  {
+   "id": 1,
+   "name": "Input Data",
+   "x": 0,
+   "y": 120,
+   "settings": {}
+  },
+  {
+   "id": 2,
+   "name": "Filter",
+   "x": 200,
+   "y": 120,
+   "settings": {
+    "condition": "region == 'London'"
+   }
+  },
+  {
+   "id": 3,
+   "name": "ADF",
+   "x": 400,
+   "y": 0,
+   "settings": {
+    "fields": [
+     "unemployment",
+     "gdp_growth",
+     "inflation",
+     "house_price_k"
+    ],
+    "time": "year",
+    "trend": true
+   }
+  },
+  {
+   "id": 4,
+   "name": "Output Data",
+   "x": 600,
+   "y": 0,
+   "settings": {
+    "folder": "../output",
+    "name": "05_london_stationarity",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 5,
+   "name": "ACF/PACF",
+   "x": 400,
+   "y": 120,
+   "settings": {
+    "field": "unemployment",
+    "time": "year",
+    "lags": 12
+   }
+  },
+  {
+   "id": 6,
+   "name": "OLS",
+   "x": 400,
+   "y": 240,
+   "settings": {
+    "dependent": "unemployment",
+    "independent": [
+     "gdp_growth"
+    ],
+    "controls": [
+     "inflation"
+    ]
+   }
+  },
+  {
+   "id": 7,
+   "name": "Durbin-Watson",
+   "x": 600,
+   "y": 240,
+   "settings": {
+    "field": "residual",
+    "time": "year"
+   }
+  },
+  {
+   "id": 8,
+   "name": "ACF/PACF",
+   "x": 600,
+   "y": 120,
+   "settings": {
+    "field": "unemployment",
+    "time": "year",
+    "lags": 12,
+    "d": 1
+   }
+  }
+ ],
+ "connections": [
+  [
+   1,
+   0,
+   2,
+   0
+  ],
+  [
+   2,
+   0,
+   3,
+   0
+  ],
+  [
+   3,
+   0,
+   4,
+   0
+  ],
+  [
+   2,
+   0,
+   5,
+   0
+  ],
+  [
+   2,
+   0,
+   8,
+   0
+  ],
+  [
+   2,
+   0,
+   6,
+   0
+  ],
+  [
+   6,
+   1,
+   7,
+   0
+  ]
+ ]
+}

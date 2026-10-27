@@ -1,0 +1,214 @@
+{
+ "version": 1,
+ "view": {
+  "x": 500.0,
+  "y": 180.0,
+  "zoom": 0.9
+ },
+ "next_id": 12,
+ "nodes": [
+  {
+   "id": 1,
+   "name": "Input Data",
+   "x": 0,
+   "y": 120,
+   "settings": {}
+  },
+  {
+   "id": 2,
+   "name": "Gen",
+   "x": 200,
+   "y": 120,
+   "settings": {
+    "lines": [
+     "high_unemployment = unemployment >= 8"
+    ]
+   }
+  },
+  {
+   "id": 3,
+   "name": "Logit",
+   "x": 400,
+   "y": 0,
+   "settings": {
+    "cluster": "region",
+    "dependent": "high_unemployment",
+    "independent": [
+     "gdp_growth",
+     "degree_share"
+    ],
+    "controls": [
+     "inflation",
+     "urban"
+    ]
+   }
+  },
+  {
+   "id": 4,
+   "name": "Output Data",
+   "x": 600,
+   "y": 0,
+   "settings": {
+    "folder": "../output",
+    "name": "04_logit_coefficients",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 5,
+   "name": "Probit",
+   "x": 400,
+   "y": 120,
+   "settings": {
+    "robust": true,
+    "dependent": "high_unemployment",
+    "independent": [
+     "gdp_growth",
+     "degree_share"
+    ],
+    "controls": [
+     "inflation",
+     "urban"
+    ]
+   }
+  },
+  {
+   "id": 6,
+   "name": "Output Data",
+   "x": 600,
+   "y": 120,
+   "settings": {
+    "folder": "../output",
+    "name": "04_probit_coefficients",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 7,
+   "name": "Split",
+   "x": 400,
+   "y": 240,
+   "settings": {
+    "by": "Rows",
+    "rows": "Share",
+    "amount": "80",
+    "shuffle": true
+   }
+  },
+  {
+   "id": 8,
+   "name": "Logit",
+   "x": 600,
+   "y": 240,
+   "settings": {
+    "dependent": "high_unemployment",
+    "independent": [
+     "gdp_growth",
+     "degree_share"
+    ],
+    "controls": [
+     "inflation",
+     "urban"
+    ]
+   }
+  },
+  {
+   "id": 9,
+   "name": "Forecast",
+   "x": 800,
+   "y": 300.0,
+   "settings": {}
+  },
+  {
+   "id": 10,
+   "name": "Bar Chart",
+   "x": 1000,
+   "y": 240,
+   "settings": {
+    "category": "region",
+    "value": "probability",
+    "stat": "Mean",
+    "order": "Largest"
+   }
+  },
+  {
+   "id": 11,
+   "name": "Output Data",
+   "x": 1000,
+   "y": 360,
+   "settings": {
+    "folder": "../output",
+    "name": "04_logit_test_predictions",
+    "file_type": "csv"
+   }
+  }
+ ],
+ "connections": [
+  [
+   1,
+   0,
+   2,
+   0
+  ],
+  [
+   2,
+   0,
+   3,
+   0
+  ],
+  [
+   3,
+   0,
+   4,
+   0
+  ],
+  [
+   2,
+   0,
+   5,
+   0
+  ],
+  [
+   5,
+   0,
+   6,
+   0
+  ],
+  [
+   2,
+   0,
+   7,
+   0
+  ],
+  [
+   7,
+   0,
+   8,
+   0
+  ],
+  [
+   8,
+   0,
+   9,
+   0
+  ],
+  [
+   7,
+   1,
+   9,
+   1
+  ],
+  [
+   9,
+   0,
+   10,
+   0
+  ],
+  [
+   9,
+   0,
+   11,
+   0
+  ]
+ ]
+}

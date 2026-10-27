@@ -1,0 +1,34 @@
+# Descriptions of this pack's modules, shown when the ? on a module is clicked.
+# Each module starts with its name in square brackets, exactly as it is shown on the toolbar.
+# A blank line starts a new paragraph. Lines starting with # are notes and aren't shown.
+
+[Ologit]
+Ordered logistic regression for an outcome whose categories have an order but no meaningful gaps, such as a 1-5 rating or low/medium/high coded 1/2/3. Give each variable a role: Y (a numeric field with at most 30 whole number values, or 12 otherwise, higher meaning a higher category; use Convert to code a text field), X or C. Robust or clustered standard errors are available.
+
+The coefficient table has one row per term with its odds ratio: the factor the odds of being in a higher category change by when the term rises by one. Below the terms are the cut points between neighbouring categories.
+
+Out 2 adds the probability of each category and the most likely category to each row. Out 3 gives the average marginal effect of each term on the probability of each category, which is usually the easiest result to explain. For a dummy the effect is the derivative, a close approximation to the change from 0 to 1.
+
+Ologit assumes proportional odds: each X has the same effect at every cut. Check it with the Brant Test.
+
+[Oprobit]
+Ordered probit regression, set up the same way as Ologit but using the normal distribution. Its coefficients are not odds ratios, so the marginal effects in Out 3 are usually the easier numbers to read.
+
+[Brant Test]
+Tests the proportional odds (parallel lines) assumption behind Ologit and Oprobit: that each X shifts the chance of being above every cut by the same amount. Set up the variables as for Ologit; Y needs at least 3 categories.
+
+The test fits one binary logit of Y being above each cut and checks whether their coefficients are equal. A p value below 0.05 for All terms means the assumption fails; the rows for each term show which ones break it. Out 2 shows each term's coefficient at each cut, so you can see how the effect changes.
+
+If the assumption fails, consider a generalised ordered logit, a multinomial logit, or separate binary logits at the cuts that matter.
+
+[Lipsitz Test]
+A goodness of fit test for an ordered logit or probit, the ordered version of the Hosmer-Lemeshow test. Set up the variables as for Ologit, and choose the link and the number of groups (6 to 12).
+
+Rows are split into equal groups by their predicted score, and the model is refitted with a dummy for each group. A p value below 0.05 means the groups explain something the model misses, so it fits poorly. The groups table compares the observed and expected count of each category in each group, to show where the misfit is.
+
+The test needs enough rows: Lipsitz et al. suggest no more groups than the rows divided by 5 times the number of categories.
+
+[Ordinal Assoc]
+Measures and tests the association between an ordered Y and each numeric X, without fitting a model. Every measure runs from -1 (higher X goes with lower Y) through 0 (no association) to 1 (higher X goes with higher Y) and only uses the order of the values.
+
+Goodman-Kruskal gamma ignores tied pairs, so it is larger when there are many ties. Kendall's tau-b counts ties on both variables, and Somers' D treats Y as the outcome and X as the predictor. Spearman's rho is the correlation of the ranks. Each comes with a p value for no association.

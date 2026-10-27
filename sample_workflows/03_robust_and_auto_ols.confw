@@ -1,0 +1,162 @@
+{
+ "version": 1,
+ "view": {
+  "x": 300.0,
+  "y": 120.0,
+  "zoom": 0.9
+ },
+ "next_id": 9,
+ "nodes": [
+  {
+   "id": 1,
+   "name": "Input Data",
+   "x": 0,
+   "y": 120,
+   "settings": {}
+  },
+  {
+   "id": 2,
+   "name": "Gen",
+   "x": 200,
+   "y": 120,
+   "settings": {
+    "lines": [
+     "log_wage = log(median_weekly_wage)",
+     "log_house_price = log(house_price_k)",
+     "gdp_growth_lag = lag(gdp_growth, by=region)"
+    ]
+   }
+  },
+  {
+   "id": 3,
+   "name": "OLS",
+   "x": 400,
+   "y": 0,
+   "settings": {
+    "dependent": "log_wage",
+    "independent": [
+     "degree_share"
+    ],
+    "controls": [
+     "unemployment",
+     "inflation",
+     "region"
+    ],
+    "cluster": "region"
+   }
+  },
+  {
+   "id": 4,
+   "name": "Output Data",
+   "x": 600,
+   "y": 0,
+   "settings": {
+    "folder": "../output",
+    "name": "03_wage_ols_clustered",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 5,
+   "name": "OLS",
+   "x": 400,
+   "y": 120,
+   "settings": {
+    "dependent": "unemployment",
+    "independent": [
+     "gdp_growth",
+     "gdp_growth_lag"
+    ],
+    "controls": [
+     "inflation",
+     "bank_rate"
+    ],
+    "robust": true
+   }
+  },
+  {
+   "id": 6,
+   "name": "Scatter",
+   "x": 600,
+   "y": 120,
+   "settings": {
+    "x": "fitted",
+    "y": "residual"
+   }
+  },
+  {
+   "id": 7,
+   "name": "Auto OLS",
+   "x": 400,
+   "y": 240,
+   "settings": {
+    "dependent": "log_house_price",
+    "independent": [
+     "bank_rate"
+    ],
+    "skipped": [
+     "region",
+     "year",
+     "median_weekly_wage",
+     "house_price_k",
+     "gdp_growth_lag"
+    ]
+   }
+  },
+  {
+   "id": 8,
+   "name": "Output Data",
+   "x": 600,
+   "y": 240,
+   "settings": {
+    "folder": "../output",
+    "name": "03_house_price_auto_ols",
+    "file_type": "csv"
+   }
+  }
+ ],
+ "connections": [
+  [
+   1,
+   0,
+   2,
+   0
+  ],
+  [
+   2,
+   0,
+   3,
+   0
+  ],
+  [
+   3,
+   0,
+   4,
+   0
+  ],
+  [
+   2,
+   0,
+   5,
+   0
+  ],
+  [
+   5,
+   1,
+   6,
+   0
+  ],
+  [
+   2,
+   0,
+   7,
+   0
+  ],
+  [
+   7,
+   0,
+   8,
+   0
+  ]
+ ]
+}

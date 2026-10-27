@@ -1,0 +1,35 @@
+# Descriptions of this pack's modules, shown when the ? on a module is clicked.
+# Each module starts with its name in square brackets, exactly as it is shown on the toolbar.
+# A blank line starts a new paragraph. Lines starting with # are notes and aren't shown.
+# The sample_data folder has a table to try each module on.
+
+[IV 2SLS]
+Instrumental variables regression by two stage least squares, for when an X is endogenous: correlated with the error, e.g. because of omitted variables, reverse causality or measurement error, so OLS is biased. Give each variable a role: Y, En (an endogenous variable), Z (an instrument) or C (an exogenous control). Each instrument must move the endogenous variables but affect Y only through them. You need at least as many instruments as endogenous terms. Robust (HC1) or clustered standard errors are available.
+
+The first stage regresses each endogenous variable on the instruments and controls; the second stage regresses Y on the first stage's fitted values. Out 1 is the second stage, Out 2 the first stages and Out 3 the tests. Use Show to switch between them.
+
+Weak instruments: a first stage F below 10 means the instruments explain little of the endogenous variable, so 2SLS is biased towards OLS and its p values are too small. The partial R squared says how much of the endogenous variable the instruments explain after the controls. With several endogenous variables, the Sanderson-Windmeijer F checks each one separately, and the Cragg-Donald F checks them all, compared with Stock-Yogo critical values. The Cragg-Donald F assumes ordinary errors. The Anderson-Rubin test of whether the endogenous variables affect Y stays valid however weak the instruments are.
+
+With more instruments than endogenous terms, the Sargan test (ordinary errors) or Hansen J test (robust or clustered) checks the instruments against each other. A p value below 0.05 means at least one may be invalid. The test can't show the instruments are valid, only fail to find a problem, and it has no power if they are all invalid in the same way.
+
+The Durbin-Wu-Hausman test asks whether the endogenous variables really are endogenous. A p value below 0.05 means OLS is inconsistent; otherwise OLS may do and is more precise.
+
+[RDD]
+Regression discontinuity: the effect of a treatment given to units on one side of a cutoff in a running variable, such as a grant for scores of 50 or more. Units just either side of the cutoff are alike, so the jump in Y there is the effect. Give each variable a role: Y, R (the running variable) and optionally C (controls). Type the cutoff in the Set box, e.g. cutoff = 50. Units at or above the cutoff count as treated.
+
+For a fuzzy design, where crossing the cutoff only raises the chance of treatment, also choose the 0/1 treatment as D. The estimate is then the jump in Y divided by the jump in D, by 2SLS: the effect for units whose treatment the cutoff decides.
+
+A separate line is fitted on each side of the cutoff (a curve with Order 2), using only rows within the bandwidth and weighting rows near the cutoff more with the Triangular and Epanechnikov kernels. With bandwidth = auto, the bandwidth is chosen by Imbens and Kalyanaraman's rule, which trades off bias against precision; type a number to set it yourself. Standard errors are robust (HC1) by default, and can be clustered, e.g. by the running variable when it takes few values.
+
+Out 2 checks the design. The estimate should change little at half or twice the bandwidth or with the other order. Placebo cutoffs at the median of R on each side should show no jump, and neither should the controls if units either side are alike. The McCrary test looks for a jump in how many units there are just either side, which would suggest units sorted themselves across the cutoff. Show Chart for the RD plot: the mean of Y in bins of R (set their number with bins = 20) and the fitted lines.
+
+The confidence intervals are conventional ones; they don't correct for the bias the bandwidth leaves, so prefer estimates that are stable across bandwidths.
+
+[DiD]
+Difference in differences: the effect of a treatment, from how much more Y changed for the treated units than for the others. It assumes parallel trends: without treatment, Y would have changed by the same amount in both groups. Choose the Design.
+
+2x2 has two groups and two periods. Choose Y, G (1 for the treated group) and P (1 for the period after treatment). The effect is the G x P coefficient, and Out 2 shows the four means it comes from. Robust (HC1) errors are on by default; cluster by the unit treatment was given to, such as a state, if there are enough of them.
+
+TWFE is for panel data: choose Y, D (1 in the periods a unit is treated), E (the entity) and T (the time field). It regresses Y on D with entity and period effects, and errors clustered by entity by default. When units start treatment at different times, TWFE compares later-treated units with already-treated ones, which can give badly misleading results if the effect grows over time; the panel shows how many treated rows get a negative weight. With staggered timing, prefer the Event study and treat TWFE with caution.
+
+Event study is set up like TWFE and shows the effect in each period from leads before to lags after treatment starts (set them in the Window box). The period just before treatment is the reference, so each coefficient is the change since then. The leads test parallel trends: they should be near 0, and the panel gives the joint test. Show Chart plots the estimates with 95% confidence intervals.

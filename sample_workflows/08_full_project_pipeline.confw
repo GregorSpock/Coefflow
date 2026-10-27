@@ -1,0 +1,306 @@
+{
+ "version": 1,
+ "view": {
+  "x": 900.0,
+  "y": 180.0,
+  "zoom": 0.9
+ },
+ "next_id": 16,
+ "nodes": [
+  {
+   "id": 1,
+   "name": "Input Data",
+   "x": 0,
+   "y": 180.0,
+   "settings": {}
+  },
+  {
+   "id": 2,
+   "name": "Gen",
+   "x": 200,
+   "y": 180.0,
+   "settings": {
+    "lines": [
+     "log_wage = log(median_weekly_wage)",
+     "wage_growth = growth(median_weekly_wage, by=region) * 100",
+     "unemployment_lag = lag(unemployment, by=region)",
+     "unemployment_change = diff(unemployment, by=region)"
+    ]
+   }
+  },
+  {
+   "id": 3,
+   "name": "Filter",
+   "x": 400,
+   "y": 0,
+   "settings": {
+    "condition": "year == 1995",
+    "dropped": [
+     "year",
+     "gdp_growth",
+     "unemployment",
+     "inflation",
+     "urban",
+     "population_k",
+     "median_weekly_wage",
+     "house_price_k",
+     "bank_rate",
+     "avg_weekly_hours",
+     "log_wage",
+     "wage_growth",
+     "unemployment_lag",
+     "unemployment_change"
+    ],
+    "renamed": {
+     "degree_share": "degree_share_1995"
+    }
+   }
+  },
+  {
+   "id": 4,
+   "name": "Join",
+   "x": 600,
+   "y": 180.0,
+   "settings": {
+    "relationship": "M:1",
+    "keep": "Left",
+    "on": [
+     "region"
+    ]
+   }
+  },
+  {
+   "id": 5,
+   "name": "Gen",
+   "x": 800,
+   "y": 180.0,
+   "settings": {
+    "lines": [
+     "degree_gain = degree_share - degree_share_1995",
+     "regional_mean_unemployment = mean(unemployment, by=region)"
+    ]
+   }
+  },
+  {
+   "id": 6,
+   "name": "Filter",
+   "x": 1000,
+   "y": 180.0,
+   "settings": {
+    "condition": "year >= 1996"
+   }
+  },
+  {
+   "id": 7,
+   "name": "Split",
+   "x": 1200,
+   "y": 180.0,
+   "settings": {
+    "by": "Rows",
+    "rows": "Condition",
+    "condition": "year <= 2018"
+   }
+  },
+  {
+   "id": 8,
+   "name": "OLS",
+   "x": 1400,
+   "y": 60.0,
+   "settings": {
+    "cluster": "region",
+    "dependent": "unemployment_change",
+    "independent": [
+     "gdp_growth"
+    ],
+    "controls": [
+     "unemployment_lag",
+     "wage_growth",
+     "degree_gain",
+     "inflation"
+    ]
+   }
+  },
+  {
+   "id": 9,
+   "name": "Forecast",
+   "x": 1600,
+   "y": 120,
+   "settings": {}
+  },
+  {
+   "id": 10,
+   "name": "Output Data",
+   "x": 1800,
+   "y": 120,
+   "settings": {
+    "folder": "../output",
+    "name": "08_out_of_sample_forecast",
+    "file_type": "xlsx"
+   }
+  },
+  {
+   "id": 11,
+   "name": "Output Data",
+   "x": 1600,
+   "y": 0,
+   "settings": {
+    "folder": "../output",
+    "name": "08_ols_coefficients",
+    "file_type": "xlsx"
+   }
+  },
+  {
+   "id": 12,
+   "name": "Fixed Effects",
+   "x": 1400,
+   "y": 300.0,
+   "settings": {
+    "entity": "region",
+    "time": "year",
+    "time_effects": true,
+    "robust": true,
+    "dependent": "unemployment_change",
+    "independent": [
+     "gdp_growth"
+    ],
+    "controls": [
+     "unemployment_lag",
+     "wage_growth",
+     "degree_gain",
+     "inflation"
+    ]
+   }
+  },
+  {
+   "id": 13,
+   "name": "Output Data",
+   "x": 1600,
+   "y": 300.0,
+   "settings": {
+    "folder": "../output",
+    "name": "08_fe_coefficients",
+    "file_type": "xlsx"
+   }
+  },
+  {
+   "id": 14,
+   "name": "Bar Chart",
+   "x": 1800,
+   "y": 240,
+   "settings": {
+    "category": "region",
+    "value": "error",
+    "stat": "Mean",
+    "order": "Largest"
+   }
+  },
+  {
+   "id": 15,
+   "name": "Scatter",
+   "x": 1800,
+   "y": 360,
+   "settings": {
+    "x": "forecast",
+    "y": "unemployment_change"
+   }
+  }
+ ],
+ "connections": [
+  [
+   1,
+   0,
+   2,
+   0
+  ],
+  [
+   2,
+   0,
+   3,
+   0
+  ],
+  [
+   2,
+   0,
+   4,
+   0
+  ],
+  [
+   3,
+   0,
+   4,
+   1
+  ],
+  [
+   4,
+   0,
+   5,
+   0
+  ],
+  [
+   5,
+   0,
+   6,
+   0
+  ],
+  [
+   6,
+   0,
+   7,
+   0
+  ],
+  [
+   7,
+   0,
+   8,
+   0
+  ],
+  [
+   8,
+   0,
+   9,
+   0
+  ],
+  [
+   7,
+   1,
+   9,
+   1
+  ],
+  [
+   9,
+   0,
+   10,
+   0
+  ],
+  [
+   8,
+   0,
+   11,
+   0
+  ],
+  [
+   7,
+   0,
+   12,
+   0
+  ],
+  [
+   12,
+   0,
+   13,
+   0
+  ],
+  [
+   9,
+   0,
+   14,
+   0
+  ],
+  [
+   9,
+   0,
+   15,
+   0
+  ]
+ ]
+}

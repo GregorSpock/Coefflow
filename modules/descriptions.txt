@@ -1,0 +1,153 @@
+# Descriptions of the core modules, shown when the ? on a module is clicked.
+# Each module starts with its name in square brackets, exactly as it is shown on the toolbar.
+# A blank line starts a new paragraph.
+
+[Input Data]
+Loads a table from a CSV or Excel file to start a workflow. Click Select to choose the file, then use Keep and Rename to choose which fields come out and what they are called.
+
+If no file is chosen, the built-in sample data is used.
+
+[Output Data]
+Saves the table it receives as a CSV or Excel file. Choose the folder, type a file name and switch between CSV and Excel in its panel.
+
+If no folder is chosen, the data is printed instead of saved.
+
+[Join]
+Combines two tables side by side, matching rows on the key columns they share. Choose the relationship (1:1, M:1, 1:M or M:M) to check keys are unique where they should be, and whether to keep only matched rows or every Left, Right or All rows.
+
+[Split]
+Splits one table into two, either by rows or by fields. Out 1 gets what you choose and Out 2 gets the rest.
+
+By Rows, choose Share to send a percentage of the rows to Out 1, Count for a number of rows, or Condition for the rows matching a condition such as year >= 2021. Share and Count take rows from the top, or at random with Shuffle on; the random pick is the same every run. Both outputs keep the rows in their original order, so Share with Shuffle on makes a training set and a test set to check a model with Forecast.
+
+By Fields, click Out 1 on each field to send to Out 1; every other field goes to Out 2. Click Both on fields such as an ID or year to keep them in both outputs, so the two tables can be joined back together.
+
+[Filter]
+Keeps only the rows that match a condition, such as year >= 2021, and lets you drop or rename fields on the way through.
+
+[Select]
+Keeps only the chosen columns of a table. With no columns chosen, the data passes through unchanged.
+
+[Sort]
+Sorts the rows by one or more fields, A-Z / Z-A for text or 0-9 / 9-0 for numbers. Fields are sorted in the order you choose them, so later fields only break ties. Missing values go last.
+
+[Convert]
+Turns text fields into numbers so they can be used in models. Each text field can be converted in one of two ways.
+
+Codes gives each value a whole number by its place in an order you set, lowest first: for education you might put GCSE first, then A level, then Degree, to code them 1, 2 and 3. Click Edit to move values up and down; new values start in A-Z order. Start at switches the first code between 1 and 0. Coded fields make a good Y for the Ordered add-on's models.
+
+Number reads text that holds numbers, such as 1,250, £3.50 or 45%, ignoring commas, spaces, currency signs and %. Values that still aren't numbers become missing, and the panel says how many.
+
+The converted fields keep their names, and missing values stay missing. Switch Label on to also keep a field's original text as a new field next to it, called like education_label; rename it in the box on the field's Edit panel.
+
+[Gen]
+Makes new fields from the ones you have, one line of Python each, such as gdp_pc = rgdpe / pop. Click + to add a field, then type the line or build it with the buttons: operators, functions and field names all go in at the cursor. A function wraps the field just before the cursor, so clicking rgdpe then log() writes log(rgdpe).
+
+Lines run top to bottom, so a line can use the fields made above it. A line using a name the data already has replaces that field. Write field names with spaces or symbols in backticks, like `GDP per head`.
+
+Use ^ or ** for powers, and and, or, not to combine conditions. A condition such as year >= 2000 gives 1 where true and 0 where false, and missing where a field it compares is missing. a if condition else b picks between two values row by row.
+
+log, log10 and sqrt give missing values where they don't work, such as log(0). int, round, floor and ceil round numbers, missing(x) is 1 where x is missing, and where(condition, a, b) picks like if-else.
+
+For panel data, lag, lead, diff and growth look back or forward a number of rows, 1 unless set, within each group given by by=, e.g. growth(rgdpna, by=countrycode). Sort the rows by group and time first. mean, median, sum, std, min, max and count give a statistic of the whole field on every row, or of each group with by=.
+
+[OLS]
+Ordinary least squares regression. Give each variable a role: Y (the dependent variable), X (independent variables) or C (controls). An intercept is always included.
+
+Switch Robust on for heteroscedasticity-robust (HC1) standard errors, or choose a field to cluster the standard errors by. The results show R squared, the number of observations and a Breusch-Pagan test for heteroscedasticity.
+
+Out 1 is the coefficient table and Out 2 is the data used, with fitted values and residuals.
+
+[Auto OLS]
+OLS that picks the controls for you. Choose Y and the X variables; every other numeric variable is tried as a control unless you skip it, and the set of controls with the highest adjusted R squared is kept.
+
+The final model uses robust (HC1) standard errors, or clustered ones if a cluster field is chosen.
+
+[Logit]
+Logistic regression for a 0/1 outcome. Give each variable a role: Y (the 0/1 outcome), X or C. Robust or clustered standard errors are available.
+
+The coefficient table includes odds ratios and marginal effects. Out 2 adds the predicted probability that Y is 1 and a 0/1 prediction to each row.
+
+[Probit]
+Probit regression for a 0/1 outcome, set up the same way as Logit but using the normal distribution. Its coefficients are not odds ratios, so the marginal effects are usually the easier numbers to read.
+
+[Durbin-Watson]
+Tests the residuals of a regression for autocorrelation: whether each residual is related to the one before it. Connect it to a table with a residual column in time order, such as Out 2 of OLS, Fixed Effects or ARIMAX. A field called residual is used as R unless you choose another; choose the time column (T) if the rows aren't in time order.
+
+The statistic d runs from 0 to 4. Near 2 means no autocorrelation, well below 2 means positive autocorrelation (common in time series, and it makes the standard errors too small) and well above 2 negative autocorrelation. The autocorrelation it implies, rho, is about 1 - d/2, and the p value is a large-sample approximation from it.
+
+For panel data, choose the column naming each entity (G). Each entity is tested on its own, and the first row pools them all into one statistic for the whole panel, never comparing one entity's last residual with the next one's first.
+
+The test is not valid when a lag of Y is among the regressors, which pulls d towards 2. For ARIMAX models with AR terms, use the Ljung-Box p in its results instead.
+
+[Forecast]
+Applies a fitted model's coefficients to new data. Connect Out 1 (the coefficient table) of OLS, Auto OLS, Logit, Probit, ARIMAX, or Ologit or Oprobit from the Ordered add-on to In 1, and the new data to In 2. Forecast works out which kind of model made the coefficients by itself; the panel says which, and the Model button can choose it by hand.
+
+The new data needs the fields the model was fitted on, other than Y, with text fields holding categories the model saw. Rows with missing values, or a category the model never saw, get no forecast.
+
+Linear models give a forecast with a prediction interval for each row (lower and upper), whose width the Interval button sets. Logit and probit give the probability that Y is 1 and a 0/1 prediction. Ordered models give the probability of each category (prob_1, prob_2, ...) and the most likely one.
+
+For ARIMAX the new data is one row per future period, with the X and C values for each and the time field to put them in order; the forecasts carry on from the end of the series the model was fitted on, with intervals that widen further ahead. A plain ARIMA model only needs the future times. ARIMAX's Out 1 must be connected directly, as a saved and reloaded table no longer holds the series.
+
+If the new data also has the Y field, such as data held back from the fit, each row gets an error (actual minus forecast) and the panel gives the RMSE and mean absolute error, or the share predicted correctly.
+
+[ARIMAX]
+A regression with ARIMA(p, d, q) errors for time series data. Set the AR order (p), differencing (d) and MA order (q), and give each variable a role: Y, X, C, T (the time column) or G (the column naming each series if the data holds several).
+
+X and C variables can be lagged, and the constant (or drift when d is 1) can be switched on or off. Out 1 is the coefficient table and Out 2 has the actual, fitted and residual values for each period.
+
+[Auto ARIMAX]
+Searches for the best ARIMA orders instead of you choosing them. Give each variable a role as in ARIMAX, then set the highest AR order (p) and MA order (q) to try. Every p and q from 0 up to those is fitted, and the model with the lowest AIC, or BIC with Pick by, wins. BIC favours smaller models.
+
+Differencing (d) can be fixed, or left on Auto to difference Y until an ADF test says it is stationary. All the models tried share the same d, since AIC and BIC can't compare models with different d.
+
+Out 1 and Out 2 are the best model's, exactly as ARIMAX gives them, so Out 1 goes straight into Forecast. Out 3 lists every model tried with its AIC and BIC, best first.
+
+[ACF/PACF]
+Charts how a time series is correlated with its own past, to help choose ARIMA orders. Choose the field to study (Y), the time column (T), and the column naming each series (G) if the data holds several.
+
+The ACF (autocorrelation) is the correlation between the series and itself a number of periods back. The PACF (partial autocorrelation) is the same but leaving out what the shorter lags already explain. Bars beyond the dashed lines are significant at the 5% level.
+
+A PACF that cuts off after k lags suggests an AR order p of k, and an ACF that cuts off after k lags suggests an MA order q of k. An ACF that dies away slowly means the series needs differencing: raise d and look again. Out 1 has the values for each lag with Ljung-Box p values.
+
+[ADF]
+Tests whether each field is stationary, and how many times it needs differencing (d) before it is. Click Test on the fields to check, or leave them all off to test every numeric field, and choose the time column (T) and the column naming each series (G) if the data holds several.
+
+Each field is tested as it is and after one and two differences, with two tests that check each other. The ADF (augmented Dickey-Fuller) test starts from the idea that the field is not stationary, and a p value below 0.05 says it is. The KPSS test starts from the idea that it is stationary, and a p value below 0.05 says it isn't. The suggested d is the fewest differences at which both agree it is stationary.
+
+Switch Trend on for fields that grow steadily over time, such as prices, to test whether they are stationary around a straight-line trend. Use the suggested d for Y in ARIMAX, or difference an X or C field with diff() in Gen.
+
+[Fixed Effects]
+Panel regression for data that follows the same entities, such as countries or firms, over several periods. It controls for anything about each entity that doesn't change over time, measured or not, by comparing each entity only with itself. Give each field a role: Y, X, C, E (the field naming each entity) and T (the time field). Text X and C fields enter as dummies.
+
+Fields that never change within an entity, such as a country's continent, are absorbed by the entity effects and left out. The intercept is the average entity effect. Switch Time effects on to add a dummy for each period, which controls for anything that hits every entity in the same period, such as a recession; it needs T.
+
+Robust clusters the standard errors by entity, which allows the errors of each entity to be correlated over time and is usually what you want. Cluster chooses another field instead.
+
+The results show R squared within (how well the model explains changes over time inside entities, the one that matters here), between and overall, sigma_u (the spread of the entity effects), sigma_e (the spread of the rest) and rho, the share of the variance due to the entity effects. A small p value in the F test says the entity effects matter, so pooled OLS would be wrong.
+
+Out 1 is the coefficient table and Out 2 is the data used, with fitted values, residuals and each entity's effect. Out 1 goes into Forecast, which predicts for an average entity, and into Hausman.
+
+[Random Effects]
+Panel regression that treats each entity's own effect as random, set up the same way as Fixed Effects. If the entity effects are unrelated to the X variables it is more efficient than fixed effects, and it can estimate fields that never change within an entity. If they are related it is biased: use Hausman to check.
+
+It removes a share theta of each entity's average from the data: 0 gives pooled OLS and 1 gives fixed effects. A small p value in the Breusch-Pagan test says the entity effects matter, so pooled OLS would be wrong.
+
+Out 1 is the coefficient table and Out 2 is the data used, with fitted values, residuals and each entity's predicted effect. Out 1 goes into Forecast and into Hausman.
+
+[Hausman]
+Tests whether to use fixed or random effects. Connect Out 1 of Fixed Effects to In 1 and Out 1 of Random Effects to In 2, both fitted with the same data and variables.
+
+Fixed effects is right whether or not the entity effects are related to the X variables, while random effects is only right if they aren't. If the two models' coefficients differ by more than chance, a p value below 0.05, random effects is biased and fixed effects should be used. Otherwise random effects is fine and gives smaller standard errors.
+
+The test assumes ordinary standard errors, so switch Robust and Cluster off on both models. Out 1 lists each coefficient in both models with their difference.
+
+[Scatter]
+Plots one numeric variable against another. Choose the X and Y variables in its panel.
+
+It also fits a line and runs a Breusch-Pagan test, with a short note on whether the spread of Y changes with X (heteroscedasticity).
+
+[Bar Chart]
+Draws a bar for each category of a field. Click Cat on the field holding the categories and Value on the numeric field to chart.
+
+Bars sets what each bar shows: the Mean, Sum or Median of the value in that category, or Count for the number of rows, which needs no value field. Order puts the bars A-Z by category, or from the largest or smallest bar. Rows missing the category are left out, and at most 30 bars are drawn.

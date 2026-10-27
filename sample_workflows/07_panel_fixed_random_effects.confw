@@ -1,0 +1,202 @@
+{
+ "version": 1,
+ "view": {
+  "x": 400.0,
+  "y": 168.0,
+  "zoom": 0.9
+ },
+ "next_id": 11,
+ "nodes": [
+  {
+   "id": 1,
+   "name": "Input Data",
+   "x": 0,
+   "y": 120,
+   "settings": {}
+  },
+  {
+   "id": 2,
+   "name": "Gen",
+   "x": 200,
+   "y": 120,
+   "settings": {
+    "lines": [
+     "log_wage = log(median_weekly_wage)",
+     "log_house_price = log(house_price_k)"
+    ]
+   }
+  },
+  {
+   "id": 3,
+   "name": "Fixed Effects",
+   "x": 400,
+   "y": 0,
+   "settings": {
+    "dependent": "log_house_price",
+    "independent": [
+     "bank_rate",
+     "log_wage"
+    ],
+    "controls": [
+     "unemployment",
+     "degree_share"
+    ],
+    "entity": "region",
+    "time": "year"
+   }
+  },
+  {
+   "id": 4,
+   "name": "Random Effects",
+   "x": 400,
+   "y": 240,
+   "settings": {
+    "dependent": "log_house_price",
+    "independent": [
+     "bank_rate",
+     "log_wage"
+    ],
+    "controls": [
+     "unemployment",
+     "degree_share"
+    ],
+    "entity": "region",
+    "time": "year"
+   }
+  },
+  {
+   "id": 5,
+   "name": "Hausman",
+   "x": 600,
+   "y": 120,
+   "settings": {}
+  },
+  {
+   "id": 6,
+   "name": "Output Data",
+   "x": 800,
+   "y": 120,
+   "settings": {
+    "folder": "../output",
+    "name": "07_hausman_test",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 7,
+   "name": "Fixed Effects",
+   "x": 400,
+   "y": 360,
+   "settings": {
+    "robust": true,
+    "time_effects": true,
+    "dependent": "log_house_price",
+    "independent": [
+     "log_wage"
+    ],
+    "controls": [
+     "unemployment",
+     "degree_share"
+    ],
+    "entity": "region",
+    "time": "year"
+   }
+  },
+  {
+   "id": 8,
+   "name": "Output Data",
+   "x": 600,
+   "y": 360,
+   "settings": {
+    "folder": "../output",
+    "name": "07_fe_time_effects",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 9,
+   "name": "Durbin-Watson",
+   "x": 600,
+   "y": -24.0,
+   "settings": {
+    "field": "residual",
+    "time": "year",
+    "group": "region"
+   }
+  },
+  {
+   "id": 10,
+   "name": "Bar Chart",
+   "x": 800,
+   "y": 0,
+   "settings": {
+    "category": "region",
+    "value": "effect",
+    "stat": "Mean",
+    "order": "Largest"
+   }
+  }
+ ],
+ "connections": [
+  [
+   1,
+   0,
+   2,
+   0
+  ],
+  [
+   2,
+   0,
+   3,
+   0
+  ],
+  [
+   2,
+   0,
+   4,
+   0
+  ],
+  [
+   3,
+   0,
+   5,
+   0
+  ],
+  [
+   4,
+   0,
+   5,
+   1
+  ],
+  [
+   5,
+   0,
+   6,
+   0
+  ],
+  [
+   2,
+   0,
+   7,
+   0
+  ],
+  [
+   7,
+   0,
+   8,
+   0
+  ],
+  [
+   3,
+   1,
+   9,
+   0
+  ],
+  [
+   3,
+   1,
+   10,
+   0
+  ]
+ ]
+}

@@ -1,0 +1,75 @@
+{
+ "version": 1,
+ "view": {
+  "x": 200.0,
+  "y": 120.0,
+  "zoom": 0.9
+ },
+ "next_id": 5,
+ "nodes": [
+  {
+   "id": 1,
+   "name": "Input Data",
+   "x": 0,
+   "y": 120,
+   "settings": {}
+  },
+  {
+   "id": 2,
+   "name": "OLS",
+   "x": 200,
+   "y": 120,
+   "settings": {
+    "dependent": "unemployment",
+    "independent": [
+     "gdp_growth"
+    ],
+    "controls": [
+     "inflation",
+     "bank_rate"
+    ]
+   }
+  },
+  {
+   "id": 3,
+   "name": "Output Data",
+   "x": 400,
+   "y": 0,
+   "settings": {
+    "folder": "../output",
+    "name": "01_ols_coefficients",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 4,
+   "name": "Scatter",
+   "x": 400,
+   "y": 240,
+   "settings": {
+    "x": "fitted",
+    "y": "residual"
+   }
+  }
+ ],
+ "connections": [
+  [
+   1,
+   0,
+   2,
+   0
+  ],
+  [
+   2,
+   0,
+   3,
+   0
+  ],
+  [
+   2,
+   1,
+   4,
+   0
+  ]
+ ]
+}

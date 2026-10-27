@@ -1,0 +1,200 @@
+{
+ "version": 1,
+ "view": {
+  "x": 600.0,
+  "y": 120.0,
+  "zoom": 0.9
+ },
+ "next_id": 10,
+ "nodes": [
+  {
+   "id": 1,
+   "name": "Input Data",
+   "x": 0,
+   "y": 120,
+   "settings": {
+    "dropped": [
+     "avg_weekly_hours"
+    ],
+    "renamed": {
+     "median_weekly_wage": "wage"
+    }
+   }
+  },
+  {
+   "id": 2,
+   "name": "Sort",
+   "x": 200,
+   "y": 120,
+   "settings": {
+    "sort": {
+     "region": "A-Z",
+     "year": "0-9"
+    }
+   }
+  },
+  {
+   "id": 3,
+   "name": "Gen",
+   "x": 400,
+   "y": 120,
+   "settings": {
+    "lines": [
+     "log_wage = log(wage)",
+     "wage_growth = growth(wage, by=region) * 100",
+     "real_wage_growth = wage_growth - inflation",
+     "house_to_wage = house_price_k * 1000 / (wage * 52)",
+     "high_unemployment = unemployment >= 8"
+    ]
+   }
+  },
+  {
+   "id": 4,
+   "name": "Filter",
+   "x": 600,
+   "y": 120,
+   "settings": {
+    "condition": "year >= 2000 and year <= 2024"
+   }
+  },
+  {
+   "id": 5,
+   "name": "Select",
+   "x": 800,
+   "y": 0,
+   "settings": {
+    "columns": [
+     "region",
+     "year",
+     "urban",
+     "wage",
+     "log_wage",
+     "real_wage_growth",
+     "house_to_wage",
+     "unemployment",
+     "high_unemployment",
+     "degree_share"
+    ]
+   }
+  },
+  {
+   "id": 6,
+   "name": "Convert",
+   "x": 1000,
+   "y": 0,
+   "settings": {
+    "convert": {
+     "region": {
+      "mode": "Codes",
+      "order": [
+       "London",
+       "South East",
+       "East",
+       "South West",
+       "West Midlands",
+       "East Midlands",
+       "Yorkshire",
+       "North West",
+       "North East",
+       "Wales",
+       "Scotland",
+       "Northern Ireland",
+       "Kent",
+       "Essex",
+       "Norfolk",
+       "Devon",
+       "Cornwall",
+       "Lancashire",
+       "Cumbria",
+       "Highlands"
+      ],
+      "label": "region_name"
+     }
+    }
+   }
+  },
+  {
+   "id": 7,
+   "name": "Output Data",
+   "x": 1200,
+   "y": 0,
+   "settings": {
+    "folder": "../output",
+    "name": "02_clean_data",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 8,
+   "name": "Bar Chart",
+   "x": 800,
+   "y": 240,
+   "settings": {
+    "category": "region",
+    "value": "house_to_wage",
+    "stat": "Mean",
+    "order": "Largest"
+   }
+  },
+  {
+   "id": 9,
+   "name": "Scatter",
+   "x": 1000,
+   "y": 240,
+   "settings": {
+    "x": "degree_share",
+    "y": "log_wage"
+   }
+  }
+ ],
+ "connections": [
+  [
+   1,
+   0,
+   2,
+   0
+  ],
+  [
+   2,
+   0,
+   3,
+   0
+  ],
+  [
+   3,
+   0,
+   4,
+   0
+  ],
+  [
+   4,
+   0,
+   5,
+   0
+  ],
+  [
+   5,
+   0,
+   6,
+   0
+  ],
+  [
+   6,
+   0,
+   7,
+   0
+  ],
+  [
+   4,
+   0,
+   8,
+   0
+  ],
+  [
+   4,
+   0,
+   9,
+   0
+  ]
+ ]
+}

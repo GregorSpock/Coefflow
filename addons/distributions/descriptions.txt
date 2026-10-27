@@ -1,0 +1,84 @@
+# Descriptions of this pack's modules, shown when the ? on a module is clicked.
+# Each module starts with its name in square brackets, exactly as it is shown on the toolbar.
+# A blank line starts a new paragraph. Lines starting with # are notes and aren't shown.
+
+[Normal]
+The normal distribution, the bell curve set by its mean and standard deviation. Type its settings in the Set box, such as mean = 100, sd = 15; any left out take their defaults (mean 0, sd 1).
+
+Add x = a value to get P(X <= x) and P(X > x) and how many sd x is from the mean, or q = a probability to get the value below which that share falls: q = 0.975 with the defaults gives 1.96. The chart fills in the area up to x.
+
+Table mode gives x, the density and the cdf (P(X <= x)) at evenly spaced points across the likely values. Sample mode gives random draws in a column called normal, 100 unless you add size = a number. Add seed = a whole number to get the same draws every run. Switch between Chart and Data to see the picture or the numbers.
+
+[Student t]
+The t distribution, a bell curve with heavier tails than the normal, set by its degrees of freedom (df, default 5). It is the distribution of a regression coefficient's t statistic, with df the number of observations minus the number of coefficients. The more df, the closer it is to the standard normal. Type its settings in the Set box, such as df = 30.
+
+Add x = a value to get P(X <= x) and P(X > x), or q = a probability to get the critical value: q = 0.975 with df = 30 gives 2.04, the cut-off for a two-sided test at 5%. With 1 df it has no mean, and with 2 or fewer its sd is infinite.
+
+As with every distribution here, Table mode gives x, the density and the cdf (P(X <= x)) across the likely values, and Sample mode gives random draws in a column called student_t, 100 unless you add size = a number, with seed = a whole number giving the same draws every run. Switch between Chart and Data to see the picture or the numbers.
+
+[Chi-Square]
+The sum of df squared standard normal values (df default 3), which only takes positive values. It is the distribution of many test statistics, such as the Breusch-Pagan and likelihood ratio tests, with df the number of restrictions tested. Type its settings in the Set box, such as df = 2.
+
+Add x = a test statistic to get its p value, P(X > x), or q = 0.95 to get the 5% critical value. Table and Sample modes work as for the other distributions; Sample draws go in a column called chi_square.
+
+[F]
+The ratio of two chi-square values each divided by its degrees of freedom, set by df1 (the numerator, default 3) and df2 (the denominator, default 30). It is the distribution of the F test that several coefficients are all zero, with df1 the number of restrictions and df2 the observations minus the coefficients. Type its settings in the Set box, such as df1 = 2, df2 = 100.
+
+Add x = an F statistic to get its p value, P(X > x), or q = 0.95 to get the 5% critical value. Sample draws go in a column called f.
+
+[Exponential]
+The waiting time between events that happen at a steady rate, such as the time until a machine breaks down, set by the rate (events per unit of time, default 1). Its mean is 1 / rate, and it has no memory: having waited already doesn't change how much longer the wait will be. Type its settings in the Set box, such as rate = 0.5.
+
+Add x = a time to get the chance of waiting at most or more than that long. Sample draws go in a column called exponential.
+
+[Uniform]
+Every value between low and high is equally likely (defaults 0 and 1). Type its settings in the Set box, such as low = 10, high = 20. Sample draws, in a column called uniform, are handy for random assignment: a draw below 0.5 puts a row in one group.
+
+[Lognormal]
+A variable whose log is normal, set by mu and sigma, the mean and sd of the log (defaults 0 and 1). It only takes positive values and has a long right tail, like incomes, prices and firm sizes. Type its settings in the Set box, such as mu = 10, sigma = 0.8.
+
+Add x = a value to get P(X <= x) and P(X > x), or q = 0.5 to get the median, e to the power mu. Sample draws go in a column called lognormal.
+
+[Gamma]
+A flexible distribution of positive values, set by its shape and scale (defaults 2 and 1), with mean shape x scale. A whole number shape gives the waiting time until that many events at rate 1 / scale; shape 1 is the exponential. Type its settings in the Set box, such as shape = 3, scale = 2.
+
+Sample draws go in a column called gamma.
+
+[Beta]
+A distribution of values between 0 and 1, such as shares and rates, set by two shapes a and b (defaults 2 and 5), with mean a / (a + b). a = b = 1 is the uniform, and the larger a and b are the more it bunches around its mean. Type its settings in the Set box, such as a = 3, b = 3.
+
+Sample draws go in a column called beta.
+
+[Binomial]
+The number of successes in n independent trials that each succeed with probability p, such as heads in 10 coin flips. Type its settings in the Set box, such as n = 20, p = 0.3; any left out take their defaults (n 10, p 0.5).
+
+Add x = a whole number to get P(X = x), P(X <= x) and P(X >= x), or q = a probability to get the smallest count k with P(X <= k) at least q. The chart highlights the bars up to x.
+
+Table mode gives k, the probability of exactly k successes and the cdf (P(X <= k)) for each likely k. Sample mode gives random draws in a column called binomial, 100 unless you add size = a number, and seed = a whole number gives the same draws every run.
+
+[Poisson]
+The number of events in a fixed stretch of time or space when they happen independently at a steady rate, such as patents filed by a firm in a year. Its one setting, lambda, is the mean count (default 3), typed in the Set box as lambda = 4.5. Its variance equals its mean, so data with a variance well above the mean is overdispersed.
+
+Add x = a whole number to get P(X = x), P(X <= x) and P(X >= x), or q = a probability to get the smallest count k with P(X <= k) at least q.
+
+Table mode gives k, the probability of exactly k events and the cdf (P(X <= k)) for each likely k. Sample mode gives random draws in a column called poisson, 100 unless you add size = a number, and seed = a whole number gives the same draws every run.
+
+[Bernoulli]
+A single trial that gives 1 with probability p and 0 otherwise (p default 0.5), such as whether a person is employed. It is the binomial with n = 1, and the distribution of the Y in a logit or probit. Type its setting in the Set box, such as p = 0.3.
+
+Table mode gives the probabilities of 0 and 1. Sample mode gives random 0s and 1s in a column called bernoulli, which make a quick random treatment dummy.
+
+[Geometric]
+The number of trials up to and including the first success, when each trial succeeds with probability p (default 0.3), such as job applications until the first offer. Its values start at 1 and its mean is 1 / p. Type its setting in the Set box, such as p = 0.1.
+
+Add x = a whole number to get P(X = x), P(X <= x) and P(X >= x). Sample draws go in a column called geometric.
+
+[Neg Binomial]
+Counts like the Poisson's but more spread out, set by the mean count (default 3) and alpha (default 0.5), how overdispersed they are: the variance is mean + alpha x mean squared, so alpha near 0 gives back the Poisson. This is the NB2 form used in negative binomial regression for count data whose variance is well above its mean. Type its settings in the Set box, such as mean = 4, alpha = 1.
+
+Add x = a whole number to get P(X = x), P(X <= x) and P(X >= x). Sample draws go in a column called neg_binomial.
+
+[Hypergeometric]
+The number of successes when drawing without putting back, such as how many of 5 firms picked from 50 are exporters when 10 of the 50 are. Set the population (default 50), how many of it are successes (default 10) and how many are drawn (default 5), all whole numbers, such as population = 50, successes = 10, draws = 5. Unlike the binomial, each draw changes the chances for the next.
+
+Add x = a whole number to get P(X = x), P(X <= x) and P(X >= x). Sample draws go in a column called hypergeometric.

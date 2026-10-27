@@ -1,0 +1,16 @@
+# Descriptions of this pack's modules, shown when the ? on a module is clicked.
+# Each module starts with its name in square brackets, exactly as it is shown on the toolbar.
+# A blank line starts a new paragraph. Lines starting with # are notes and aren't shown.
+
+[Reg Table]
+Puts the coefficient tables (Out 1) of any number of regressions side by side in one table laid out like an economics journal's, such as the AER or QJE. Connect a model to the empty input at the bottom and a new empty input appears below it, so you can keep adding models. In 1 becomes column (1), In 2 column (2) and so on.
+
+To reorder the columns, drag a model's line off its input and drop it on another: it goes in there and the models below move down one. Drop it on empty canvas to take the model out, and the inputs below move up to close the gap.
+
+Each column is headed by its number, the dependent variable and the model. Each variable's coefficient has its significance stars, with its standard error in parentheses underneath, or its t statistic if you choose t. The constant goes last. Under the coefficients come the number of observations and the R squared, adjusted, within or pseudo R squared each model has, then the entities and fixed effects for panel models and the kind of standard errors where any are robust or clustered. The stars follow the levels set in Settings > Configure, and the note under the table says what they mean.
+
+Choose the decimal places, parentheses or square brackets and whether the constant is shown. Controls (C) can be listed one by one (List), or folded into a single Controls: Yes / No row (Y/N). Adv opens a panel listing every covariate the models have: click Show to put one in the table or leave it out. Row: On there adds the Controls row, saying Yes for each model that had a covariate left out.
+
+Click Edit to rename anything in the table: the title, the note under it, each column's heading, dependent variable and model, and every row label, such as sector=Retail or Observations. Click Edit beside an item, then type its new name in the box at the top. Clearing the box puts back the default, and Reset all puts back every default. New names are kept by what they replace, so they last when the workflow runs again.
+
+Click Export to choose where to save the table as an Excel file. It is saved straight away if the workflow has run, and again each time it runs, with the journal's horizontal rules, a serif font and the note underneath. Out 1 is the table itself, so it can also go to Output Data.

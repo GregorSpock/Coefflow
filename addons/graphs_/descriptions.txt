@@ -1,0 +1,18 @@
+# Descriptions of this pack's modules, shown when the ? on a module is clicked.
+# Each module starts with its name in square brackets, exactly as it is shown on the toolbar.
+# A blank line starts a new paragraph. Lines starting with # are notes and aren't shown.
+
+[Pie Chart]
+Shows each category's share of the whole. Choose a category column (Cat), and optionally a numeric column to add up; without one, each category's number of rows is used.
+
+The biggest slices are drawn on their own and the rest are joined into one Other slice. The output lists each category's total and share, largest first.
+
+[Histogram]
+Shows how a numeric variable is distributed by counting its values in bins. The number of bins is chosen automatically, or can be stepped up and down, and a fitted normal curve can be drawn over the bars.
+
+A short note says whether the data looks normally distributed. The output gives the start, end, count and share of each bin.
+
+[Box Plot]
+Shows the spread of a numeric variable (Y), optionally split into groups (By). Each box covers the middle half of the values with a line at the median; the whiskers reach the furthest values within 1.5 interquartile ranges, and points beyond them are outliers.
+
+The output gives each group's count, five-number summary, mean and number of outliers.

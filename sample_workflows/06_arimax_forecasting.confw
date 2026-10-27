@@ -1,0 +1,215 @@
+{
+ "version": 1,
+ "view": {
+  "x": 500.0,
+  "y": 180.0,
+  "zoom": 0.9
+ },
+ "next_id": 12,
+ "nodes": [
+  {
+   "id": 1,
+   "name": "Input Data",
+   "x": 0,
+   "y": 180.0,
+   "settings": {}
+  },
+  {
+   "id": 2,
+   "name": "Filter",
+   "x": 200,
+   "y": 180.0,
+   "settings": {
+    "condition": "region == 'London'"
+   }
+  },
+  {
+   "id": 3,
+   "name": "Split",
+   "x": 400,
+   "y": 180.0,
+   "settings": {
+    "by": "Rows",
+    "rows": "Condition",
+    "condition": "year <= 2019"
+   }
+  },
+  {
+   "id": 4,
+   "name": "ARIMAX",
+   "x": 600,
+   "y": 0,
+   "settings": {
+    "dependent": "unemployment",
+    "independent": [
+     "gdp_growth"
+    ],
+    "controls": [
+     "bank_rate"
+    ],
+    "time": "year",
+    "p": 1,
+    "d": 0,
+    "q": 0,
+    "lags": {
+     "gdp_growth": 1
+    }
+   }
+  },
+  {
+   "id": 5,
+   "name": "Forecast",
+   "x": 800,
+   "y": 60.0,
+   "settings": {
+    "level": 0.9
+   }
+  },
+  {
+   "id": 6,
+   "name": "Output Data",
+   "x": 1000,
+   "y": 60.0,
+   "settings": {
+    "folder": "../output",
+    "name": "06_arimax_forecast",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 7,
+   "name": "Durbin-Watson",
+   "x": 800,
+   "y": -60.0,
+   "settings": {
+    "field": "residual",
+    "time": "year"
+   }
+  },
+  {
+   "id": 8,
+   "name": "Auto ARIMAX",
+   "x": 600,
+   "y": 300.0,
+   "settings": {
+    "dependent": "unemployment",
+    "independent": [
+     "gdp_growth"
+    ],
+    "controls": [
+     "bank_rate"
+    ],
+    "time": "year",
+    "max_p": 2,
+    "d": "auto",
+    "max_q": 2,
+    "criterion": "BIC"
+   }
+  },
+  {
+   "id": 9,
+   "name": "Forecast",
+   "x": 800,
+   "y": 300.0,
+   "settings": {
+    "level": 0.9
+   }
+  },
+  {
+   "id": 10,
+   "name": "Output Data",
+   "x": 1000,
+   "y": 300.0,
+   "settings": {
+    "folder": "../output",
+    "name": "06_auto_arimax_forecast",
+    "file_type": "csv"
+   }
+  },
+  {
+   "id": 11,
+   "name": "Output Data",
+   "x": 800,
+   "y": 420.0,
+   "settings": {
+    "folder": "../output",
+    "name": "06_auto_arimax_search",
+    "file_type": "csv"
+   }
+  }
+ ],
+ "connections": [
+  [
+   1,
+   0,
+   2,
+   0
+  ],
+  [
+   2,
+   0,
+   3,
+   0
+  ],
+  [
+   3,
+   0,
+   4,
+   0
+  ],
+  [
+   4,
+   0,
+   5,
+   0
+  ],
+  [
+   3,
+   1,
+   5,
+   1
+  ],
+  [
+   5,
+   0,
+   6,
+   0
+  ],
+  [
+   4,
+   1,
+   7,
+   0
+  ],
+  [
+   3,
+   0,
+   8,
+   0
+  ],
+  [
+   8,
+   0,
+   9,
+   0
+  ],
+  [
+   3,
+   1,
+   9,
+   1
+  ],
+  [
+   9,
+   0,
+   10,
+   0
+  ],
+  [
+   8,
+   2,
+   11,
+   0
+  ]
+ ]
+}
