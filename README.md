@@ -45,7 +45,7 @@ On Linux you may also need Tk for the file dialogs, e.g. `sudo apt install pytho
 
 **On Windows you can skip steps 2 and 3:** double-click **`Coefflow.exe`** in the Coefflow folder. It finds Python 3.10–3.13 (offering to install Python 3.13 for you if it is missing), installs the packages the first time, then opens the app. Keep it in the same folder as `main.py`. After the first run, Coefflow appears in the Start menu, so you can just search for it from the taskbar (run `Coefflow.exe --unregister` to remove that entry).
 
-**Installing and updating on Windows:** **`CoefflowInstaller.exe`** downloads Coefflow with git (offering to install git if you don't have it) and adds it to the Start menu. Run it again at any time to check GitHub for a newer version and update to it. It can also convert a copy you downloaded as a ZIP so it can be updated. Updates never overwrite your settings, add-ons or outputs.
+**Installing and updating on Windows:** **`CoefflowInstaller.exe`** downloads Coefflow with git (offering to install git if you don't have it) and adds it to the Start menu. Run it again at any time to check GitHub for a newer version and update to it. It can also convert a copy you downloaded as a ZIP so it can be updated. Updates never overwrite your settings, workflows, outputs or the add-on packs you've added yourself.
 
 Then follow **[Building Your First Workflow](https://github.com/GregorSpock/Coefflow/wiki/Building-Your-First-Workflow)**, a ten-minute guide from an empty canvas to a saved regression.
 

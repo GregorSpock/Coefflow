@@ -27,7 +27,8 @@
     "controls": [
      "inflation",
      "bank_rate"
-    ]
+    ],
+    "robust": true
    }
   },
   {

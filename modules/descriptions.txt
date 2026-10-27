@@ -59,7 +59,7 @@ Switch Robust on for heteroscedasticity-robust (HC1) standard errors, or choose 
 Out 1 is the coefficient table and Out 2 is the data used, with fitted values and residuals.
 
 [Auto OLS]
-OLS that picks the controls for you. Choose Y and the X variables; every other numeric variable is tried as a control unless you skip it, and the set of controls with the highest adjusted R squared is kept.
+OLS that picks the controls for you. Choose Y and the X variables; every other variable is tried as a control unless you skip it, and the set of controls with the highest adjusted R squared is kept.
 
 The final model uses robust (HC1) standard errors, or clustered ones if a cluster field is chosen.
 
