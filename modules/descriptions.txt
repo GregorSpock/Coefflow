@@ -26,7 +26,9 @@ By Fields, click Out 1 on each field to send to Out 1; every other field goes to
 Keeps only the rows that match a condition, such as year >= 2021, and lets you drop or rename fields on the way through.
 
 [Select]
-Keeps only the chosen columns of a table. With no columns chosen, the data passes through unchanged.
+Keeps only the chosen columns of a table. Click Keep on each field to keep, and they come out in the order you click them, numbered in the panel. Keep all chooses every field in the order they arrive, and Clear chooses none.
+
+With no columns chosen, the data passes through unchanged. Taking a field out also takes it out of the modules further down the workflow.
 
 [Sort]
 Sorts the rows by one or more fields, A-Z / Z-A for text or 0-9 / 9-0 for numbers. Fields are sorted in the order you choose them, so later fields only break ties. Missing values go last.
@@ -151,3 +153,8 @@ It also fits a line and runs a Breusch-Pagan test, with a short note on whether 
 Draws a bar for each category of a field. Click Cat on the field holding the categories and Value on the numeric field to chart.
 
 Bars sets what each bar shows: the Mean, Sum or Median of the value in that category, or Count for the number of rows, which needs no value field. Order puts the bars A-Z by category, or from the largest or smallest bar. Rows missing the category are left out, and at most 30 bars are drawn.
+
+[Line Chart]
+Draws one or more numeric fields as lines against another, such as several indices over the years. Click X on the field for the horizontal axis and Line on each field to draw, up to six.
+
+Each line skips the rows where it or the X field is missing, and is drawn in the order of the X field, so the data doesn't need sorting first.

@@ -1,5 +1,6 @@
 import pygame
 
+from engine import version
 from ui import colours, dialogs
 from ui.button import Button
 from ui.node import load_module
@@ -141,6 +142,11 @@ class Menu:
 
         subtitle = self.subtitle_font.render(SUBTITLE, True, colours.SUBTITLE)
         self.screen.blit(subtitle, subtitle.get_rect(midtop=(self.width // 2, title_rect.bottom + 5)))
+
+        number = version.read()
+        if number:
+            label = self.small_font.render(f"v{number}", True, colours.SUBTITLE)
+            self.screen.blit(label, label.get_rect(bottomleft=(20, self.height - 20)))
 
     # Lays the scanlines over everything if the theme uses them, then shows the frame
     def finish_frame(self):

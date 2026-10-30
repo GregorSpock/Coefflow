@@ -17,6 +17,8 @@ DASH = 8
 BAR_SHARE = 0.7
 # Category names narrower than this can't be read, so names are skipped until each has this much room
 MIN_LABEL_WIDTH = 60
+# A line chart draws at most this many lines, one per colour in the theme's CHART_SERIES
+MAX_SERIES = 6
 
 
 # Returns the lowest and highest value with a little space added either side
@@ -62,6 +64,39 @@ def draw_scatter(screen, area, font, x_values, y_values, x_label, y_label, line=
     screen.set_clip(None)
 
     draw_labels(screen, plot, font, x_label, y_label)
+
+
+# Draws one line per series inside area, each in its own colour, with a key in the top left.
+# series is a list of (name, x values, y values), each sorted along x
+def draw_lines(screen, area, font, series, x_label):
+    plot = pygame.Rect(area.left + LEFT_MARGIN, area.top + 10, area.width - LEFT_MARGIN - 10, area.height - BOTTOM_MARGIN - 10)
+    x_low, x_high = padded_range([x for name, xs, ys in series for x in xs])
+    y_low, y_high = padded_range([y for name, xs, ys in series for y in ys])
+
+    # Converts a data point to a position on screen
+    def to_screen(x, y):
+        screen_x = plot.left + (x - x_low) / (x_high - x_low) * plot.width
+        screen_y = plot.bottom - (y - y_low) / (y_high - y_low) * plot.height
+        return screen_x, screen_y
+
+    draw_axes(screen, plot, font, x_low, x_high, y_low, y_high)
+
+    screen.set_clip(plot)
+    for i, (name, xs, ys) in enumerate(series):
+        colour = colours.CHART_SERIES[i % len(colours.CHART_SERIES)]
+        points = [to_screen(x, y) for x, y in zip(xs, ys)]
+        if len(points) > 1:
+            pygame.draw.lines(screen, colour, False, points, 3)
+        else:
+            pygame.draw.circle(screen, colour, points[0], POINT_RADIUS)
+
+        key_y = plot.top + 10 + i * 20
+        pygame.draw.line(screen, colour, (plot.left + 10, key_y), (plot.left + 30, key_y), 3)
+        text = font.render(name, True, colours.TEXT)
+        screen.blit(text, text.get_rect(midleft=(plot.left + 36, key_y)))
+    screen.set_clip(None)
+
+    draw_labels(screen, plot, font, x_label, "")
 
 
 # Draws a correlogram: a bar from zero for each lag's correlation, on a scale from -1 to 1, with

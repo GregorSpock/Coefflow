@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 
+from engine import version
 from engine.workflow import Connection
 from ui.canvas import MIN_ZOOM, MAX_ZOOM
 from ui.node import Node
@@ -9,7 +10,9 @@ from ui.node import Node
 
 # A workflow file is a small JSON file holding the view, each node's module, position and
 # settings, and the connections between nodes. Data and results are not stored: input files are
-# referenced by path and results are recomputed on Run, so files stay tiny and save instantly
+# referenced by path and results are recomputed on Run, so files stay tiny and save instantly.
+# VERSION is the layout of the file. coefflow_version in the file is the version of Coefflow that
+# last saved it, so opening it in an older copy can warn that it may use things that copy lacks
 VERSION = 1
 PATH_KEYS = ["path", "folder"]
 
@@ -65,6 +68,7 @@ def save(canvas, path):
     centre_x, centre_y = canvas.to_canvas(*canvas.rect.center)
     workflow = {
         "version": VERSION,
+        "coefflow_version": version.read(),
         "view": {"x": round(centre_x, 1), "y": round(centre_y, 1), "zoom": round(canvas.zoom, 4)},
         "next_id": canvas.next_id,
         "nodes": [node_record(node, folder) for node in canvas.nodes],
@@ -94,6 +98,14 @@ def load(canvas, path):
         raise ValueError("This workflow was saved by a newer version of Coefflow")
 
     problems = []
+    saved_with = workflow.get("coefflow_version")
+    current = version.read()
+    if saved_with and current and version.newer(saved_with, current):
+        problems.append(
+            f"This workflow was last saved with Coefflow v{saved_with}, which is newer than this copy (v{current}). "
+            "It may use modules or settings this version doesn't have, so check it before relying on it."
+        )
+
     nodes = {}
     for record in workflow["nodes"]:
         try:
@@ -136,4 +148,26 @@ def load(canvas, path):
     canvas.zoom = max(MIN_ZOOM, min(MAX_ZOOM, float(view.get("zoom", 1.0))))
     canvas.offset_x = canvas.rect.centerx - float(view.get("x", 0)) * canvas.zoom
     canvas.offset_y = canvas.rect.centery - float(view.get("y", 0)) * canvas.zoom
+
+    if not saved_with and current:
+        add_version(path, workflow, current)
     return problems
+
+
+# Adds the Coefflow version to a workflow file made before files recorded it, leaving the rest as it
+# was. It is written to a temporary file first and swapped in, like save. A file that can't be
+# written, e.g. one that is read-only, is left alone
+def add_version(path, workflow, current):
+    stamped = {"version": workflow.get("version", VERSION), "coefflow_version": current}
+    stamped.update({key: value for key, value in workflow.items() if key not in stamped})
+
+    temporary = f"{path}.tmp"
+    try:
+        with open(temporary, "w", encoding="utf-8") as file:
+            json.dump(stamped, file, separators=(",", ":"))
+        os.replace(temporary, path)
+    except OSError:
+        try:
+            os.remove(temporary)
+        except OSError:
+            pass

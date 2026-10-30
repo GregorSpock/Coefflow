@@ -20,7 +20,7 @@ MODULES = {
     "Base Reg.": ["OLS", "Auto OLS", "Logit", "Probit"],
     "Time Series": ["Durbin-Watson", "Forecast", "ARIMAX", "Auto ARIMAX", "ACF/PACF", "ADF"],
     "Cross Sect.": ["Fixed Effects", "Random Effects", "Hausman"],
-    "Graph": ["Scatter", "Bar Chart"],
+    "Graph": ["Scatter", "Bar Chart", "Line Chart"],
 }
 
 # Toolbar buttons that do something when clicked, rather than being dragged onto the canvas

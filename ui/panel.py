@@ -20,6 +20,8 @@ MIN_COLUMN_WIDTH = 100
 TABLE_SCROLL_ROWS = 3
 MIN_THUMB = 20
 TOGGLE_SIZE = 20
+# How far one notch of Shift + wheel slides option labels sideways, in pixels
+LABEL_SCROLL_STEP = 40
 NOT_ALLOWED = '\\/:*?"<>|'
 
 
@@ -108,8 +110,12 @@ class Panel:
     # The inputs & outputs section is read from the node's module, so modules don't add it.
     # canvas is set when the panel opens, so modules can reach the other nodes and connections.
     # A button can set next_panel to another panel, which then replaces this one.
-    # The inputs & outputs section starts hidden, and showing or hiding it applies to every panel
+    # The inputs & outputs section starts hidden, and showing or hiding it applies to every panel.
+    # A module can give the options a heading with options_title, which makes them a section like the
+    # preview: a fixed height of max_option_rows, shown or hidden with a box by the heading, and
+    # scrolled down with the wheel and sideways with Shift + wheel to read labels too long to fit
     ports_expanded = False
+    options_expanded = True
 
     def __init__(self, node, title):
         self.node = node
@@ -138,6 +144,10 @@ class Panel:
         self.max_option_rows = MAX_OPTION_ROWS
         self.option_columns = OPTION_COLUMNS
         self.options_rect = pygame.Rect(0, 0, 0, 0)
+        self.options_title = None
+        self.options_toggle = pygame.Rect(0, 0, 0, 0)
+        self.label_shift = 0
+        self.label_overflow = 0
         self.visible_buttons = []
         self.table_row = 0
         self.table_column = 0
@@ -182,6 +192,10 @@ class Panel:
     def scroll_options(self, rows):
         hidden_rows = max(0, self.option_rows() - self.max_option_rows)
         self.option_scroll = max(0, min(self.option_scroll + rows, hidden_rows))
+
+    # Slides the option labels sideways by a number of pixels, without going past either end
+    def scroll_labels(self, pixels):
+        self.label_shift = max(0, min(self.label_shift + pixels, self.label_overflow))
 
     # Scrolls the preview table by a number of rows and columns, without going past either end
     def scroll_table(self, rows, columns):
@@ -237,8 +251,18 @@ class Panel:
             Panel.ports_expanded = not Panel.ports_expanded
             return True
 
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.options_toggle.collidepoint(event.pos):
+            Panel.options_expanded = not Panel.options_expanded
+            return True
+
+        # Under an options heading, Shift + wheel or a sideways swipe slides the labels along
         if event.type == pygame.MOUSEWHEEL and self.options_rect.collidepoint(display.mouse_pos()):
-            self.scroll_options(-event.y)
+            if self.options_title and pygame.key.get_mods() & pygame.KMOD_SHIFT:
+                self.scroll_labels((event.x - event.y) * LABEL_SCROLL_STEP)
+            else:
+                self.scroll_options(-event.y)
+                if self.options_title:
+                    self.scroll_labels(event.x * LABEL_SCROLL_STEP)
             return True
 
         # Over the table the wheel scrolls rows, and Shift + wheel or a sideways swipe scrolls columns
@@ -347,7 +371,9 @@ class Panel:
             screen.blit(self.font.render(text, True, colours.NODE_ERROR), (self.rect.left + PADDING, y))
             y += 30
 
-        if self.options:
+        if self.options_title:
+            y = self.draw_options_section(screen, y)
+        elif self.options:
             y = self.draw_options(screen, y + PADDING)
 
         y = self.draw_ports(screen, y)
@@ -395,7 +421,7 @@ class Panel:
 
         heading = "Inputs & Outputs"
         y = self.draw_heading(screen, heading, top + PADDING)
-        self.draw_ports_toggle(screen, heading, top + PADDING)
+        self.ports_toggle = self.draw_toggle(screen, heading, top + PADDING, Panel.ports_expanded)
         if not Panel.ports_expanded:
             return y - PADDING
 
@@ -410,25 +436,51 @@ class Panel:
                 y += 20
         return y
 
-    # Draws the show/hide box just right of the heading drawn at heading_top.
-    # A downward arrow shows the list, an upward one hides it, like the workflow tabs toggle
-    def draw_ports_toggle(self, screen, heading, heading_top):
+    # Draws the show/hide box just right of the heading drawn at heading_top, and returns it.
+    # A downward arrow shows the section, an upward one hides it, like the workflow tabs toggle
+    def draw_toggle(self, screen, heading, heading_top, expanded):
         heading_width, heading_height = self.heading_font.size(heading)
-        self.ports_toggle = pygame.Rect(0, 0, TOGGLE_SIZE, TOGGLE_SIZE)
-        self.ports_toggle.midleft = (self.rect.left + PADDING * 2 + heading_width, heading_top + heading_height // 2)
+        toggle = pygame.Rect(0, 0, TOGGLE_SIZE, TOGGLE_SIZE)
+        toggle.midleft = (self.rect.left + PADDING * 2 + heading_width, heading_top + heading_height // 2)
 
-        hovered = self.ports_toggle.collidepoint(display.mouse_pos())
-        pygame.draw.rect(screen, colours.ZOOM_BUTTON_HOVER if hovered else colours.ZOOM_BUTTON, self.ports_toggle)
-        pygame.draw.rect(screen, colours.TOOLBAR_LINE, self.ports_toggle, 1)
-        x, y = self.ports_toggle.center
-        if Panel.ports_expanded:
+        hovered = toggle.collidepoint(display.mouse_pos())
+        pygame.draw.rect(screen, colours.ZOOM_BUTTON_HOVER if hovered else colours.ZOOM_BUTTON, toggle)
+        pygame.draw.rect(screen, colours.TOOLBAR_LINE, toggle, 1)
+        x, y = toggle.center
+        if expanded:
             points = [(x - 5, y + 3), (x + 5, y + 3), (x, y - 3)]
         else:
             points = [(x - 5, y - 3), (x + 5, y - 3), (x, y + 3)]
         pygame.draw.polygon(screen, colours.TEXT, points)
+        return toggle
+
+    # Draws the options under their own heading with a show/hide box. Shown, they take a fixed
+    # height of max_option_rows, with a line under them saying which part is in view when they
+    # don't all fit. Returns the y below the section
+    def draw_options_section(self, screen, top):
+        y = self.draw_heading(screen, self.options_title, top + PADDING)
+        self.options_toggle = self.draw_toggle(screen, self.options_title, top + PADDING, Panel.options_expanded)
+        if not Panel.options_expanded:
+            self.options_rect = pygame.Rect(0, 0, 0, 0)
+            self.visible_buttons = []
+            return y - PADDING
+
+        bottom = self.draw_options(screen, y)
+        hidden_rows = self.option_rows() > self.max_option_rows
+        if not hidden_rows and not self.label_overflow:
+            return bottom
+
+        first = self.option_scroll + 1
+        last = min(self.option_rows(), self.option_scroll + self.max_option_rows)
+        text = f"Rows {first}-{last} of {self.option_rows()}    (scroll for rows, Shift + scroll to read long rows)"
+        note = self.table_font.render(fit_text(self.table_font, text, self.rect.width - PADDING * 2), True, colours.TEXT)
+        screen.blit(note, (self.rect.left + PADDING, bottom + 2))
+        return bottom + note.get_height() + 2
 
     # Draws the option rows in a grid, placing their buttons as it goes. Only max_option_rows rows
-    # fit at once; the rest are reached with the mouse wheel. Returns the y below the grid
+    # fit at once; the rest are reached with the mouse wheel. Under an options heading the grid keeps
+    # that height however many rows there are, and labels too long to fit are slid along by
+    # label_shift rather than cut short. Returns the y below the grid
     def draw_options(self, screen, top):
         column_width = (self.rect.width - PADDING * 3 - SCROLLBAR_WIDTH) // self.option_columns
         shown_rows = min(self.option_rows(), self.max_option_rows)
@@ -437,6 +489,7 @@ class Panel:
         first = self.option_scroll * self.option_columns
         shown = self.options[first:first + shown_rows * self.option_columns]
         self.visible_buttons = []
+        room = 0
 
         for i, (label, buttons) in enumerate(shown):
             cell_left = self.rect.left + PADDING + (i % self.option_columns) * column_width
@@ -449,9 +502,27 @@ class Panel:
                 x += button.rect.width + 4
             self.visible_buttons.extend(buttons)
 
-            text = fit_text(self.font, label, cell_left + column_width - x - PADDING)
-            rendered = self.font.render(text, True, colours.TEXT)
-            screen.blit(rendered, rendered.get_rect(midleft=(x + 4, y + (OPTION_BUTTON - 4) // 2)))
+            room = cell_left + column_width - x - PADDING
+            middle = y + (OPTION_BUTTON - 4) // 2
+            if self.options_title:
+                rendered = self.font.render(label, True, colours.TEXT)
+                area = pygame.Rect(x + 4, y, room, OPTION_HEIGHT)
+                clip = screen.get_clip()
+                screen.set_clip(area)
+                screen.blit(rendered, rendered.get_rect(midleft=(x + 4 - self.label_shift, middle)))
+                screen.set_clip(clip)
+            else:
+                text = fit_text(self.font, label, room)
+                rendered = self.font.render(text, True, colours.TEXT)
+                screen.blit(rendered, rendered.get_rect(midleft=(x + 4, middle)))
+
+        # How far the longest label in the whole list runs past its room, so the labels slide
+        # the same way whichever rows are in view
+        if self.options_title:
+            shown_rows = self.max_option_rows
+            longest = max((self.font.size(label)[0] for label, buttons in self.options), default=0)
+            self.label_overflow = max(0, longest - room) if shown else 0
+            self.scroll_labels(0)
 
         height = shown_rows * OPTION_HEIGHT
         self.options_rect = pygame.Rect(self.rect.left + PADDING, top, self.rect.width - PADDING * 2, height)
@@ -459,6 +530,11 @@ class Panel:
             track = pygame.Rect(0, 0, SCROLLBAR_WIDTH, self.options_rect.height - 4)
             track.topright = (self.options_rect.right, self.options_rect.top)
             draw_scrollbar(screen, track, self.option_scroll, self.max_option_rows, self.option_rows())
+        if self.label_overflow and self.options_title:
+            track = pygame.Rect(self.options_rect.left, top + height, self.options_rect.width - SCROLLBAR_WIDTH - 4, SCROLLBAR_WIDTH)
+            width = track.width
+            draw_scrollbar(screen, track, self.label_shift, width, width + self.label_overflow)
+            height += SCROLLBAR_WIDTH + 4
         return top + height
 
     # Draws the note at the bottom of the panel, wrapped over as many lines as needed.

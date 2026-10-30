@@ -36,6 +36,8 @@ TOOLS = [
 ]
 SPACED = ["+", "-", "*", "/", "//", "%", "==", "!=", ">", "<", ">=", "<=", "and", "or"]
 EDIT_ROWS = 12
+# How many lines the main panel shows at once; the rest are reached by scrolling
+LINE_ROWS = 5
 
 
 def lines_of(settings):
@@ -80,6 +82,8 @@ def generated(node):
 def on_click(node):
     panel = Panel(node, "Gen")
     panel.option_columns = 1
+    panel.options_title = "Lines"
+    panel.max_option_rows = LINE_ROWS
     panel.add_button("+", add_line)
     panel.add_button("Clear", clear_all)
     panel.refresh = show_gen
