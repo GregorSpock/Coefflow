@@ -192,7 +192,11 @@ class App:
             elif action == "Save As":
                 self.save_workflow_as()
 
+            # Opening or closing a tab shows or hides the toolbar's second row, so the rest moves to fit
+            toolbar_height = self.toolbar.height
             self.toolbar.handle_event(event)
+            if self.toolbar.height != toolbar_height:
+                self.layout()
             self.handle_drag(event)
             self.handle_connect(event)
             self.handle_move(event)
@@ -232,6 +236,7 @@ class App:
     def reload_addons(self):
         problems = addons.load_all()
         self.toolbar.refresh()
+        self.layout()
         if self.settings_menu.open:
             self.settings_menu.show_addons()
         if problems:

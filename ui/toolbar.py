@@ -40,7 +40,8 @@ def all_tabs():
 
 
 class Toolbar:
-    # Two rows: category tabs on top, the selected tab's modules underneath.
+    # Two rows: category tabs on top, the selected tab's modules underneath. With no tab open,
+    # as when the app starts, the second row is hidden and the toolbar is one row tall.
     # tab_room is how much of the top row the tabs can use, as the Settings, Run and Exit buttons
     # sit at its right end; the app sets it when it places them. A row with more buttons than fit
     # scrolls sideways with the mouse wheel, tab_scroll and module_scroll being how far in pixels
@@ -48,7 +49,6 @@ class Toolbar:
         self.width = width
         self.tab_room = width
         self.font = font
-        self.height = ROW_HEIGHT * 2
         self.selected_tab = None
         self.module_buttons = []
         self.tabs = {}
@@ -68,6 +68,11 @@ class Toolbar:
         ]
         self.tab_scroll = 0
         self.place_buttons()
+
+    # One row with no tab open, two with the open tab's modules underneath
+    @property
+    def height(self):
+        return ROW_HEIGHT * 2 if self.selected_tab else ROW_HEIGHT
 
     # The part of each row its buttons are shown in
     def tab_area(self):
@@ -160,7 +165,8 @@ class Toolbar:
     # Draws the toolbar background, the line between rows, then the buttons
     def draw(self, screen):
         pygame.draw.rect(screen, colours.TOOLBAR, (0, 0, self.width, self.height))
-        pygame.draw.line(screen, colours.TOOLBAR_LINE, (0, ROW_HEIGHT), (self.width, ROW_HEIGHT))
+        if self.selected_tab:
+            pygame.draw.line(screen, colours.TOOLBAR_LINE, (0, ROW_HEIGHT), (self.width, ROW_HEIGHT))
         pygame.draw.line(screen, colours.TOOLBAR_LINE, (0, self.height - 1), (self.width, self.height - 1))
 
         self.place_buttons()

@@ -6,21 +6,21 @@
 
 ## Features
 
-- **Visual workflows.** Each module does one job. Connect an output to an input and the data flows through; click **Run** and every module turns green or red.
-- **Data cleaning.** Join, split, filter, sort and convert tables, and make new fields with one line of Python each (logs, lags, growth rates, group means...).
+- **Visual workflows.** Each module does one job. Connect an output to an input and the data flows through; click **Run** and every module turns green or red. Each workflow file notes the version of Coefflow that last saved it, and opening one saved by a newer version gives a warning.
+- **Data cleaning.** Join, split, filter, sort and convert tables, choose and reorder fields, and make new fields with one line of Python each (logs, lags, growth rates, group means...).
 - **Regression.** OLS (with robust or clustered errors), Auto OLS, Logit and Probit, with marginal effects and odds ratios.
 - **Time series.** ARIMAX and Auto ARIMAX, ACF/PACF, ADF and KPSS stationarity tests, Durbin-Watson, and forecasting with prediction intervals.
 - **Panel data.** Fixed and random effects with time effects and clustered errors, and the Hausman test.
 - **Forecasting and validation.** Hold back test rows with Split, then score any model out of sample with Forecast.
-- **Charts.** Scatter plots with a heteroscedasticity check, and bar charts by category.
+- **Charts.** Scatter plots with a heteroscedasticity check, bar charts by category, and line charts of several fields over time.
 - **Add-on packs.** Extra modules that load from **Settings > Add-ons**, including causal inference (IV 2SLS, RDD, DiD), ordered logit/probit, probability distributions, extra charts and journal-style regression tables exported to Excel. You can also write your own.
 - **Built-in help.** Every module has a **?** explaining what it does and what each of its inputs and outputs holds.
 - **Sample data included,** so you can try everything straight away.
-- **Three themes:** Normal, Retro and Y2K.
+- **Three themes:** Retro, Dark and Light.
 
 ## Getting started
 
-You need **Python 3.10 to 3.13** (pygame, which draws the app, has no packages for newer versions yet).
+You need **Python 3.10 or newer**. On Python 3.14 and above, [pygame-ce](https://pyga.me/) is installed in place of pygame to draw the app, as pygame has no packages for those versions yet.
 
 1. Download the code: click **Code > Download ZIP** above and unzip it, or clone it:
 
@@ -73,7 +73,7 @@ The **[wiki](https://github.com/GregorSpock/Coefflow/wiki)** has a page for ever
 | Base Reg. | OLS, Auto OLS, Logit, Probit |
 | Time Series | Durbin-Watson, Forecast, ARIMAX, Auto ARIMAX, ACF/PACF, ADF |
 | Cross Sect. | Fixed Effects, Random Effects, Hausman |
-| Graph | Scatter, Bar Chart |
+| Graph | Scatter, Bar Chart, Line Chart |
 
 ## Add-on packs
 
@@ -98,6 +98,7 @@ engine/            workflow running, model fitting and shared statistics
 modules/           one folder per core module (module.py), plus descriptions.txt for the ? help
 ui/                the canvas, toolbar, panels, charts and themes (pygame)
 addons/            add-on packs that have been loaded
+version.txt        the version number, shown on the opening menu
 ```
 
 ## Contributing
@@ -106,7 +107,7 @@ Ideas, bug reports and new modules are welcome. Please open an [issue](https://g
 
 ## Built with
 
-[pygame](https://www.pygame.org/) · [pandas](https://pandas.pydata.org/) · [statsmodels](https://www.statsmodels.org/) · [SciPy](https://scipy.org/) · [openpyxl](https://openpyxl.readthedocs.io/)
+[pygame](https://www.pygame.org/) (or [pygame-ce](https://pyga.me/) on Python 3.14+) · [pandas](https://pandas.pydata.org/) · [statsmodels](https://www.statsmodels.org/) · [SciPy](https://scipy.org/) · [openpyxl](https://openpyxl.readthedocs.io/)
 
 ## License
 

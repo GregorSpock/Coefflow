@@ -1,46 +1,5 @@
 # Each theme gives a value for every name in ui/colours.py
 
-NORMAL = {
-    "BACKGROUND": (30, 32, 36),
-    "GRID": (45, 48, 54),
-    "TEXT": (240, 240, 240),
-
-    "TOOLBAR": (40, 43, 49),
-    "TOOLBAR_LINE": (65, 69, 78),
-    "TAB": (55, 59, 67),
-    "TAB_HOVER": (75, 80, 90),
-    "TAB_SELECTED": (70, 120, 200),
-
-    "EXIT": (180, 50, 50),
-    "EXIT_HOVER": (210, 70, 70),
-    "RUN": (50, 140, 80),
-    "RUN_HOVER": (70, 170, 100),
-
-    "ZOOM_BUTTON": (60, 64, 72),
-    "ZOOM_BUTTON_HOVER": (85, 90, 100),
-
-    "NODE": (70, 120, 200),
-    "NODE_BORDER": (150, 180, 230),
-    "PORT": (230, 235, 245),
-    "NODE_DONE": (90, 210, 120),
-    "NODE_ERROR": (230, 80, 80),
-    "CONNECTION": (200, 205, 215),
-    "CHART_POINT": (110, 160, 230),
-    "CHART_LINE": (240, 170, 60),
-    "CHART_SERIES": [(110, 160, 230), (240, 170, 60), (90, 210, 120), (230, 80, 80), (190, 130, 230), (240, 240, 240)],
-
-    "BUTTON_RADIUS": 4,
-    "NODE_RADIUS": 6,
-
-    "TITLE": "Coefflow",
-    "TITLE_FONT": "segoeui,arial",
-    "MENU_FONT": "segoeui,arial",
-    "SUBTITLE": (130, 140, 160),
-    "SCANLINES": False,
-    "SCANLINE": (0, 0, 0),
-    "TITLE_CURSOR": False,
-}
-
 # Green-screen terminal look with square corners
 RETRO = {
     "BACKGROUND": (8, 12, 8),
@@ -83,46 +42,88 @@ RETRO = {
     "TITLE_CURSOR": True,
 }
 
-# Early-2000s desktop: silver windows on a bright blue screen, with hot pink, orange and purple accents
-Y2K = {
-    "BACKGROUND": (60, 160, 240),
-    "GRID": (95, 185, 250),
-    "TEXT": (20, 25, 75),
+# Classic dark: charcoal greys with blue accents
+DARK = {
+    "BACKGROUND": (32, 33, 36),
+    "GRID": (44, 46, 50),
+    "TEXT": (232, 234, 237),
 
-    "TOOLBAR": (226, 230, 240),
-    "TOOLBAR_LINE": (120, 130, 160),
-    "TAB": (200, 206, 222),
-    "TAB_HOVER": (175, 225, 250),
-    "TAB_SELECTED": (255, 130, 200),
+    "TOOLBAR": (41, 42, 46),
+    "TOOLBAR_LINE": (70, 72, 78),
+    "TAB": (54, 56, 61),
+    "TAB_HOVER": (72, 75, 82),
+    "TAB_SELECTED": (50, 110, 210),
 
-    "EXIT": (255, 140, 90),
-    "EXIT_HOVER": (255, 170, 120),
-    "RUN": (130, 225, 140),
-    "RUN_HOVER": (165, 240, 170),
+    "EXIT": (176, 52, 52),
+    "EXIT_HOVER": (204, 68, 68),
+    "RUN": (46, 125, 70),
+    "RUN_HOVER": (60, 150, 88),
 
-    "ZOOM_BUTTON": (226, 230, 240),
-    "ZOOM_BUTTON_HOVER": (175, 225, 250),
+    "ZOOM_BUTTON": (54, 56, 61),
+    "ZOOM_BUTTON_HOVER": (72, 75, 82),
 
-    "NODE": (250, 250, 255),
-    "NODE_BORDER": (235, 60, 170),
-    "PORT": (255, 200, 90),
-    "NODE_DONE": (60, 200, 110),
-    "NODE_ERROR": (240, 90, 40),
-    "CONNECTION": (130, 60, 210),
-    "CHART_POINT": (30, 110, 230),
-    "CHART_LINE": (235, 60, 170),
-    "CHART_SERIES": [(20, 25, 75), (235, 60, 170), (255, 220, 60), (240, 90, 40), (130, 60, 210), (255, 255, 255)],
+    "NODE": (48, 50, 55),
+    "NODE_BORDER": (138, 180, 248),
+    "PORT": (232, 234, 237),
+    "NODE_DONE": (129, 201, 149),
+    "NODE_ERROR": (242, 139, 130),
+    "CONNECTION": (154, 160, 166),
+    "CHART_POINT": (138, 180, 248),
+    "CHART_LINE": (253, 214, 99),
+    "CHART_SERIES": [(138, 180, 248), (253, 214, 99), (129, 201, 149), (242, 139, 130), (197, 138, 249), (232, 234, 237)],
 
-    "BUTTON_RADIUS": 2,
-    "NODE_RADIUS": 2,
+    "BUTTON_RADIUS": 4,
+    "NODE_RADIUS": 6,
 
-    "TITLE": "Coefflow.exe",
-    "TITLE_FONT": "tahoma,verdana,arial",
-    "MENU_FONT": "tahoma,verdana,arial",
-    "SUBTITLE": (110, 40, 170),
+    "TITLE": "Coefflow",
+    "TITLE_FONT": "segoeui,arial",
+    "MENU_FONT": "segoeui,arial",
+    "SUBTITLE": (154, 160, 166),
     "SCANLINES": False,
     "SCANLINE": (0, 0, 0),
     "TITLE_CURSOR": False,
 }
 
-THEMES = {"Normal": NORMAL, "Retro": RETRO, "Y2K": Y2K}
+# Classic light: white panels on pale grey with blue accents
+LIGHT = {
+    "BACKGROUND": (248, 249, 250),
+    "GRID": (228, 231, 235),
+    "TEXT": (32, 33, 36),
+
+    "TOOLBAR": (255, 255, 255),
+    "TOOLBAR_LINE": (200, 205, 212),
+    "TAB": (236, 238, 241),
+    "TAB_HOVER": (220, 224, 230),
+    "TAB_SELECTED": (160, 195, 250),
+
+    "EXIT": (240, 150, 140),
+    "EXIT_HOVER": (245, 175, 165),
+    "RUN": (140, 205, 155),
+    "RUN_HOVER": (165, 220, 178),
+
+    "ZOOM_BUTTON": (236, 238, 241),
+    "ZOOM_BUTTON_HOVER": (220, 224, 230),
+
+    "NODE": (255, 255, 255),
+    "NODE_BORDER": (26, 115, 232),
+    "PORT": (255, 255, 255),
+    "NODE_DONE": (30, 142, 62),
+    "NODE_ERROR": (217, 48, 37),
+    "CONNECTION": (95, 99, 104),
+    "CHART_POINT": (26, 115, 232),
+    "CHART_LINE": (227, 116, 0),
+    "CHART_SERIES": [(26, 115, 232), (227, 116, 0), (30, 142, 62), (217, 48, 37), (132, 48, 206), (32, 33, 36)],
+
+    "BUTTON_RADIUS": 4,
+    "NODE_RADIUS": 6,
+
+    "TITLE": "Coefflow",
+    "TITLE_FONT": "segoeui,arial",
+    "MENU_FONT": "segoeui,arial",
+    "SUBTITLE": (95, 99, 104),
+    "SCANLINES": False,
+    "SCANLINE": (0, 0, 0),
+    "TITLE_CURSOR": False,
+}
+
+THEMES = {"Retro": RETRO, "Dark": DARK, "Light": LIGHT}
