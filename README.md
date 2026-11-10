@@ -12,8 +12,8 @@
 - **Time series.** ARIMAX and Auto ARIMAX, ACF/PACF, ADF and KPSS stationarity tests, Durbin-Watson, and forecasting with prediction intervals.
 - **Panel data.** Fixed and random effects with time effects and clustered errors, and the Hausman test.
 - **Forecasting and validation.** Hold back test rows with Split, then score any model out of sample with Forecast.
-- **Charts.** Scatter plots with a heteroscedasticity check, bar charts by category, and line charts of several fields over time.
-- **Add-on packs.** Extra modules that load from **Settings > Add-ons**, including causal inference (IV 2SLS, RDD, DiD), ordered logit/probit, probability distributions, extra charts and journal-style regression tables exported to Excel. You can also write your own.
+- **Charts.** Scatter plots with a heteroscedasticity check, bar charts by category, and line charts of several fields over time. Every chart has a **Settings** button to change its title, axis labels, scales and colours, and **Export PNG** to save it as a picture.
+- **Add-on packs.** Extra modules that load from **Settings > Add-ons**, including causal inference (IV 2SLS, RDD, DiD), ordered logit/probit, probability distributions, extra charts, journal-style regression tables exported to Excel, and a Psych pack for psychologists (t-tests, ANOVA, post hoc and rank tests, Cronbach's alpha, factor analysis, mediation). You can also write your own.
 - **Built-in help.** Every module has a **?** explaining what it does and what each of its inputs and outputs holds.
 - **Sample data included,** so you can try everything straight away.
 - **Three themes:** Retro, Dark and Light.

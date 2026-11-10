@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import colorchooser, filedialog, messagebox
 
 
 WORKFLOW_TYPES = [("Coefflow workflow", "*.confw")]
@@ -69,6 +69,26 @@ def choose_xlsx_path():
     )
     root.destroy()
     return path
+
+
+# Asks where to save a chart as a PNG picture, adding .png if they leave it off. Returns "" if they cancel
+def choose_png_path():
+    root = hidden_window()
+    path = filedialog.asksaveasfilename(
+        parent=root, title="Export the chart", filetypes=[("PNG picture", "*.png")], defaultextension=".png"
+    )
+    root.destroy()
+    return path
+
+
+# Asks the user to pick a colour, starting from the one given as (red, green, blue).
+# Returns the colour picked the same way, or None if they cancel
+def choose_colour(colour):
+    root = hidden_window()
+    start = "#{:02x}{:02x}{:02x}".format(*colour)
+    picked = colorchooser.askcolor(color=start, parent=root, title="Choose a colour")[0]
+    root.destroy()
+    return [int(part) for part in picked] if picked else None
 
 
 # Asks whether to save changes first. Returns True for yes, False for no and None for cancel

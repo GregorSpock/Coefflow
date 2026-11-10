@@ -39,6 +39,7 @@ def on_click(node):
     panel.add_button("Next series", next_series)
     panel.add_button(lags_label(node.settings), cycle_lags)
     panel.preview_title = "Correlogram"
+    panel.chart_axes = "y"
     panel.refresh = show_correlogram
     show_correlogram(panel)
     return panel

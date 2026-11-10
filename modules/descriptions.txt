@@ -112,6 +112,8 @@ The ACF (autocorrelation) is the correlation between the series and itself a num
 
 A PACF that cuts off after k lags suggests an AR order p of k, and an ACF that cuts off after k lags suggests an MA order q of k. An ACF that dies away slowly means the series needs differencing: raise d and look again. Out 1 has the values for each lag with Ljung-Box p values.
 
+Settings, beside the chart, changes its title, axis labels, scales, sizes and colours, and Export PNG saves the chart as a picture.
+
 [ADF]
 Tests whether each field is stationary, and how many times it needs differencing (d) before it is. Click Test on the fields to check, or leave them all off to test every numeric field, and choose the time column (T) and the column naming each series (G) if the data holds several.
 
@@ -149,12 +151,18 @@ Plots one numeric variable against another. Choose the X and Y variables in its 
 
 It also fits a line and runs a Breusch-Pagan test, with a short note on whether the spread of Y changes with X (heteroscedasticity).
 
+Settings, beside the chart, changes its title, axis labels, scales, sizes and colours, and Export PNG saves the chart as a picture.
+
 [Bar Chart]
 Draws a bar for each category of a field. Click Cat on the field holding the categories and Value on the numeric field to chart.
 
 Bars sets what each bar shows: the Mean, Sum or Median of the value in that category, or Count for the number of rows, which needs no value field. Order puts the bars A-Z by category, or from the largest or smallest bar. Rows missing the category are left out, and at most 30 bars are drawn.
 
+Settings, beside the chart, changes its title, axis labels, scales, sizes and colours, and Export PNG saves the chart as a picture.
+
 [Line Chart]
 Draws one or more numeric fields as lines against another, such as several indices over the years. Click X on the field for the horizontal axis and Line on each field to draw, up to six.
 
 Each line skips the rows where it or the X field is missing, and is drawn in the order of the X field, so the data doesn't need sorting first.
+
+Settings, beside the chart, changes its title, axis labels, scales, sizes and colours, and Export PNG saves the chart as a picture.

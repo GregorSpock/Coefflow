@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 import pygame
 
-from ui import colours
-from ui.chart import BOTTOM_MARGIN, LEFT_MARGIN, draw_axes, draw_labels
+from ui import chart
+from ui.chart import draw_axes, draw_labels
 from ui.panel import Panel
 
 
@@ -201,7 +201,8 @@ def sample_bars(distribution, draws, low, high):
 # continuous one, with the area up to x filled in and a line at x if x was typed.
 # With draws, a histogram of them is drawn under the distribution's curve instead
 def draw_chart(screen, area, font, distribution, dist, x=None, draws=None):
-    plot = pygame.Rect(area.left + LEFT_MARGIN, area.top + 10, area.width - LEFT_MARGIN - 10, area.height - BOTTOM_MARGIN - 10)
+    font = chart.text_font(font)
+    plot = chart.plot_rect(area, font)
     points = table(distribution, dist)
     xs, ys = points.iloc[:, 0].to_numpy(float), points.iloc[:, 1].to_numpy(float)
     x_low, x_high = xs[0], xs[-1]
@@ -213,45 +214,47 @@ def draw_chart(screen, area, font, distribution, dist, x=None, draws=None):
 
     heights = np.array([*ys, *(height for start, end, height in bars)])
     y_high = min(heights.max(), MAX_PEAK * np.percentile(heights, 95)) * 1.08
+    x_low, x_high = chart.axis_range("x", x_low, x_high)
+    y_low, y_high = chart.axis_range("y", 0, y_high)
 
     # Converts a point on the chart to a position on screen. Heights far above the top are brought
     # down to just above it, as a density near an end can be too big to draw
     def to_screen(x_value, y_value):
         y_value = min(y_value, y_high * 2)
-        return plot.left + (x_value - x_low) / (x_high - x_low) * plot.width, plot.bottom - y_value / y_high * plot.height
+        return plot.left + (x_value - x_low) / (x_high - x_low) * plot.width, plot.bottom - (y_value - y_low) / (y_high - y_low) * plot.height
 
     # Draws a bar from start to end along the x axis, up to height
     def draw_bar(start, end, height, colour):
         left, top = to_screen(start, height)
-        right = to_screen(end, 0)[0]
-        pygame.draw.rect(screen, colour, pygame.Rect(round(left), round(top), max(1, round(right) - round(left)), plot.bottom - round(top)))
+        right, bottom = to_screen(end, 0)
+        pygame.draw.rect(screen, colour, pygame.Rect(round(left), round(top), max(1, round(right) - round(left)), round(bottom) - round(top)))
 
-    draw_axes(screen, plot, font, x_low, x_high, 0, y_high)
+    draw_axes(screen, plot, font, x_low, x_high, y_low, y_high)
     screen.set_clip(plot)
 
     if bars:
         for start, end, height in bars:
-            draw_bar(start, end, height, colours.CHART_POINT)
+            draw_bar(start, end, height, chart.colour("point"))
         curve = [to_screen(a, b) for a, b in zip(xs, ys)]
         if len(curve) > 1:
-            pygame.draw.lines(screen, colours.CHART_LINE, False, curve, 3)
+            pygame.draw.lines(screen, chart.colour("line"), False, curve, chart.line_width())
         if distribution.discrete and len(curve) <= plot.width / 3:
             for point in curve:
-                pygame.draw.circle(screen, colours.CHART_LINE, point, 4)
+                pygame.draw.circle(screen, chart.colour("line"), point, 4)
     elif distribution.discrete and len(xs) <= plot.width / 3:
         for k, p in zip(xs, ys):
-            colour = colours.CHART_LINE if x is not None and k <= x else colours.CHART_POINT
+            colour = chart.colour("line") if x is not None and k <= x else chart.colour("point")
             draw_bar(k - BAR_WIDTH / 2, k + BAR_WIDTH / 2, p, colour)
     else:
         if x is not None and x > xs[0]:
             under = [to_screen(xs[0], 0)] + [to_screen(a, b) for a, b in zip(xs, ys) if a <= x]
             under += [to_screen(x, np.interp(x, xs, ys)), to_screen(x, 0)]
-            pygame.draw.polygon(screen, colours.CHART_POINT, under)
-        pygame.draw.lines(screen, colours.CHART_LINE, False, [to_screen(a, b) for a, b in zip(xs, ys)], 3)
+            pygame.draw.polygon(screen, chart.colour("point"), under)
+        pygame.draw.lines(screen, chart.colour("line"), False, [to_screen(a, b) for a, b in zip(xs, ys)], chart.line_width())
 
     if x is not None:
         line_x = to_screen(x, 0)[0]
-        pygame.draw.line(screen, colours.TEXT, (line_x, plot.top), (line_x, plot.bottom), 2)
+        pygame.draw.line(screen, chart.colour("text"), (line_x, plot.top), (line_x, plot.bottom), 2)
     screen.set_clip(None)
 
     y_label = "Probability" if distribution.discrete else "Density"

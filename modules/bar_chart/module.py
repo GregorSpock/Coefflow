@@ -27,6 +27,7 @@ def on_click(node):
     panel.add_button(stat_label(node.settings), cycle_stat)
     panel.add_button(order_label(node.settings), cycle_order)
     panel.preview_title = "Bar Chart"
+    panel.chart_axes = "y"
     panel.refresh = show_chart
     show_chart(panel)
     return panel

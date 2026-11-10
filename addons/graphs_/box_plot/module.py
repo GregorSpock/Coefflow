@@ -2,9 +2,9 @@ import pandas as pd
 import pygame
 from scipy.stats import kruskal
 
-from ui import colours
-from ui.chart import BOTTOM_MARGIN, LEFT_MARGIN, TICKS, draw_labels, padded_range, tick_text
-from ui.panel import Panel, fit_text
+from ui import chart
+from ui.chart import draw_axes, draw_category_names, draw_labels, padded_range
+from ui.panel import Panel
 
 
 INPUTS = 1
@@ -23,7 +23,6 @@ FIELD_SETTINGS = ["value", "group"]
 MAX_BOXES = 12
 # Whiskers reach the furthest value within this many interquartile ranges of the box; beyond is an outlier
 WHISKER_IQR = 1.5
-POINT_RADIUS = 3
 MEAN_SIZE = 5
 
 
@@ -31,6 +30,7 @@ MEAN_SIZE = 5
 def on_click(node):
     panel = Panel(node, "Box Plot")
     panel.preview_title = "Box Plot"
+    panel.chart_axes = "y"
     panel.refresh = show_boxes
     show_boxes(panel)
     return panel
@@ -129,56 +129,47 @@ def describe_test(value, group, groups):
     return result + f"There is no significant evidence that {value} differs between {group} groups at the 5% level."
 
 
-# Draws horizontal grid lines and evenly spaced value ticks up the side, and the plot border
-def draw_value_axis(screen, plot, font, low, high):
-    for i in range(TICKS + 1):
-        share = i / TICKS
-        y = plot.bottom - share * plot.height
-        pygame.draw.line(screen, colours.GRID, (plot.left, y), (plot.right, y))
-        text = font.render(tick_text(low + share * (high - low)), True, colours.TEXT)
-        screen.blit(text, text.get_rect(midright=(plot.left - 6, y)))
-    pygame.draw.rect(screen, colours.TOOLBAR_LINE, plot, width=2)
-
-
 # Draws one box per group side by side inside area: a box from the lower to the upper quartile with
 # a line at the median, whiskers, a diamond at the mean and a circle for each outlier
 def draw_boxes(screen, area, font, groups, value, group):
-    plot = pygame.Rect(area.left + LEFT_MARGIN, area.top + 10, area.width - LEFT_MARGIN - 10, area.height - BOTTOM_MARGIN - 10)
+    font = chart.text_font(font)
+    plot = chart.plot_rect(area, font)
     every_value = pd.concat([values for label, values in groups])
-    low, high = padded_range(every_value)
+    low, high = chart.axis_range("y", *padded_range(every_value))
+    text_colour = chart.colour("text")
     slot = plot.width / len(groups)
     box_width = max(6, min(80, slot * 0.6))
 
     def to_y(v):
         return plot.bottom - (v - low) / (high - low) * plot.height
 
-    draw_value_axis(screen, plot, font, low, high)
+    draw_axes(screen, plot, font, 0, 1, low, high, x_ticks=False)
 
+    screen.set_clip(plot)
     for i, (label, values) in enumerate(groups):
         stats = box_stats(values)
         centre = plot.left + slot * (i + 0.5)
         left, right = centre - box_width / 2, centre + box_width / 2
 
-        pygame.draw.line(screen, colours.TEXT, (centre, to_y(stats["low_whisker"])), (centre, to_y(stats["q1"])), 2)
-        pygame.draw.line(screen, colours.TEXT, (centre, to_y(stats["q3"])), (centre, to_y(stats["high_whisker"])), 2)
+        pygame.draw.line(screen, text_colour, (centre, to_y(stats["low_whisker"])), (centre, to_y(stats["q1"])), 2)
+        pygame.draw.line(screen, text_colour, (centre, to_y(stats["q3"])), (centre, to_y(stats["high_whisker"])), 2)
         for end in [stats["low_whisker"], stats["high_whisker"]]:
-            pygame.draw.line(screen, colours.TEXT, (centre - box_width / 4, to_y(end)), (centre + box_width / 4, to_y(end)), 2)
+            pygame.draw.line(screen, text_colour, (centre - box_width / 4, to_y(end)), (centre + box_width / 4, to_y(end)), 2)
 
         box = pygame.Rect(round(left), round(to_y(stats["q3"])), round(box_width), max(2, round(to_y(stats["q1"]) - to_y(stats["q3"]))))
-        pygame.draw.rect(screen, colours.CHART_POINT, box)
-        pygame.draw.rect(screen, colours.TEXT, box, width=2)
-        pygame.draw.line(screen, colours.TOOLBAR, (left + 2, to_y(stats["median"])), (right - 2, to_y(stats["median"])), 3)
+        pygame.draw.rect(screen, chart.colour("point"), box)
+        pygame.draw.rect(screen, text_colour, box, width=2)
+        pygame.draw.line(screen, chart.colour("background"), (left + 2, to_y(stats["median"])), (right - 2, to_y(stats["median"])), 3)
 
         y = to_y(stats["mean"])
         diamond = [(centre, y - MEAN_SIZE), (centre + MEAN_SIZE, y), (centre, y + MEAN_SIZE), (centre - MEAN_SIZE, y)]
-        pygame.draw.polygon(screen, colours.CHART_LINE, diamond)
+        pygame.draw.polygon(screen, chart.colour("line"), diamond)
 
         for outlier in stats["outliers"]:
-            pygame.draw.circle(screen, colours.CHART_LINE, (centre, to_y(outlier)), POINT_RADIUS, width=1)
+            pygame.draw.circle(screen, chart.colour("line"), (centre, to_y(outlier)), chart.point_radius(), width=1)
+    screen.set_clip(None)
 
-        text = font.render(fit_text(font, label, slot - 4), True, colours.TEXT)
-        screen.blit(text, text.get_rect(midtop=(centre, plot.bottom + 12)))
-
+    draw_category_names(screen, plot, font, [label for label, values in groups])
     draw_labels(screen, plot, font, group or "", value)
 
 

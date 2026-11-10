@@ -1,0 +1,94 @@
+# Descriptions of this pack's modules, shown when the ? on a module is clicked.
+# Each module starts with its name in square brackets, exactly as it is shown on the toolbar.
+# A blank line starts a new paragraph. Lines starting with # are notes and aren't shown.
+
+[T-Test]
+Compares means. Test sets which kind: Groups compares two separate groups, Paired compares two measures of the same people, and 1 sample compares a mean with a value you type.
+
+For Groups, click Y on one or more numeric variables and G on the column naming the two groups. Welch is on by default: it doesn't assume the groups vary by the same amount, and is safe to leave on. Turn it off for Student's t-test. For Paired, click 1st and 2nd on the two measures, such as before and after.
+
+The output gives the means, their difference with its 95% confidence interval, t, df, the p value and Cohen's d (with Hedges' g and Levene's test for Groups). The note writes the result the way a results section would. As a rule of thumb d of 0.2 is small, 0.5 medium and 0.8 large.
+
+[ANOVA]
+A between-subjects analysis of variance: tests whether the mean of a numeric outcome (Y) differs between the groups named by one to three factors (F). With two or more factors, Interact adds their interactions. Numeric covariates (C) make it an ANCOVA.
+
+Out 1 has one row per effect with its sum of squares, df, F and p value, and three effect sizes: eta squared (the share of all the variation), partial eta squared (the share once the other effects are set aside) and omega squared (a less optimistic estimate). The note reports each effect and Levene's test of equal variances. Out 2 has the mean of each group; Show switches the panel between the two.
+
+SS chooses the sums of squares. Type 3, as in SPSS, tests each effect after all the others, and is the usual choice with an interaction. Type 2 is better when there is no interaction. With equal group sizes they agree.
+
+A significant factor with three or more groups says that some groups differ, not which: follow it with Post Hoc.
+
+[RM ANOVA]
+A one-way repeated measures analysis of variance: tests whether the mean differs between three or more conditions or time points measured on the same people. The data needs one row per person and one column per condition. Click W on each condition's column, in order.
+
+Repeated measures assume sphericity: that the differences between every pair of conditions vary by the same amount. Mauchly's test checks it, and the note says which row of the table to report. When it fails, the Greenhouse-Geisser and Huynh-Feldt rows shrink the degrees of freedom to make up for it.
+
+Out 2 has the mean of each condition. Only people with every condition are used.
+
+[Post Hoc]
+Compares every pair of groups after an ANOVA, to see which ones differ. Click Y on the outcome and G on the column naming the groups.
+
+Adj sets how the p values are corrected for the number of pairs. Tukey's HSD is the usual choice. Games-Howell (G-Howell) doesn't assume the groups vary by the same amount, so use it if Levene's test in ANOVA was significant. Bonferroni multiplies each p value by the number of pairs, and Holm is a less strict version of it.
+
+Each row gives a pair's difference in means, the corrected p value and confidence interval, and Cohen's d.
+
+[Rank Tests]
+Tests for outcomes that are ordinal or far from normal, which compare ranks rather than means. Design sets the layout of the data, and the test follows from it.
+
+Groups takes an outcome (Y) and a column naming the groups (G): two groups get the Mann-Whitney U test and three or more the Kruskal-Wallis test. Repeated takes two or more measures of the same people (W), one column each: two get the Wilcoxon signed-rank test and three or more the Friedman test.
+
+Out 1 has the statistic, p value and an effect size: the rank-biserial correlation (-1 to 1) for two groups or measures, epsilon squared for Kruskal-Wallis and Kendall's W for Friedman (both 0 to 1). Out 2 has the median and mean rank of each group or measure.
+
+[Crosstab]
+Cross-tabulates two columns of categories and tests whether they are related, with the chi-square test of independence. Click R on the column for the table's rows and C on the one for its columns.
+
+Out 1 has chi-square with its df and p value, and Cramer's V, which measures the strength of the relationship from 0 to 1. For a 2 x 2 table it adds the continuity-corrected and Fisher's exact p values and the odds ratio. The note warns when too many cells expect fewer than 5 rows for the chi-square p value to be trusted.
+
+Out 2 has one row per cell with its observed and expected count, percentages and adjusted residual. A residual beyond about 2 either way marks a cell with more or fewer rows than independence would give. Show switches the panel between the two.
+
+[Correlations]
+Correlates every pair of the chosen numeric variables (V), with p values and confidence intervals. Type chooses Pearson's r for straight-line relationships, Spearman's rho for ranks, or Kendall's tau for ranks with many ties.
+
+Click C on variables to control for and the results become partial correlations: how two variables relate once the controls are held constant (Pearson and Spearman only).
+
+Out 1 has one row per pair and Out 2 the square matrix. Each pair uses the rows that have both variables. The p values are not corrected for the number of pairs.
+
+[Normality]
+Checks whether numeric variables (V) are normally distributed, as many tests assume. Each gets its skewness and kurtosis, both 0 for a normal distribution, with z scores, and the Shapiro-Wilk test: a p value below 0.05 means the variable departs from normal.
+
+Click G on a column naming groups to check each variable within each group, which is what t-tests and ANOVA actually assume. Levene's test of whether the groups vary by the same amount is then added to the note.
+
+With large samples the test flags departures too small to matter, so look at a Histogram as well.
+
+[Cronbach Alpha]
+Measures the internal consistency of a scale: how well its items hang together. Click Item on each item, and Rev on those worded in the opposite direction, which are reversed before anything is worked out.
+
+Out 1 has Cronbach's alpha with its 95% confidence interval, the standardised alpha and the mean correlation between items. As a rule of thumb, 0.7 or more is acceptable, 0.8 good and 0.9 excellent. Out 2 has each item's correlation with the rest of the scale and what alpha would be without it; the note points out items that run against the scale or weaken it.
+
+A reversed answer becomes the lowest plus the highest answer given to any item, minus itself, so every item should use the same answer scale. Only people who answered every item are used.
+
+[Scale Score]
+Adds each person's score on a scale as a new field: the Mean or the Sum of their answers to its items. Click Item on each item and Rev on those worded in the opposite direction, and type a name for the new field.
+
+Reversed items are turned round first, as in Cronbach Alpha. Someone who skipped items is scored on the ones they answered, provided they answered at least half; a Sum is then scaled up so it compares with other people's.
+
+[EFA]
+Exploratory factor analysis: finds the small number of underlying factors behind a set of variables or questionnaire items (V), by principal axis factoring.
+
+Factors sets how many to extract. Auto uses parallel analysis, keeping the factors whose eigenvalues beat those of random data. Rotate turns the factors to make them easier to read: Varimax keeps them uncorrelated, Oblimin and Promax let them correlate, which is often more realistic for psychological traits.
+
+Out 1 has each variable's loading on each factor, and its communality. Loadings of 0.4 or more either way are usually read as the variable belonging to the factor. Out 2 has the variance each factor explains and Out 3 the eigenvalues beside those of random data; Show switches between them. The note gives the KMO measure (0.6 or more is adequate) and Bartlett's test, which should be significant.
+
+[Mediation]
+Tests whether a predictor (X) affects an outcome (Y) through a mediator (M), with optional covariates (C). All must be numeric.
+
+Path a is the effect of X on M, and b the effect of M on Y with X held constant. Their product is the indirect effect: the part of X's total effect (c) that goes through M. What is left is the direct effect (c').
+
+The indirect effect's confidence interval comes from 5,000 bootstrap resamples. If it excludes zero there is evidence of mediation. The results are the same every run.
+
+[Means Plot]
+Draws the mean of a numeric outcome (Y) for each group (G), with error bars. Click By on a second grouping column to split each group, which shows whether two factors interact: lines that aren't parallel suggest they do.
+
+Style switches between bars and points joined by lines. Error sets what the error bars show: the 95% confidence interval, one standard error or one standard deviation.
+
+Like every chart, it has a Settings button to change its title, labels, scale and colours, and Export PNG to save it as a picture. The output has the numbers behind the chart.

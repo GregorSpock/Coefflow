@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from engine import clusters, dummies, panel_data
-from ui import colours
+from ui import chart
 from .. import common
 
 
@@ -125,21 +125,21 @@ def draw_chart(screen, area, font, results, means, settings):
     if fit["design"] == "Event study":
         plot = fit["plot"]
         common.draw_lines(
-            screen, area, font, [(plot["time"], plot["estimate"], colours.CHART_LINE, "Effect")],
+            screen, area, font, [(plot["time"], plot["estimate"], chart.colour("line"), "Effect")],
             "Periods relative to treatment", settings.get("dependent"),
             intervals=(plot["time"], plot["low"], plot["high"]), vertical=-0.5, horizontal=0.0,
         )
         return
     if fit["design"] == "2x2":
         series = []
-        for group, label, colour in [(1.0, "Treated", colours.CHART_LINE), (0.0, "Control", colours.CHART_POINT)]:
+        for group, label, colour in [(1.0, "Treated", chart.colour("line")), (0.0, "Control", chart.colour("point"))]:
             rows = means[(means["group"] == group)]
             series.append((list(rows["period"]), list(rows["mean_y"]), colour, label))
         common.draw_lines(screen, area, font, series, "Post period (P)", settings.get("dependent"), vertical=0.5)
         return
     series = [
-        (fit["periods"], list(means["ever_treated"]), colours.CHART_LINE, "Ever treated"),
-        (fit["periods"], list(means["never_treated"]), colours.CHART_POINT, "Never treated"),
+        (fit["periods"], list(means["ever_treated"]), chart.colour("line"), "Ever treated"),
+        (fit["periods"], list(means["never_treated"]), chart.colour("point"), "Never treated"),
     ]
     common.draw_lines(screen, area, font, series, settings.get("time"), settings.get("dependent"))
 

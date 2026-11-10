@@ -1,8 +1,9 @@
 import pygame
 
 from engine import significance
-from ui import colours, dialogs, display
+from ui import chart, colours, dialogs, display
 from ui.button import Button
+from ui.text import fit_text, wrap_text
 
 
 PANEL_WIDTH = 720
@@ -20,34 +21,11 @@ MIN_COLUMN_WIDTH = 100
 TABLE_SCROLL_ROWS = 3
 MIN_THUMB = 20
 TOGGLE_SIZE = 20
+CHART_BUTTON_WIDTH = 100
+CHART_BUTTON_HEIGHT = 26
 # How far one notch of Shift + wheel slides option labels sideways, in pixels
 LABEL_SCROLL_STEP = 40
 NOT_ALLOWED = '\\/:*?"<>|'
-
-
-# Shortens text with "..." until it fits inside a width
-def fit_text(font, text, width):
-    if font.size(text)[0] <= width:
-        return text
-    while text and font.size(text + "...")[0] > width:
-        text = text[:-1]
-    return text + "..."
-
-
-# Splits text into lines that each fit inside a width, breaking between words
-def wrap_text(font, text, width):
-    lines = []
-    line = ""
-    for word in text.split():
-        attempt = f"{line} {word}".strip()
-        if font.size(attempt)[0] <= width:
-            line = attempt
-        else:
-            lines.append(line)
-            line = word
-    if line:
-        lines.append(line)
-    return lines
 
 
 # Turns a table value into short text, keeping decimals tidy
@@ -113,7 +91,11 @@ class Panel:
     # The inputs & outputs section starts hidden, and showing or hiding it applies to every panel.
     # A module can give the options a heading with options_title, which makes them a section like the
     # preview: a fixed height of max_option_rows, shown or hidden with a box by the heading, and
-    # scrolled down with the wheel and sideways with Shift + wheel to read labels too long to fit
+    # scrolled down with the wheel and sideways with Shift + wheel to read labels too long to fit.
+    # A panel showing a chart gets a Settings button, which opens a panel to restyle the chart (see
+    # ui/chart_settings.py), and an Export PNG button to save it as a picture, both by the chart's
+    # heading. chart_axes names the axes whose scale the chart can have set there: "xy" unless the
+    # module says otherwise, "y" for a chart of categories and "" for one with no axes
     ports_expanded = False
     options_expanded = True
 
@@ -135,6 +117,13 @@ class Panel:
         self.preview_title = "Data Preview"
         self.preview = None
         self.chart = None
+        self.chart_axes = "xy"
+        self.chart_buttons = []
+        self.shown_chart_buttons = []
+        for label, action in [("Settings", Panel.open_chart_settings), ("Export PNG", Panel.export_chart)]:
+            button = Button(0, 0, CHART_BUTTON_WIDTH, CHART_BUTTON_HEIGHT, label, self.table_font, "TAB", "TAB_HOVER")
+            self.chart_buttons.append(button)
+            self.actions[button] = action
         self.note = ""
         self.message = ""
         self.refresh = None
@@ -273,7 +262,7 @@ class Panel:
                 self.scroll_table(-event.y * TABLE_SCROLL_ROWS, event.x)
             return True
 
-        for button in self.buttons + self.option_buttons():
+        for button in self.buttons + self.option_buttons() + self.shown_chart_buttons:
             if button.is_clicked(event):
                 self.actions[button](self, button)
                 return True
@@ -283,6 +272,39 @@ class Panel:
                 return True
 
         return event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEWHEEL)
+
+    # Swaps this panel for one where the chart's title, labels, scales and colours can be changed.
+    # It is imported here as it is a panel itself, so it can't be imported until this file has loaded
+    def open_chart_settings(self, button=None):
+        from ui.chart_settings import ChartSettingsPanel
+        self.next_panel = ChartSettingsPanel(self)
+
+    # Asks where to save the chart, then saves it as a PNG picture in its style
+    def export_chart(self, button=None):
+        if not self.chart:
+            return
+        path = dialogs.choose_png_path()
+        if not path:
+            return
+        try:
+            chart.export_png(self.chart, self.node.settings.get(chart.STYLE_KEY), path)
+        except (OSError, pygame.error) as error:
+            dialogs.show_message("Could not export the chart", str(error))
+
+    # Draws the given chart buttons at the right of the heading drawn at heading_top, and makes
+    # them the ones that can be clicked
+    def draw_chart_buttons(self, screen, buttons, heading_top):
+        right = self.rect.right - PADDING
+        for button in reversed(buttons):
+            button.rect.topright = (right, heading_top - 2)
+            button.draw(screen)
+            right = button.rect.left - 6
+        self.shown_chart_buttons = buttons
+
+    # Says why there is no chart when the panel is too short to fit one, as on a small screen
+    def draw_no_room(self, screen, y):
+        text = "No room to draw the chart here. Export PNG saves it in full"
+        screen.blit(self.table_font.render(text, True, colours.TEXT), (self.rect.left + PADDING, y))
 
     # Only the option buttons currently scrolled into view can be clicked
     def option_buttons(self):
@@ -339,8 +361,9 @@ class Panel:
         widths = [self.font.size(field.text[:i])[0] for i in range(len(field.text) + 1)]
         return min(range(len(widths)), key=lambda i: abs(start + widths[i] - x))
 
-    # Draws the panel, top row, text field, info lines and preview table
-    def draw(self, screen):
+    # Draws the panel's background and its top row: the buttons, the title and the line under them.
+    # Returns the y where the panel's content starts
+    def draw_frame(self, screen):
         pygame.draw.rect(screen, colours.TOOLBAR, self.rect, border_radius=colours.BUTTON_RADIUS)
         pygame.draw.rect(screen, colours.TOOLBAR_LINE, self.rect, width=2, border_radius=colours.BUTTON_RADIUS)
 
@@ -355,7 +378,12 @@ class Panel:
 
         y = self.rect.top + ROW_HEIGHT + PADDING * 2
         pygame.draw.line(screen, colours.TOOLBAR_LINE, (self.rect.left, y), (self.rect.right, y))
-        y += PADDING
+        return y + PADDING
+
+    # Draws the panel, top row, text field, info lines and preview table
+    def draw(self, screen):
+        y = self.draw_frame(screen)
+        self.shown_chart_buttons = []
 
         if self.text_field:
             self.draw_text_field(screen)
@@ -378,7 +406,8 @@ class Panel:
 
         y = self.draw_ports(screen, y)
 
-        y = self.draw_heading(screen, self.preview_title, y + PADDING)
+        heading_top = y + PADDING
+        y = self.draw_heading(screen, self.preview_title, heading_top)
 
         note_top = self.draw_note(screen)
 
@@ -392,7 +421,10 @@ class Panel:
             self.draw_table(screen, y, note_top)
         elif self.chart:
             area = pygame.Rect(self.rect.left + PADDING, y, self.rect.width - PADDING * 2, note_top - y - PADDING)
-            self.chart(screen, area)
+            chart.render(screen, area, self.chart, self.node.settings.get(chart.STYLE_KEY))
+            self.draw_chart_buttons(screen, self.chart_buttons, heading_top)
+            if not chart.has_room(area):
+                self.draw_no_room(screen, y)
         elif self.message:
             screen.blit(self.font.render(self.message, True, colours.TEXT), (self.rect.left + PADDING, y))
 
@@ -551,12 +583,16 @@ class Panel:
             screen.blit(self.font.render(line, True, colours.TEXT), (self.rect.left + PADDING, top + i * 28))
         return top - PADDING
 
-    # Draws the text field's label, box and current text, with a cursor when focused
+    # Draws the text field's label, then its box
     def draw_text_field(self, screen):
         field = self.text_field
         label = self.font.render(field.label, True, colours.TEXT)
         screen.blit(label, label.get_rect(midleft=(self.rect.left + PADDING, field.rect.centery)))
 
+        self.draw_text_box(screen, field)
+
+    # Draws a text field's box and its text, with a cursor when focused
+    def draw_text_box(self, screen, field):
         border = colours.TAB_SELECTED if field.focused else colours.TOOLBAR_LINE
         pygame.draw.rect(screen, colours.BACKGROUND, field.rect, border_radius=colours.BUTTON_RADIUS)
         pygame.draw.rect(screen, border, field.rect, width=2, border_radius=colours.BUTTON_RADIUS)

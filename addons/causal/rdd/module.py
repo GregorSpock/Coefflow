@@ -5,7 +5,7 @@ import pandas as pd
 from scipy import stats
 
 from engine import clusters, dummies, panel_data
-from ui import colours
+from ui import chart
 from .. import common
 
 
@@ -144,7 +144,7 @@ def draw_plot(screen, area, font, fit, settings):
     plot = fit["plot"]
     common.draw_lines(
         screen, area, font,
-        [(plot["left_x"], plot["left_y"], colours.CHART_LINE, None), (plot["right_x"], plot["right_y"], colours.CHART_LINE, None)],
+        [(plot["left_x"], plot["left_y"], chart.colour("line"), None), (plot["right_x"], plot["right_y"], chart.colour("line"), None)],
         settings.get("running"), settings.get("dependent"),
         vertical=fit["cutoff"], points=(plot["bin_x"], plot["bin_y"]),
     )

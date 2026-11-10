@@ -3,7 +3,7 @@ import math
 import pandas as pd
 import pygame
 
-from ui import colours
+from ui import chart, colours
 from ui.panel import Panel, fit_text
 
 
@@ -30,6 +30,7 @@ LEGEND_ROW = 24
 def on_click(node):
     panel = Panel(node, "Pie Chart")
     panel.preview_title = "Pie Chart"
+    panel.chart_axes = ""
     panel.refresh = show_pie
     show_pie(panel)
     return panel
@@ -84,10 +85,12 @@ def slices(shares, category):
     return kept + [(f"Other ({len(rows) - len(kept)})", rest)]
 
 
-# Distinct colours from the current theme for the slices, used in turn
+# Distinct colours from the current theme for the slices, used in turn: the theme's series colours,
+# then any others that differ from them. The chart's style can give the first few slices colours
+# of their own (see draw_pie)
 def slice_colours():
-    names = ["CHART_POINT", "CHART_LINE", "NODE_DONE", "NODE_ERROR", "TAB_SELECTED", "NODE_BORDER", "CONNECTION", "SUBTITLE"]
-    found = []
+    names = ["NODE_DONE", "NODE_ERROR", "TAB_SELECTED", "NODE_BORDER", "CONNECTION", "SUBTITLE"]
+    found = [colour for colour in colours.CHART_SERIES if colour != colours.TOOLBAR]
     for name in names:
         colour = getattr(colours, name)
         if colour not in found and colour != colours.TOOLBAR:
@@ -98,11 +101,14 @@ def slice_colours():
 # Draws the pie on the left of area and a legend of labels and percentages on the right.
 # Slices start at the top and go clockwise, largest first
 def draw_pie(screen, area, font, pie_slices):
-    legend_width = min(LEGEND_WIDTH, area.width // 2)
+    font = chart.text_font(font)
+    legend_width = min(chart.scaled(font, LEGEND_WIDTH), area.width // 2) if chart.shows("key") else 0
+    legend_row = chart.scaled(font, LEGEND_ROW)
     pie_area = pygame.Rect(area.left, area.top, area.width - legend_width, area.height)
     radius = max(10, min(pie_area.width, pie_area.height) // 2 - 10)
     centre = pie_area.center
-    palette = slice_colours()
+    theme = slice_colours()
+    palette = [chart.series_colour(i, theme[i % len(theme)]) for i in range(len(pie_slices))]
 
     angle = -math.pi / 2
     for i, (label, share) in enumerate(pie_slices):
@@ -112,22 +118,24 @@ def draw_pie(screen, area, font, pie_slices):
         for step in range(steps + 1):
             a = angle + sweep * step / steps
             points.append((centre[0] + radius * math.cos(a), centre[1] + radius * math.sin(a)))
-        pygame.draw.polygon(screen, palette[i % len(palette)], points)
+        pygame.draw.polygon(screen, palette[i], points)
         if len(pie_slices) > 1:
-            pygame.draw.polygon(screen, colours.TOOLBAR, points, width=2)
+            pygame.draw.polygon(screen, chart.colour("background"), points, width=2)
         angle += sweep
-    pygame.draw.circle(screen, colours.TOOLBAR_LINE, centre, radius, width=2)
+    pygame.draw.circle(screen, chart.colour("border"), centre, radius, width=2)
+    if not chart.shows("key"):
+        return
 
     left = pie_area.right + 10
-    top = area.centery - len(pie_slices) * LEGEND_ROW // 2
+    top = area.centery - len(pie_slices) * legend_row // 2
     for i, (label, share) in enumerate(pie_slices):
-        y = top + i * LEGEND_ROW
-        pygame.draw.rect(screen, palette[i % len(palette)], (left, y, SWATCH, SWATCH))
+        y = top + i * legend_row
+        pygame.draw.rect(screen, palette[i], (left, y, SWATCH, SWATCH))
         percent = f"{share * 100:.1f}%"
         percent_width = font.size(percent)[0]
         text = fit_text(font, label, area.right - left - SWATCH - percent_width - 24)
-        screen.blit(font.render(text, True, colours.TEXT), (left + SWATCH + 8, y))
-        screen.blit(font.render(percent, True, colours.TEXT), (area.right - percent_width, y))
+        screen.blit(font.render(text, True, chart.colour("text")), (left + SWATCH + 8, y))
+        screen.blit(font.render(percent, True, chart.colour("text")), (area.right - percent_width, y))
 
 
 # Lists the columns with buttons to choose the category and the value, then draws the pie

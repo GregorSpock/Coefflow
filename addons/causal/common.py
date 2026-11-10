@@ -4,8 +4,8 @@ import pygame
 from scipy import stats
 
 from engine import clusters, dummies, panel_data
-from ui import colours
-from ui.chart import BOTTOM_MARGIN, LEFT_MARGIN, draw_axes, draw_labels, padded_range
+from ui import chart
+from ui.chart import draw_axes, draw_labels, padded_range
 from ui.clusters import add_cluster_button
 from ui.panel import Panel
 
@@ -216,7 +216,8 @@ def number_text(value):
 # drawn with a dot at each point. intervals gives (x values, lows, highs) drawn as bars around the
 # first series. vertical is an x value marked with a dashed line, e.g. a cutoff, and horizontal a y value
 def draw_lines(screen, area, font, series, x_label, y_label, intervals=None, vertical=None, horizontal=None, points=None):
-    plot = pygame.Rect(area.left + LEFT_MARGIN, area.top + 10, area.width - LEFT_MARGIN - 10, area.height - BOTTOM_MARGIN - 10)
+    font = chart.text_font(font)
+    plot = chart.plot_rect(area, font)
     xs = [x for s in series for x in s[0]] + ([x for x in points[0]] if points else [])
     ys = [y for s in series for y in s[1]] + ([y for y in points[1]] if points else [])
     if intervals:
@@ -226,8 +227,8 @@ def draw_lines(screen, area, font, series, x_label, y_label, intervals=None, ver
     ys = [y for y in ys if np.isfinite(y)]
     if not xs or not ys:
         return
-    x_low, x_high = padded_range(xs)
-    y_low, y_high = padded_range(ys)
+    x_low, x_high = chart.axis_range("x", *padded_range(xs))
+    y_low, y_high = chart.axis_range("y", *padded_range(ys))
 
     def to_screen(x, y):
         return (plot.left + (x - x_low) / (x_high - x_low) * plot.width,
@@ -238,7 +239,7 @@ def draw_lines(screen, area, font, series, x_label, y_label, intervals=None, ver
         for step in range(0, length, DASH * 2):
             a = step / length
             b = min(step + DASH, length) / length
-            pygame.draw.line(screen, colours.TEXT, (start[0] + a * (end[0] - start[0]), start[1] + a * (end[1] - start[1])),
+            pygame.draw.line(screen, chart.colour("text"), (start[0] + a * (end[0] - start[0]), start[1] + a * (end[1] - start[1])),
                              (start[0] + b * (end[0] - start[0]), start[1] + b * (end[1] - start[1])), 1)
 
     draw_axes(screen, plot, font, x_low, x_high, y_low, y_high)
@@ -250,15 +251,15 @@ def draw_lines(screen, area, font, series, x_label, y_label, intervals=None, ver
     if points:
         for x, y in zip(*points):
             if np.isfinite(y):
-                pygame.draw.circle(screen, colours.CHART_POINT, to_screen(x, y), 3)
+                pygame.draw.circle(screen, chart.colour("point"), to_screen(x, y), chart.point_radius())
     if intervals:
         for x, low, high in zip(*intervals):
             if np.isfinite(low) and np.isfinite(high):
-                pygame.draw.line(screen, colours.CHART_POINT, to_screen(x, low), to_screen(x, high), 2)
+                pygame.draw.line(screen, chart.colour("point"), to_screen(x, low), to_screen(x, high), 2)
     for x_values, y_values, colour, label in series:
         screen_points = [to_screen(x, y) for x, y in zip(x_values, y_values) if np.isfinite(y)]
         if len(screen_points) > 1:
-            pygame.draw.lines(screen, colour, False, screen_points, 3)
+            pygame.draw.lines(screen, colour, False, screen_points, chart.line_width())
         if label is not None:
             for point in screen_points:
                 pygame.draw.circle(screen, colour, point, 4)
@@ -267,9 +268,9 @@ def draw_lines(screen, area, font, series, x_label, y_label, intervals=None, ver
     # A legend in the top left corner for the series that have a label
     y = plot.top + 6
     for x_values, y_values, colour, label in series:
-        if label:
+        if label and chart.shows("key"):
             pygame.draw.line(screen, colour, (plot.left + 8, y + 8), (plot.left + 28, y + 8), 3)
-            text = font.render(label, True, colours.TEXT)
+            text = font.render(label, True, chart.colour("text"))
             screen.blit(text, (plot.left + 34, y))
             y += text.get_height() + 4
     draw_labels(screen, plot, font, x_label, y_label)
