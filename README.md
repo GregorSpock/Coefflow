@@ -47,11 +47,9 @@ You need **Python 3.10 or newer**.
    python main.py
    ```
 
-**On Windows you can skip steps 2 and 3:** double-click **`Coefflow.exe`** in the Coefflow folder. It finds Python 3.10–3.13 (offering to install Python 3.13 for you if it is missing), installs the packages the first time, then opens the app. Keep it in the same folder as `main.py`. After the first run, Coefflow appears in the Start menu, so you can just search for it from the taskbar (run `Coefflow.exe --unregister` to remove that entry).
+**On Windows you can skip steps 2 and 3:** double-click **`Coefflow.exe`** in the Coefflow folder. It finds Python 3.10–3.13 (offering to install Python 3.13 for you if it is missing), installs the packages the first time (a download of about 250 MB), then opens the app. If the app can't open, it says why. Keep it in the same folder as `main.py`. After the first run, Coefflow appears in the Start menu, so you can just search for it from the taskbar (run `Coefflow.exe --unregister` to remove that entry).
 
-**Installing and updating on Windows:** **`CoefflowInstaller.exe`** downloads Coefflow with git (offering to install git if you don't have it) and adds it to the Start menu. Run it again at any time to check GitHub for a newer version and update to it. It can also convert a copy you downloaded as a ZIP so it can be updated. Updates never overwrite your settings, workflows, outputs or the add-on packs you've added yourself.
-
-> **v0.3.0:** `CoefflowInstaller.exe` and `Coefflow.exe` have not been updated for this release and have not yet been tried against it. If Coefflow doesn't start after installing or updating with them, use steps 1 to 3 above instead. See [What's New](https://github.com/GregorSpock/Coefflow/wiki/Whats-New).
+**Installing and updating on Windows:** **`CoefflowInstaller.exe`** downloads Coefflow with git (offering to install git if you don't have it) and adds it to the Start menu. Run it again at any time to check GitHub for a newer version and update to it. It can also convert a copy you downloaded as a ZIP so it can be updated. Updates never overwrite your settings, workflows, outputs or the add-on packs you've added yourself, and if you have changed one of Coefflow's own files that an update replaces, your copy is kept in a `backup` folder first.
 
 Then follow **[Building Your First Workflow](https://github.com/GregorSpock/Coefflow/wiki/Building-Your-First-Workflow)**, a ten-minute guide from an empty canvas to a saved regression.
 

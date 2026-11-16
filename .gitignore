@@ -5,4 +5,5 @@ __pycache__/
 temp/
 output/
 workflows/
+backup/
 preferences.json
