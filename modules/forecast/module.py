@@ -5,13 +5,15 @@ from statsmodels.tsa.arima.model import ARIMA
 
 from engine import fits
 from modules.arimax.module import read_time
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 INPUTS = 2
+# In 1 is drawn as a model, but also takes a plain coefficient table that was saved and loaded again
+INPUT_TYPES = [("model", "table"), "table"]
 OUTPUTS = 1
 INPUT_SPECS = [
-    ("Coefficients", "Out 1 of a regression: OLS, Auto OLS, Logit, Probit, ARIMAX, or Ologit and Oprobit from the Ordered add-on. A coefficient table that was saved and loaded again works too, except for ARIMAX"),
+    ("Coefficients", "Out 1 of a regression: OLS, Auto OLS, Logit, Probit, ARIMAX (seasonal too), Count, Tobit, Quantile Reg, or Ologit and Oprobit from the Ordered add-on. A coefficient table that was saved and loaded again works too, except for ARIMAX"),
     ("New data", "a table with the fields the model was fitted on, other than Y; for ARIMAX, one row per future period. If it has the Y field too, the forecasts are scored against it"),
 ]
 OUTPUT_SPECS = [
@@ -22,7 +24,8 @@ OUTPUT_SPECS = [
 LEVELS = [0.8, 0.9, 0.95, 0.99]
 # The Model button's choices: auto uses what the coefficient table says about itself
 MODEL_CHOICES = ["auto"] + list(fits.KINDS)
-SHORT_NAMES = {"auto": "Auto-detect", "linear": "OLS", "logit": "Logit", "probit": "Probit", "ologit": "Ologit", "oprobit": "Oprobit", "arimax": "ARIMAX"}
+SHORT_NAMES = {"auto": "Auto-detect", "linear": "OLS", "logit": "Logit", "probit": "Probit", "ologit": "Ologit", "oprobit": "Oprobit",
+               "arimax": "ARIMAX", "count": "Count", "tobit": "Tobit", "quantile": "Quantile"}
 LINKS = {"logit": stats.logistic, "probit": stats.norm, "ologit": stats.logistic, "oprobit": stats.norm}
 INTERCEPT = ["Intercept", "const"]
 
@@ -74,6 +77,9 @@ def model_of(coefficients, settings):
             raise ValueError("In 1 needs a coefficient table with variable and coefficient columns, like Out 1 of OLS")
 
     fit = coefficients.attrs.get("fit", {})
+    if fit.get("kind") in fits.OTHER_KINDS:
+        extra = " Out 3 of GARCH forecasts its volatility." if fit["kind"] == "garch" else ""
+        raise ValueError(f"Forecast can't carry a {fits.OTHER_KINDS[fit['kind']]} model on to new rows.{extra}")
     chosen = settings.get("model", "auto")
     if chosen != "auto":
         return chosen, fit if fit.get("kind") == chosen else {}
@@ -167,6 +173,63 @@ def forecast_linear(data, coefficients, fit, level, notes):
         output["upper"] = forecast + critical * spread
     else:
         notes.append("No prediction intervals: the coefficient table has lost its record of the fit, e.g. by being saved and loaded again or having rows removed.")
+    return output
+
+
+# Count models: the expected count is exp(Xb), times the exposure when the model had one, and for
+# a zero-inflated model times the chance of not being an excess zero
+def forecast_count(data, coefficients, fit, notes):
+    roles = coefficients["role"].astype(str) if "role" in coefficients else pd.Series("", index=coefficients.index)
+    main = ~roles.isin(["Alpha", "Inflate"])
+    names, beta = coefficients_of(coefficients, main)
+    terms = term_values(data, names, fit.get("levels", {}), notes)
+    index = terms.to_numpy(float) @ beta
+    exposure = fit.get("exposure")
+    if exposure:
+        if exposure not in data:
+            raise ValueError(f"The model was fitted with exposure {exposure}, which the new data doesn't have")
+        index = index + np.log(pd.to_numeric(data[exposure], errors="coerce").to_numpy(float))
+    forecast = np.exp(index)
+    inflate = roles == "Inflate"
+    if inflate.any():
+        inflate_names, gamma = coefficients_of(coefficients, inflate)
+        inflate_names = [n.replace("inflate: ", "", 1) for n in inflate_names]
+        z = term_values(data, inflate_names, fit.get("levels", {}), notes).to_numpy(float) @ gamma
+        forecast = forecast * (1 - stats.logistic.cdf(z))
+    note_gaps(forecast, notes, unseen_rows(terms))
+    output = data.copy()
+    output["forecast"] = forecast
+    return output
+
+
+# Tobit: Xb is the latent value; the forecast is the expected observed value allowing for the limits
+def forecast_tobit(data, coefficients, fit, notes):
+    rows = coefficients["variable"].astype(str) != "sigma"
+    names, beta = coefficients_of(coefficients, rows)
+    terms = term_values(data, names, fit.get("levels", {}), notes)
+    xb = terms.to_numpy(float) @ beta
+    note_gaps(xb, notes, unseen_rows(terms))
+    output = data.copy()
+    output["xb"] = xb
+    if fit.get("sigma"):
+        from modules.tobit.module import expected
+        output["forecast"], output["prob_uncensored"] = expected(xb, fit["sigma"], fit.get("lower"), fit.get("upper"))
+    else:
+        output["forecast"] = xb
+        notes.append("The table has lost its record of sigma, so the forecast is the latent Xb.")
+    return output
+
+
+# Quantile regression: the forecast is that quantile of Y given the new rows' fields
+def forecast_quantile(data, coefficients, fit, notes):
+    names, beta = coefficients_of(coefficients)
+    terms = term_values(data, names, fit.get("levels", {}), notes)
+    forecast = terms.to_numpy(float) @ beta
+    note_gaps(forecast, notes, unseen_rows(terms))
+    output = data.copy()
+    output["forecast"] = forecast
+    if fit.get("quantile") is not None:
+        notes.append(f"Each forecast is the {fit['quantile']:g} quantile of Y for that row, not its mean.")
     return output
 
 
@@ -286,7 +349,8 @@ def forecast_arimax(data, coefficients, fit, level, notes):
     future = future_exog(data, fit)
 
     exog = pd.DataFrame(fit["exog"], columns=list(fit["exog_labels"])) if fit["exog_labels"] else None
-    model = ARIMA(pd.Series(fit["y"]), exog=exog, order=fit["order"], trend=fit["trend"])
+    model = ARIMA(pd.Series(fit["y"]), exog=exog, order=fit["order"], seasonal_order=tuple(fit.get("seasonal_order") or (0, 0, 0, 0)),
+                  trend=fit["trend"])
     result = model.filter(params)
     frame = result.get_forecast(len(data), exog=future).summary_frame(alpha=1 - level)
 
@@ -303,7 +367,7 @@ def score(output, kind, dependent, notes):
         return
     actual = pd.to_numeric(output[dependent], errors="coerce")
 
-    if kind in ("linear", "arimax"):
+    if kind in ("linear", "arimax", "count", "tobit", "quantile"):
         output["error"] = actual - output["forecast"]
         errors = output["error"].dropna()
         if len(errors):
@@ -333,6 +397,12 @@ def forecast(inputs, settings):
         output = forecast_binary(data, coefficients, fit, kind, notes)
     elif kind in ("ologit", "oprobit"):
         output = forecast_ordered(data, coefficients, fit, kind, notes)
+    elif kind == "count":
+        output = forecast_count(data, coefficients, fit, notes)
+    elif kind == "tobit":
+        output = forecast_tobit(data, coefficients, fit, notes)
+    elif kind == "quantile":
+        output = forecast_quantile(data, coefficients, fit, notes)
     else:
         output = forecast_arimax(data, coefficients, fit, level, notes)
 

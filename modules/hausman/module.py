@@ -2,10 +2,12 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 INPUTS = 2
+# Both inputs need the fit a regression keeps with its coefficients, so only a model can be connected
+INPUT_TYPES = ["model", "model"]
 OUTPUTS = 1
 INPUT_SPECS = [
     ("Fixed effects", "Out 1 (the coefficient table) of Fixed Effects, connected directly"),

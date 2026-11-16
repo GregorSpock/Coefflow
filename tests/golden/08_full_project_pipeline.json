@@ -1,0 +1,647 @@
+{
+ "nodes": {
+  "1": {
+   "error": null,
+   "name": "Input Data",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours"
+     ],
+     "shape": [
+      600,
+      12
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "10": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "11": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "12": {
+   "error": null,
+   "name": "Fixed Effects",
+   "outputs": [
+    {
+     "attrs": {
+      "balanced": true,
+      "entities": 20,
+      "error_variance": 0.4423963971346711,
+      "f_effects": 9.938510165853115,
+      "f_effects_p": 4.757344621739162e-24,
+      "model": "Fixed Effects",
+      "observations": 460,
+      "periods_max": 23,
+      "periods_mean": 23.0,
+      "periods_min": 23,
+      "r_squared_between": 0.04648317807259499,
+      "r_squared_overall": 0.6766098257373385,
+      "r_squared_within": 0.7879227528767387,
+      "rho": 0.36844944780304645,
+      "robust": true,
+      "sigma_e": 0.665128857541658,
+      "sigma_u": 0.5080315526132104,
+      "time_effects": true
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      28,
+      7
+     ],
+     "sums": {
+      "coefficient": 8.451995475044615,
+      "p_value": 13.039815673152063,
+      "std_error": 5.872677955422537,
+      "t_stat": -14.511997637583038
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "wage_growth",
+      "unemployment_lag",
+      "unemployment_change",
+      "degree_share_1995",
+      "degree_gain",
+      "regional_mean_unemployment",
+      "fitted",
+      "residual",
+      "effect"
+     ],
+     "shape": [
+      460,
+      22
+     ],
+     "sums": {
+      "avg_weekly_hours": 14069.400000000001,
+      "bank_rate": 1225.2000000000003,
+      "degree_gain": 2484.8999999999996,
+      "degree_share": 13722.7,
+      "degree_share_1995": 11237.8,
+      "effect": -3.694822225952521e-12,
+      "fitted": 9.200000000000077,
+      "gdp_growth": 654.5,
+      "house_price_k": 114597.20000000001,
+      "inflation": 1872.6,
+      "log_wage": 2800.7839492249236,
+      "median_weekly_wage": 204963.0,
+      "population_k": 2504280.0,
+      "regional_mean_unemployment": 3551.8899999999994,
+      "residual": -7.993605777301127e-14,
+      "unemployment": 3558.5,
+      "unemployment_change": 9.2,
+      "unemployment_lag": 3549.3,
+      "urban": 207.0,
+      "wage_growth": 972.2249834015325,
+      "year": 923220.0
+     }
+    }
+   ]
+  },
+  "13": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "14": {
+   "error": null,
+   "name": "Bar Chart",
+   "outputs": []
+  },
+  "15": {
+   "error": null,
+   "name": "Scatter",
+   "outputs": []
+  },
+  "2": {
+   "error": null,
+   "name": "Gen",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "wage_growth",
+      "unemployment_lag",
+      "unemployment_change"
+     ],
+     "shape": [
+      600,
+      16
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "unemployment_change": 4.899999999999996,
+      "unemployment_lag": 4479.2,
+      "urban": 270.0,
+      "wage_growth": 1217.825982595441,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "3": {
+   "error": null,
+   "name": "Filter",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "degree_share_1995"
+     ],
+     "shape": [
+      20,
+      2
+     ],
+     "sums": {
+      "degree_share_1995": 488.6
+     }
+    }
+   ]
+  },
+  "4": {
+   "error": null,
+   "name": "Join",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "wage_growth",
+      "unemployment_lag",
+      "unemployment_change",
+      "degree_share_1995"
+     ],
+     "shape": [
+      600,
+      17
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "degree_share_1995": 14658.0,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "unemployment_change": 4.899999999999996,
+      "unemployment_lag": 4479.2,
+      "urban": 270.0,
+      "wage_growth": 1217.825982595441,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "5": {
+   "error": null,
+   "name": "Gen",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "wage_growth",
+      "unemployment_lag",
+      "unemployment_change",
+      "degree_share_1995",
+      "degree_gain",
+      "regional_mean_unemployment"
+     ],
+     "shape": [
+      600,
+      19
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_gain": 3926.1,
+      "degree_share": 18584.1,
+      "degree_share_1995": 14658.0,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "regional_mean_unemployment": 4632.9,
+      "unemployment": 4632.900000000001,
+      "unemployment_change": 4.899999999999996,
+      "unemployment_lag": 4479.2,
+      "urban": 270.0,
+      "wage_growth": 1217.825982595441,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "6": {
+   "error": null,
+   "name": "Filter",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "wage_growth",
+      "unemployment_lag",
+      "unemployment_change",
+      "degree_share_1995",
+      "degree_gain",
+      "regional_mean_unemployment"
+     ],
+     "shape": [
+      580,
+      19
+     ],
+     "sums": {
+      "avg_weekly_hours": 17639.699999999997,
+      "bank_rate": 1458.8000000000002,
+      "degree_gain": 3926.1000000000004,
+      "degree_share": 18095.5,
+      "degree_share_1995": 14169.4,
+      "gdp_growth": 811.2,
+      "house_price_k": 155799.0,
+      "inflation": 2367.0,
+      "log_wage": 3560.6212203232485,
+      "median_weekly_wage": 272683.0,
+      "population_k": 3210754.0,
+      "regional_mean_unemployment": 4478.469999999999,
+      "unemployment": 4484.099999999999,
+      "unemployment_change": 4.899999999999999,
+      "unemployment_lag": 4479.2,
+      "urban": 261.0,
+      "wage_growth": 1217.825982595441,
+      "year": 1165800.0
+     }
+    }
+   ]
+  },
+  "7": {
+   "error": null,
+   "name": "Split",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "wage_growth",
+      "unemployment_lag",
+      "unemployment_change",
+      "degree_share_1995",
+      "degree_gain",
+      "regional_mean_unemployment"
+     ],
+     "shape": [
+      460,
+      19
+     ],
+     "sums": {
+      "avg_weekly_hours": 14069.400000000001,
+      "bank_rate": 1225.2000000000003,
+      "degree_gain": 2484.8999999999996,
+      "degree_share": 13722.7,
+      "degree_share_1995": 11237.8,
+      "gdp_growth": 654.5,
+      "house_price_k": 114597.20000000001,
+      "inflation": 1872.6,
+      "log_wage": 2800.7839492249236,
+      "median_weekly_wage": 204963.0,
+      "population_k": 2504280.0,
+      "regional_mean_unemployment": 3551.8899999999994,
+      "unemployment": 3558.5,
+      "unemployment_change": 9.2,
+      "unemployment_lag": 3549.3,
+      "urban": 207.0,
+      "wage_growth": 972.2249834015325,
+      "year": 923220.0
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "wage_growth",
+      "unemployment_lag",
+      "unemployment_change",
+      "degree_share_1995",
+      "degree_gain",
+      "regional_mean_unemployment"
+     ],
+     "shape": [
+      120,
+      19
+     ],
+     "sums": {
+      "avg_weekly_hours": 3570.3,
+      "bank_rate": 233.60000000000002,
+      "degree_gain": 1441.2,
+      "degree_share": 4372.799999999999,
+      "degree_share_1995": 2931.6000000000004,
+      "gdp_growth": 156.7,
+      "house_price_k": 41201.8,
+      "inflation": 494.4,
+      "log_wage": 759.8372710983249,
+      "median_weekly_wage": 67720.0,
+      "population_k": 706474.0,
+      "regional_mean_unemployment": 926.58,
+      "unemployment": 925.5999999999999,
+      "unemployment_change": -4.299999999999999,
+      "unemployment_lag": 929.9000000000001,
+      "urban": 54.0,
+      "wage_growth": 245.6009991939085,
+      "year": 242580.0
+     }
+    }
+   ]
+  },
+  "8": {
+   "error": null,
+   "name": "OLS",
+   "outputs": [
+    {
+     "attrs": {
+      "adj_r_squared": 0.6735948886945751,
+      "breusch_pagan_p": 9.178769246253145e-12,
+      "observations": 460,
+      "r_squared": 0.677150499928839,
+      "robust": false
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      6,
+      7
+     ],
+     "sums": {
+      "coefficient": 6.239679537182374,
+      "p_value": 0.542498036688322,
+      "std_error": 0.6649070149623892,
+      "t_stat": -18.630694242640836
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "wage_growth",
+      "unemployment_lag",
+      "unemployment_change",
+      "degree_share_1995",
+      "degree_gain",
+      "regional_mean_unemployment",
+      "fitted",
+      "residual"
+     ],
+     "shape": [
+      460,
+      21
+     ],
+     "sums": {
+      "avg_weekly_hours": 14069.400000000001,
+      "bank_rate": 1225.2000000000003,
+      "degree_gain": 2484.8999999999996,
+      "degree_share": 13722.7,
+      "degree_share_1995": 11237.8,
+      "fitted": 9.200000000001756,
+      "gdp_growth": 654.5,
+      "house_price_k": 114597.20000000001,
+      "inflation": 1872.6,
+      "log_wage": 2800.7839492249236,
+      "median_weekly_wage": 204963.0,
+      "population_k": 2504280.0,
+      "regional_mean_unemployment": 3551.8899999999994,
+      "residual": -1.7621459846850485e-12,
+      "unemployment": 3558.5,
+      "unemployment_change": 9.2,
+      "unemployment_lag": 3549.3,
+      "urban": 207.0,
+      "wage_growth": 972.2249834015325,
+      "year": 923220.0
+     }
+    }
+   ]
+  },
+  "9": {
+   "error": null,
+   "name": "Forecast",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "wage_growth",
+      "unemployment_lag",
+      "unemployment_change",
+      "degree_share_1995",
+      "degree_gain",
+      "regional_mean_unemployment",
+      "forecast",
+      "lower",
+      "upper",
+      "error"
+     ],
+     "shape": [
+      120,
+      23
+     ],
+     "sums": {
+      "avg_weekly_hours": 3570.3,
+      "bank_rate": 233.60000000000002,
+      "degree_gain": 1441.2,
+      "degree_share": 4372.799999999999,
+      "degree_share_1995": 2931.6000000000004,
+      "error": 7.182270254271748,
+      "forecast": -11.482270254271747,
+      "gdp_growth": 156.7,
+      "house_price_k": 41201.8,
+      "inflation": 494.4,
+      "log_wage": 759.8372710983249,
+      "lower": -200.56401879551674,
+      "median_weekly_wage": 67720.0,
+      "population_k": 706474.0,
+      "regional_mean_unemployment": 926.58,
+      "unemployment": 925.5999999999999,
+      "unemployment_change": -4.299999999999999,
+      "unemployment_lag": 929.9000000000001,
+      "upper": 177.5994782869732,
+      "urban": 54.0,
+      "wage_growth": 245.6009991939085,
+      "year": 242580.0
+     }
+    }
+   ]
+  }
+ },
+ "problems": []
+}

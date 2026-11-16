@@ -1,0 +1,341 @@
+{
+ "nodes": {
+  "1": {
+   "error": null,
+   "name": "Input Data",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours"
+     ],
+     "shape": [
+      600,
+      12
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "2": {
+   "error": null,
+   "name": "Gen",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "log_house_price",
+      "gdp_growth_lag"
+     ],
+     "shape": [
+      600,
+      15
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "gdp_growth_lag": 810.2,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_house_price": 3326.8418868710833,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "3": {
+   "error": null,
+   "name": "OLS",
+   "outputs": [
+    {
+     "attrs": {
+      "adj_r_squared": 0.891972848247578,
+      "breusch_pagan_p": 0.22819740753586543,
+      "observations": 600,
+      "r_squared": 0.8959404564922413,
+      "robust": false
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      23,
+      7
+     ],
+     "sums": {
+      "coefficient": 2.630805730313638,
+      "p_value": 0.5633256581037384,
+      "std_error": 0.13720649875570612,
+      "t_stat": -268.59864040223414
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "log_house_price",
+      "gdp_growth_lag",
+      "fitted",
+      "residual"
+     ],
+     "shape": [
+      600,
+      17
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "fitted": 3677.655429477699,
+      "gdp_growth": 841.8,
+      "gdp_growth_lag": 810.2,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_house_price": 3326.8418868710833,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "residual": -1.177724584522366e-12,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "4": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "5": {
+   "error": null,
+   "name": "OLS",
+   "outputs": [
+    {
+     "attrs": {
+      "adj_r_squared": 0.4441405286765838,
+      "breusch_pagan_p": 1.8327002051593435e-17,
+      "observations": 580,
+      "r_squared": 0.4479806631934987,
+      "robust": true
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      5,
+      7
+     ],
+     "sums": {
+      "coefficient": 8.643531150520483,
+      "p_value": 1.1370785648398254,
+      "std_error": 0.15717721751392247,
+      "t_stat": 90.20394402889369
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "log_house_price",
+      "gdp_growth_lag",
+      "fitted",
+      "residual"
+     ],
+     "shape": [
+      580,
+      17
+     ],
+     "sums": {
+      "avg_weekly_hours": 17639.699999999997,
+      "bank_rate": 1458.8000000000002,
+      "degree_share": 18095.5,
+      "fitted": 4484.100000000004,
+      "gdp_growth": 811.2,
+      "gdp_growth_lag": 810.2,
+      "house_price_k": 155799.0,
+      "inflation": 2367.0,
+      "log_house_price": 3225.847604253229,
+      "log_wage": 3560.6212203232485,
+      "median_weekly_wage": 272683.0,
+      "population_k": 3210754.0,
+      "residual": -4.337863401815412e-12,
+      "unemployment": 4484.099999999999,
+      "urban": 261.0,
+      "year": 1165800.0
+     }
+    }
+   ]
+  },
+  "6": {
+   "error": null,
+   "name": "Scatter",
+   "outputs": []
+  },
+  "7": {
+   "error": null,
+   "name": "Auto OLS",
+   "outputs": [
+    {
+     "attrs": {
+      "adj_r_squared": 0.9460526303960501,
+      "breusch_pagan_p": 1.1425749628809909e-08,
+      "models_tried": 256,
+      "observations": 600,
+      "r_squared": 0.9467731294892582,
+      "robust": true
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      9,
+      7
+     ],
+     "sums": {
+      "coefficient": -0.5201809272469038,
+      "p_value": 0.48323165692685954,
+      "std_error": 0.3122868093443849,
+      "t_stat": -1.8906230487705997
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "log_house_price",
+      "gdp_growth_lag",
+      "fitted",
+      "residual"
+     ],
+     "shape": [
+      600,
+      17
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "fitted": 3326.8418868710646,
+      "gdp_growth": 841.8,
+      "gdp_growth_lag": 810.2,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_house_price": 3326.8418868710833,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "residual": 1.8711254767822538e-11,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "8": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  }
+ },
+ "problems": []
+}

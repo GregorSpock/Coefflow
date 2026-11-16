@@ -6,11 +6,13 @@ from modules.arimax.module import (
     MAX_AR, MAX_DIFF, MAX_MA, SPARE_ROWS, chosen_series, choose_role, cycle_lag, lag_of, lag_text,
     next_series, number_text, role_of, toggle_constant, toggle_lag_zero,
 )
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 INPUTS = 1
 OUTPUTS = 3
+# Out 1 carries the fit as well as the coefficients, so Forecast and Reg Table can use it (see engine/ports.py)
+OUTPUT_TYPES = ["model", "table", "table"]
 INPUT_SPECS = [
     ("Data", "a time series table: numeric Y, X and C columns, a time column (T), and a group column (G) if it holds several series"),
 ]

@@ -8,8 +8,8 @@ from statsmodels.tools.sm_exceptions import ConvergenceWarning
 
 from engine import clusters, dummies, fits, significance
 from modules.logit.module import clear_role, role_of
-from ui.clusters import add_cluster_button
-from ui.panel import Panel
+from engine.cluster_panel import add_cluster_button
+from engine.panel import Panel
 
 
 # Shared by the Ordered pack's modules: the panel where variables get roles, the checks on an

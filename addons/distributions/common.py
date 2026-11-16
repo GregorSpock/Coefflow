@@ -3,11 +3,11 @@ import re
 
 import numpy as np
 import pandas as pd
-import pygame
 
-from ui import chart
-from ui.chart import draw_axes, draw_labels
-from ui.panel import Panel
+from engine.draw import Rect
+from engine import chart
+from engine.chart import draw_axes, draw_labels
+from engine.panel import Panel
 
 
 # Shared by the Distributions pack's modules. Each module describes its distribution with a
@@ -121,6 +121,12 @@ def table(distribution, dist):
     return pd.DataFrame({"x": x, "density": dist.pdf(x), "cdf": dist.cdf(x)})
 
 
+# True if a node draws a new random sample on every run: one in Sample mode with no seed set.
+# Each distribution module gives this as its ALWAYS_RUN, so a run never keeps an old sample
+def draws_new_sample(settings):
+    return settings.get("mode", "Table") == "Sample" and "seed" not in settings.get("text", "").lower()
+
+
 # size random draws as one column named after the distribution, the same draws every time if seed is set
 def sample(distribution, dist, values):
     size = int(values.get("size", DEFAULT_SIZE))
@@ -200,7 +206,7 @@ def sample_bars(distribution, draws, low, high):
 # Draws the distribution inside area: bars for each value of a discrete one, or a curve for a
 # continuous one, with the area up to x filled in and a line at x if x was typed.
 # With draws, a histogram of them is drawn under the distribution's curve instead
-def draw_chart(screen, area, font, distribution, dist, x=None, draws=None):
+def draw_chart(painter, area, font, distribution, dist, x=None, draws=None):
     font = chart.text_font(font)
     plot = chart.plot_rect(area, font)
     points = table(distribution, dist)
@@ -227,20 +233,20 @@ def draw_chart(screen, area, font, distribution, dist, x=None, draws=None):
     def draw_bar(start, end, height, colour):
         left, top = to_screen(start, height)
         right, bottom = to_screen(end, 0)
-        pygame.draw.rect(screen, colour, pygame.Rect(round(left), round(top), max(1, round(right) - round(left)), round(bottom) - round(top)))
+        painter.rect(colour, Rect(round(left), round(top), max(1, round(right) - round(left)), round(bottom) - round(top)))
 
-    draw_axes(screen, plot, font, x_low, x_high, y_low, y_high)
-    screen.set_clip(plot)
+    draw_axes(painter, plot, font, x_low, x_high, y_low, y_high)
+    painter.set_clip(plot)
 
     if bars:
         for start, end, height in bars:
             draw_bar(start, end, height, chart.colour("point"))
         curve = [to_screen(a, b) for a, b in zip(xs, ys)]
         if len(curve) > 1:
-            pygame.draw.lines(screen, chart.colour("line"), False, curve, chart.line_width())
+            painter.lines(chart.colour("line"), curve, chart.line_width())
         if distribution.discrete and len(curve) <= plot.width / 3:
             for point in curve:
-                pygame.draw.circle(screen, chart.colour("line"), point, 4)
+                painter.circle(chart.colour("line"), point, 4)
     elif distribution.discrete and len(xs) <= plot.width / 3:
         for k, p in zip(xs, ys):
             colour = chart.colour("line") if x is not None and k <= x else chart.colour("point")
@@ -249,18 +255,18 @@ def draw_chart(screen, area, font, distribution, dist, x=None, draws=None):
         if x is not None and x > xs[0]:
             under = [to_screen(xs[0], 0)] + [to_screen(a, b) for a, b in zip(xs, ys) if a <= x]
             under += [to_screen(x, np.interp(x, xs, ys)), to_screen(x, 0)]
-            pygame.draw.polygon(screen, chart.colour("point"), under)
-        pygame.draw.lines(screen, chart.colour("line"), False, [to_screen(a, b) for a, b in zip(xs, ys)], chart.line_width())
+            painter.polygon(chart.colour("point"), under)
+        painter.lines(chart.colour("line"), [to_screen(a, b) for a, b in zip(xs, ys)], chart.line_width())
 
     if x is not None:
         line_x = to_screen(x, 0)[0]
-        pygame.draw.line(screen, chart.colour("text"), (line_x, plot.top), (line_x, plot.bottom), 2)
-    screen.set_clip(None)
+        painter.line(chart.colour("text"), (line_x, plot.top), (line_x, plot.bottom), 2)
+    painter.set_clip(None)
 
     y_label = "Probability" if distribution.discrete else "Density"
     if bars:
         y_label = "Share of draws" if distribution.discrete else "Density of draws"
-    draw_labels(screen, plot, font, "k" if distribution.discrete else "x", y_label)
+    draw_labels(painter, plot, font, "k" if distribution.discrete else "x", y_label)
 
 
 # Opens a panel with buttons for the mode (a table of probabilities or a random sample) and the view
@@ -328,8 +334,8 @@ def show_distribution(panel):
     draws = data.iloc[:, 0] if mode == "Sample" else None
 
     # Draws the chart into the space the panel gives it
-    def draw(screen, area):
-        draw_chart(screen, area, panel.table_font, distribution, dist, values.get("x"), draws)
+    def draw(painter, area):
+        draw_chart(painter, area, panel.table_font, distribution, dist, values.get("x"), draws)
 
     panel.chart = draw
 

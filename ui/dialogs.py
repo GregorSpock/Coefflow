@@ -1,124 +1,104 @@
-import tkinter as tk
-from tkinter import colorchooser, filedialog, messagebox
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QApplication, QColorDialog, QFileDialog, QMessageBox
+
+from engine import dialogs as questions
+from engine import file_formats
 
 
-WORKFLOW_TYPES = [("Coefflow workflow", "*.confw")]
+# The file choosers and message boxes. The ones a module can ask for (engine/dialogs.py) are
+# given their answers here, and the rest are for the app itself
+
+WORKFLOW_TYPES = "Coefflow workflow (*.confw)"
 # Workflows saved before the rename to Coefflow use .ectyx, so they can still be opened
-OPEN_TYPES = [("Coefflow workflow", "*.confw *.ectyx")]
+OPEN_TYPES = "Coefflow workflow (*.confw *.ectyx)"
 
 
-# Makes a hidden window that keeps the file dialogs in front of the full screen app
-def hidden_window():
-    root = tk.Tk()
-    root.withdraw()
-    root.attributes("-topmost", True)
-    return root
+# The window the dialogs open in front of
+def window():
+    return QApplication.activeWindow()
 
 
-# Asks the user to pick a CSV or Excel file. Returns "" if they cancel
+# Asks the user to pick a data file of any kind Coefflow reads (engine/file_formats.py).
+# Returns "" if they cancel
 def choose_file():
-    root = hidden_window()
-    path = filedialog.askopenfilename(
-        parent=root,
-        title="Select a data file",
-        filetypes=[("Data files", "*.csv *.xlsx"), ("CSV", "*.csv"), ("Excel", "*.xlsx")],
-    )
-    root.destroy()
-    return path
+    return QFileDialog.getOpenFileName(window(), "Select a data file", "", file_formats.file_filter())[0]
 
 
 # Asks the user to pick a folder. Returns "" if they cancel
 def choose_folder():
-    root = hidden_window()
-    path = filedialog.askdirectory(parent=root, title="Select a folder to save into")
-    root.destroy()
-    return path
+    return QFileDialog.getExistingDirectory(window(), "Select a folder to save into")
 
 
 # Asks the user to pick an add-on pack's folder to load. Returns "" if they cancel
 def choose_addon_folder():
-    root = hidden_window()
-    path = filedialog.askdirectory(parent=root, title="Select an add-on pack folder to load")
-    root.destroy()
-    return path
+    return QFileDialog.getExistingDirectory(window(), "Select an add-on pack folder to load")
 
 
 # Asks the user to pick a workflow file to open. Returns "" if they cancel
 def choose_workflow():
-    root = hidden_window()
-    path = filedialog.askopenfilename(parent=root, title="Open a workflow", filetypes=OPEN_TYPES)
-    root.destroy()
+    return QFileDialog.getOpenFileName(window(), "Open a workflow", "", OPEN_TYPES)[0]
+
+
+# Asks where to save, adding the ending if it is left off. Returns "" if they cancel
+def choose_save(title, types, ending):
+    path = QFileDialog.getSaveFileName(window(), title, "", types)[0]
+    if path and not path.lower().endswith(ending):
+        path += ending
     return path
 
 
-# Asks the user where to save a workflow, adding .confw if they leave it off. Returns "" if they cancel
 def choose_save_path():
-    root = hidden_window()
-    path = filedialog.asksaveasfilename(
-        parent=root, title="Save the workflow", filetypes=WORKFLOW_TYPES, defaultextension=".confw"
-    )
-    root.destroy()
-    return path
+    return choose_save("Save the workflow", WORKFLOW_TYPES, ".confw")
 
 
-# Asks where to save a table as an Excel file, adding .xlsx if they leave it off. Returns "" if they cancel
 def choose_xlsx_path():
-    root = hidden_window()
-    path = filedialog.asksaveasfilename(
-        parent=root, title="Export the table", filetypes=[("Excel", "*.xlsx")], defaultextension=".xlsx"
-    )
-    root.destroy()
-    return path
+    return choose_save("Export the table", "Excel (*.xlsx)", ".xlsx")
 
 
-# Asks where to save a chart as a PNG picture, adding .png if they leave it off. Returns "" if they cancel
+def choose_tex_path():
+    return choose_save("Export the table as LaTeX", "LaTeX (*.tex)", ".tex")
+
+
 def choose_png_path():
-    root = hidden_window()
-    path = filedialog.asksaveasfilename(
-        parent=root, title="Export the chart", filetypes=[("PNG picture", "*.png")], defaultextension=".png"
-    )
-    root.destroy()
-    return path
+    return choose_save("Export the chart", "PNG picture (*.png)", ".png")
 
 
 # Asks the user to pick a colour, starting from the one given as (red, green, blue).
-# Returns the colour picked the same way, or None if they cancel
+# Returns the colour picked as [red, green, blue], or None if they cancel
 def choose_colour(colour):
-    root = hidden_window()
-    start = "#{:02x}{:02x}{:02x}".format(*colour)
-    picked = colorchooser.askcolor(color=start, parent=root, title="Choose a colour")[0]
-    root.destroy()
-    return [int(part) for part in picked] if picked else None
+    picked = QColorDialog.getColor(QColor(*colour), window(), "Choose a colour")
+    return [picked.red(), picked.green(), picked.blue()] if picked.isValid() else None
 
 
 # Asks whether to save changes first. Returns True for yes, False for no and None for cancel
-def ask_save_changes():
-    root = hidden_window()
-    answer = messagebox.askyesnocancel("Unsaved changes", "Save changes to the current workflow first?", parent=root)
-    root.destroy()
-    return answer
+def ask_save_changes(name="the current workflow"):
+    buttons = QMessageBox.StandardButton
+    answer = QMessageBox.question(
+        window(), "Unsaved changes", f"Save changes to {name} first?",
+        buttons.Yes | buttons.No | buttons.Cancel, buttons.Yes,
+    )
+    if answer == buttons.Cancel:
+        return None
+    return answer == buttons.Yes
 
 
 # Asks a yes or no question. Returns True for yes
 def ask_yes_no(title, text):
-    root = hidden_window()
-    answer = messagebox.askyesno(title, text, parent=root)
-    root.destroy()
-    return answer
+    buttons = QMessageBox.StandardButton
+    return QMessageBox.question(window(), title, text, buttons.Yes | buttons.No) == buttons.Yes
 
 
 def show_message(title, text):
-    root = hidden_window()
-    messagebox.showwarning(title, text, parent=root)
-    root.destroy()
+    QMessageBox.warning(window(), title, text)
 
 
-# The text on the clipboard, or "" if it holds none
-def paste_text():
-    root = hidden_window()
-    try:
-        return root.clipboard_get()
-    except tk.TclError:
-        return ""
-    finally:
-        root.destroy()
+# Gives the modules' questions their answers
+def install():
+    questions.answers.update({
+        "choose_file": choose_file,
+        "choose_folder": choose_folder,
+        "choose_xlsx_path": choose_xlsx_path,
+        "choose_tex_path": choose_tex_path,
+        "choose_png_path": choose_png_path,
+        "show_message": show_message,
+    })

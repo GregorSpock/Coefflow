@@ -6,7 +6,7 @@ from statsmodels.tsa.stattools import adfuller, kpss
 
 from modules.arimax import module as arimax
 from modules.arimax.module import MAX_DIFF, chosen_series, next_series
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 INPUTS = 1

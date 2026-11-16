@@ -1,8 +1,8 @@
 import statsmodels.api as sm
 from statsmodels.stats.diagnostic import het_breuschpagan
 
-from ui.chart import draw_scatter
-from ui.panel import Panel
+from engine.chart import draw_scatter
+from engine.panel import Panel
 
 
 INPUTS = 1
@@ -105,8 +105,8 @@ def show_scatter(panel):
         panel.note = f"Could not run the heteroscedasticity test: {error}"
 
     # Draws the chart into the space the panel gives it
-    def draw(screen, area):
-        draw_scatter(screen, area, panel.table_font, pair[x_name], pair[y_name], x_name, y_name, line)
+    def draw(painter, area):
+        draw_scatter(painter, area, panel.table_font, pair[x_name], pair[y_name], x_name, y_name, line)
 
     panel.chart = draw
 

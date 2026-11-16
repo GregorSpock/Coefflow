@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
-import pygame
 from scipy import stats
 
-from ui import chart
-from ui.chart import MAX_SERIES, draw_axes, draw_category_names, draw_labels, padded_range
+from engine import chart
+from engine.chart import MAX_SERIES, draw_axes, draw_category_names, draw_labels, padded_range
 from .. import common
 
 
@@ -77,7 +76,7 @@ def cell_means(data, dependent, group, by, error):
 # Draws each group's mean inside area, as a bar or as a point joined to its neighbours by a line,
 # with an error bar through it. With By there is a bar or line for each of its groups, in
 # their own colours with a key
-def draw_means(screen, area, font, table, group, by, style, y_label):
+def draw_means(painter, area, font, table, group, by, style, y_label):
     font = chart.text_font(font)
     plot = chart.plot_rect(area, font)
     groups = list(dict.fromkeys(table[group]))
@@ -100,10 +99,10 @@ def draw_means(screen, area, font, table, group, by, style, y_label):
     def to_y(value):
         return plot.bottom - (value - low) / (high - low) * plot.height
 
-    draw_axes(screen, plot, font, 0, 1, low, high, x_ticks=False)
-    screen.set_clip(plot)
+    draw_axes(painter, plot, font, 0, 1, low, high, x_ticks=False)
+    painter.set_clip(plot)
     if style == "Bars":
-        pygame.draw.line(screen, chart.colour("text"), (plot.left, to_y(0)), (plot.right, to_y(0)))
+        painter.line(chart.colour("text"), (plot.left, to_y(0)), (plot.right, to_y(0)))
 
     for s, name in enumerate(series):
         colour = chart.series_colour(s) if by else chart.colour("point")
@@ -115,7 +114,7 @@ def draw_means(screen, area, font, table, group, by, style, y_label):
                 width = slot * BAR_SHARE / len(series)
                 centre = plot.left + (position + 0.5) * slot + (s - (len(series) - 1) / 2) * width
                 top, bottom = to_y(max(row["mean"], 0)), to_y(min(row["mean"], 0))
-                pygame.draw.rect(screen, colour, (centre - width / 2 + 1, top, max(1, width - 2), max(1, bottom - top)))
+                painter.rect(colour, (centre - width / 2 + 1, top, max(1, width - 2), max(1, bottom - top)))
                 bar_colour = chart.colour("text")
             else:
                 # Lines for different By groups are nudged apart so their error bars don't hide each other
@@ -125,21 +124,21 @@ def draw_means(screen, area, font, table, group, by, style, y_label):
 
             if pd.notna(row["error_low"]):
                 top, bottom = to_y(row["error_high"]), to_y(row["error_low"])
-                pygame.draw.line(screen, bar_colour, (centre, top), (centre, bottom), 2)
+                painter.line(bar_colour, (centre, top), (centre, bottom), 2)
                 for end in [top, bottom]:
-                    pygame.draw.line(screen, bar_colour, (centre - CAP, end), (centre + CAP, end), 2)
+                    painter.line(bar_colour, (centre - CAP, end), (centre + CAP, end), 2)
 
         if len(points) > 1:
-            pygame.draw.lines(screen, colour, False, points, chart.line_width())
+            painter.lines(colour, points, chart.line_width())
         for point in points:
-            pygame.draw.circle(screen, colour, point, chart.point_radius() + 2)
+            painter.circle(colour, point, chart.point_radius() + 2)
 
     if by:
-        chart.draw_key(screen, plot, font, [(name, chart.series_colour(s)) for s, name in enumerate(series)])
-    screen.set_clip(None)
+        chart.draw_key(painter, plot, font, [(name, chart.series_colour(s)) for s, name in enumerate(series)])
+    painter.set_clip(None)
 
-    draw_category_names(screen, plot, font, groups)
-    draw_labels(screen, plot, font, group, y_label)
+    draw_category_names(painter, plot, font, groups)
+    draw_labels(painter, plot, font, group, y_label)
 
 
 # Lists the fields with Y, G and By buttons, then draws the means
@@ -166,8 +165,8 @@ def show_plot(panel):
         panel.note += " " + difference_text(common.clean(data), dependent, group)
 
     # Draws the chart into the space the panel gives it
-    def draw(screen, area):
-        draw_means(screen, area, panel.table_font, table, group, by, style, f"Mean of {dependent}")
+    def draw(painter, area):
+        draw_means(painter, area, panel.table_font, table, group, by, style, f"Mean of {dependent}")
 
     panel.chart = draw
 

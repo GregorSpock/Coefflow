@@ -6,12 +6,14 @@ import statsmodels.api as sm
 from statsmodels.tools.sm_exceptions import ConvergenceWarning, PerfectSeparationWarning
 
 from engine import clusters, dummies, fits, significance
-from ui.clusters import add_cluster_button
-from ui.panel import Panel
+from engine.cluster_panel import add_cluster_button
+from engine.panel import Panel
 
 
 INPUTS = 1
 OUTPUTS = 2
+# Out 1 carries the fit as well as the coefficients, so Forecast and Reg Table can use it (see engine/ports.py)
+OUTPUT_TYPES = ["model", "table"]
 INPUT_SPECS = [
     ("Data", "a table with a 0/1 Y column, numeric or text X and C columns (text ones enter as dummies), and optionally a field to cluster by"),
 ]
@@ -250,7 +252,7 @@ def fit_binary(model_class, inputs, settings, odds_ratios):
         "warnings": notes,
     }
     kind = "logit" if odds_ratios else "probit"
-    fits.record(results, kind, kind.capitalize(), dependent, used, independent + controls)
+    fits.record_binary(results, kind, kind.capitalize(), model, dependent, used, independent + controls)
 
     fitted = used.copy()
     fitted["probability"] = probability

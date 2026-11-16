@@ -5,6 +5,7 @@ from .. import common
 
 INPUTS = 0
 OUTPUTS = 1
+ALWAYS_RUN = common.draws_new_sample
 INPUT_SPECS = []
 OUTPUT_SPECS = [
     ("Distribution", "in Table mode k, probability (P(X = k)) and cdf (P(X <= k)) for the likely counts; in Sample mode one column, poisson, of random draws"),

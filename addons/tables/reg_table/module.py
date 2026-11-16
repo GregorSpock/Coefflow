@@ -4,16 +4,25 @@ import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, Side
 
-from engine import significance
-from ui.dialogs import choose_xlsx_path
-from ui.panel import Panel
+from engine import latex, significance
+from engine.dialogs import choose_tex_path, choose_xlsx_path
+from engine.panel import Panel
 
 
 # Takes as many models as are connected: a new empty input appears whenever every input is used,
 # and the empty one at the end is never needed
 GROWING_INPUTS = True
+# Each input is drawn as a model, but any coefficient table with the usual columns can be used
+INPUT_TYPES = [("model", "table")]
 REQUIRED_INPUTS = 1
 OUTPUTS = 1
+
+
+# Once it has been exported, the Excel file is written again on every run, so it is never left stale
+def ALWAYS_RUN(settings):
+    return bool(settings.get("path") or settings.get("tex_path"))
+
+
 INPUT_SPECS = [
     ("Models", "the coefficient table (Out 1) of a regression such as OLS, Logit or Fixed Effects, one per input. In 1 becomes column (1), In 2 column (2) and so on"),
 ]
@@ -76,6 +85,7 @@ def on_click(node):
     panel = Panel(node, "Reg Table")
     panel.add_button("Edit", open_edit)
     panel.add_button("Export", export)
+    panel.add_button("Export LaTeX", export_tex)
     panel.preview_title = "Table"
     panel.refresh = show_table
     show_table(panel)
@@ -117,6 +127,29 @@ def export(panel, button):
             panel.note = str(error)
 
 
+# Asks where to save the table as LaTeX and remembers it, so each run saves there again.
+# Saves straight away if the workflow has already run
+def export_tex(panel, button):
+    settings = panel.node.settings
+    path = choose_tex_path()
+    if not path:
+        return
+    settings["tex_path"] = path
+    show_table(panel)
+    models = connected(panel.node.last_inputs)
+    if models:
+        try:
+            save_tex(build(models, settings), path)
+            panel.note = f"Saved to {path}"
+        except (OSError, ValueError) as error:
+            panel.note = str(error)
+
+
+# Writes the table as a booktabs LaTeX table, ready to \input into a paper
+def save_tex(table, path):
+    Path(path).write_text(latex.regression_table(table), encoding="utf-8")
+
+
 # Builds the table into the panel's preview from the last run's inputs, so changes show straight
 # away, and puts the note underneath. Returns the models, or an empty list if there are none
 def preview_table(panel):
@@ -147,7 +180,8 @@ def show_table(panel):
     models = connected(panel.node.last_inputs)
     panel.lines = [
         f"Title: {settings['title'] or 'none'}",
-        f"Models: {len(models) or 'none yet'}    Saves to: {settings.get('path') or 'not exported yet'}",
+        f"Models: {len(models) or 'none yet'}    Saves to: {settings.get('path') or 'not exported yet'}"
+        + (f"    LaTeX: {settings['tex_path']}" if settings.get("tex_path") else ""),
     ]
     preview_table(panel)
 
@@ -418,6 +452,8 @@ def dependent_of(results):
 
 def errors_name(fit):
     cluster = fit.get("cluster")
+    if fit.get("hac_lags") is not None:
+        return "HAC"
     if cluster:
         return f"Clustered ({cluster['column']})"
     return "Robust" if fit.get("robust") else "Ordinary"
@@ -587,4 +623,10 @@ def run(inputs, settings):
             raise ValueError(f"The folder for {path} no longer exists: click Export to choose another")
         save(table, path)
         print(f"Saved the regression table to {path}")
+    tex_path = settings.get("tex_path")
+    if tex_path:
+        if not Path(tex_path).parent.exists():
+            raise ValueError(f"The folder for {tex_path} no longer exists: click Export LaTeX to choose another")
+        save_tex(table, tex_path)
+        print(f"Saved the regression table to {tex_path}")
     return [table]

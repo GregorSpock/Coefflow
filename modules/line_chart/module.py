@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from ui.chart import MAX_SERIES, draw_lines
-from ui.panel import Panel
+from engine.chart import MAX_SERIES, draw_lines
+from engine.panel import Panel
 
 
 INPUTS = 1
@@ -94,8 +94,8 @@ def show_chart(panel):
         return
 
     # Draws the chart into the space the panel gives it
-    def draw(screen, area):
-        draw_lines(screen, area, panel.table_font, series, x_name)
+    def draw(painter, area):
+        draw_lines(painter, area, panel.table_font, series, x_name)
 
     panel.message = ""
     panel.chart = draw

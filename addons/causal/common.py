@@ -1,13 +1,12 @@
 import numpy as np
 import pandas as pd
-import pygame
 from scipy import stats
 
 from engine import clusters, dummies, panel_data
-from ui import chart
-from ui.chart import draw_axes, draw_labels, padded_range
-from ui.clusters import add_cluster_button
-from ui.panel import Panel
+from engine import chart
+from engine.chart import draw_axes, draw_labels, padded_range
+from engine.cluster_panel import add_cluster_button
+from engine.panel import Panel
 
 
 # Shared by the Causal pack's modules: the panel where fields get roles, least squares and two stage
@@ -215,7 +214,7 @@ def number_text(value):
 # Draws lines through points inside area. series is a list of (x values, y values, colour, label),
 # drawn with a dot at each point. intervals gives (x values, lows, highs) drawn as bars around the
 # first series. vertical is an x value marked with a dashed line, e.g. a cutoff, and horizontal a y value
-def draw_lines(screen, area, font, series, x_label, y_label, intervals=None, vertical=None, horizontal=None, points=None):
+def draw_lines(painter, area, font, series, x_label, y_label, intervals=None, vertical=None, horizontal=None, points=None):
     font = chart.text_font(font)
     plot = chart.plot_rect(area, font)
     xs = [x for s in series for x in s[0]] + ([x for x in points[0]] if points else [])
@@ -239,11 +238,11 @@ def draw_lines(screen, area, font, series, x_label, y_label, intervals=None, ver
         for step in range(0, length, DASH * 2):
             a = step / length
             b = min(step + DASH, length) / length
-            pygame.draw.line(screen, chart.colour("text"), (start[0] + a * (end[0] - start[0]), start[1] + a * (end[1] - start[1])),
+            painter.line(chart.colour("text"), (start[0] + a * (end[0] - start[0]), start[1] + a * (end[1] - start[1])),
                              (start[0] + b * (end[0] - start[0]), start[1] + b * (end[1] - start[1])), 1)
 
-    draw_axes(screen, plot, font, x_low, x_high, y_low, y_high)
-    screen.set_clip(plot)
+    draw_axes(painter, plot, font, x_low, x_high, y_low, y_high)
+    painter.set_clip(plot)
     if vertical is not None:
         dashed(to_screen(vertical, y_low), to_screen(vertical, y_high))
     if horizontal is not None:
@@ -251,26 +250,25 @@ def draw_lines(screen, area, font, series, x_label, y_label, intervals=None, ver
     if points:
         for x, y in zip(*points):
             if np.isfinite(y):
-                pygame.draw.circle(screen, chart.colour("point"), to_screen(x, y), chart.point_radius())
+                painter.circle(chart.colour("point"), to_screen(x, y), chart.point_radius())
     if intervals:
         for x, low, high in zip(*intervals):
             if np.isfinite(low) and np.isfinite(high):
-                pygame.draw.line(screen, chart.colour("point"), to_screen(x, low), to_screen(x, high), 2)
+                painter.line(chart.colour("point"), to_screen(x, low), to_screen(x, high), 2)
     for x_values, y_values, colour, label in series:
         screen_points = [to_screen(x, y) for x, y in zip(x_values, y_values) if np.isfinite(y)]
         if len(screen_points) > 1:
-            pygame.draw.lines(screen, colour, False, screen_points, chart.line_width())
+            painter.lines(colour, screen_points, chart.line_width())
         if label is not None:
             for point in screen_points:
-                pygame.draw.circle(screen, colour, point, 4)
-    screen.set_clip(None)
+                painter.circle(colour, point, 4)
+    painter.set_clip(None)
 
     # A legend in the top left corner for the series that have a label
     y = plot.top + 6
     for x_values, y_values, colour, label in series:
         if label and chart.shows("key"):
-            pygame.draw.line(screen, colour, (plot.left + 8, y + 8), (plot.left + 28, y + 8), 3)
-            text = font.render(label, True, chart.colour("text"))
-            screen.blit(text, (plot.left + 34, y))
+            painter.line(colour, (plot.left + 8, y + 8), (plot.left + 28, y + 8), 3)
+            painter.text(font, label, chart.colour("text"), topleft=(plot.left + 34, y))
             y += text.get_height() + 4
-    draw_labels(screen, plot, font, x_label, y_label)
+    draw_labels(painter, plot, font, x_label, y_label)

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 # Shared by the Psych pack's modules: the panel where fields are given roles, buttons that step

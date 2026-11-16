@@ -1,16 +1,19 @@
 from pathlib import Path
 
-from ui.dialogs import choose_folder
-from ui.panel import Panel
+from engine import file_formats
+from engine.dialogs import choose_folder
+from engine.panel import Panel
 
 
 INPUTS = 1
 OUTPUTS = 0
 INPUT_SPECS = [
-    ("Data", "any table, saved as it arrives"),
+    ("Data", "any table, saved as it arrives as CSV, Excel, Stata, Parquet, JSON or a LaTeX table"),
 ]
 OUTPUT_SPECS = []
-FILE_TYPES = ["csv", "xlsx"]
+# The file is written again on every run, even when nothing has changed, in case it was moved or deleted
+ALWAYS_RUN = True
+FILE_TYPES = list(file_formats.WRITE_FORMATS)
 
 
 # Fills in a default file name and type the first time the node is used
@@ -40,10 +43,10 @@ def select_folder(panel, button):
         show_output(panel)
 
 
-# Switches between saving as CSV and Excel
+# Moves on to the next kind of file to save as
 def switch_file_type(panel, button):
     settings = panel.node.settings
-    index = FILE_TYPES.index(settings["file_type"])
+    index = FILE_TYPES.index(settings["file_type"]) if settings["file_type"] in FILE_TYPES else -1
     settings["file_type"] = FILE_TYPES[(index + 1) % len(FILE_TYPES)]
     button.text = settings["file_type"].upper()
     show_output(panel)
@@ -82,10 +85,7 @@ def run(inputs, settings):
 
     path = Path(settings["folder"]) / f"{settings['name']}.{settings['file_type']}"
     path.parent.mkdir(parents=True, exist_ok=True)
-    if settings["file_type"] == "xlsx":
-        data.to_excel(path, index=False)
-    else:
-        data.to_csv(path, index=False)
+    file_formats.write_table(data, path, settings["file_type"], title=settings["name"])
 
     print(f"Saved {len(data)} rows to {path}")
     return []

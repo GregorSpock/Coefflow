@@ -1,10 +1,10 @@
 import pandas as pd
-import pygame
 from scipy.stats import kruskal
 
-from ui import chart
-from ui.chart import draw_axes, draw_category_names, draw_labels, padded_range
-from ui.panel import Panel
+from engine.draw import Rect
+from engine import chart
+from engine.chart import draw_axes, draw_category_names, draw_labels, padded_range
+from engine.panel import Panel
 
 
 INPUTS = 1
@@ -131,7 +131,7 @@ def describe_test(value, group, groups):
 
 # Draws one box per group side by side inside area: a box from the lower to the upper quartile with
 # a line at the median, whiskers, a diamond at the mean and a circle for each outlier
-def draw_boxes(screen, area, font, groups, value, group):
+def draw_boxes(painter, area, font, groups, value, group):
     font = chart.text_font(font)
     plot = chart.plot_rect(area, font)
     every_value = pd.concat([values for label, values in groups])
@@ -143,34 +143,34 @@ def draw_boxes(screen, area, font, groups, value, group):
     def to_y(v):
         return plot.bottom - (v - low) / (high - low) * plot.height
 
-    draw_axes(screen, plot, font, 0, 1, low, high, x_ticks=False)
+    draw_axes(painter, plot, font, 0, 1, low, high, x_ticks=False)
 
-    screen.set_clip(plot)
+    painter.set_clip(plot)
     for i, (label, values) in enumerate(groups):
         stats = box_stats(values)
         centre = plot.left + slot * (i + 0.5)
         left, right = centre - box_width / 2, centre + box_width / 2
 
-        pygame.draw.line(screen, text_colour, (centre, to_y(stats["low_whisker"])), (centre, to_y(stats["q1"])), 2)
-        pygame.draw.line(screen, text_colour, (centre, to_y(stats["q3"])), (centre, to_y(stats["high_whisker"])), 2)
+        painter.line(text_colour, (centre, to_y(stats["low_whisker"])), (centre, to_y(stats["q1"])), 2)
+        painter.line(text_colour, (centre, to_y(stats["q3"])), (centre, to_y(stats["high_whisker"])), 2)
         for end in [stats["low_whisker"], stats["high_whisker"]]:
-            pygame.draw.line(screen, text_colour, (centre - box_width / 4, to_y(end)), (centre + box_width / 4, to_y(end)), 2)
+            painter.line(text_colour, (centre - box_width / 4, to_y(end)), (centre + box_width / 4, to_y(end)), 2)
 
-        box = pygame.Rect(round(left), round(to_y(stats["q3"])), round(box_width), max(2, round(to_y(stats["q1"]) - to_y(stats["q3"]))))
-        pygame.draw.rect(screen, chart.colour("point"), box)
-        pygame.draw.rect(screen, text_colour, box, width=2)
-        pygame.draw.line(screen, chart.colour("background"), (left + 2, to_y(stats["median"])), (right - 2, to_y(stats["median"])), 3)
+        box = Rect(round(left), round(to_y(stats["q3"])), round(box_width), max(2, round(to_y(stats["q1"]) - to_y(stats["q3"]))))
+        painter.rect(chart.colour("point"), box)
+        painter.rect(text_colour, box, width=2)
+        painter.line(chart.colour("background"), (left + 2, to_y(stats["median"])), (right - 2, to_y(stats["median"])), 3)
 
         y = to_y(stats["mean"])
         diamond = [(centre, y - MEAN_SIZE), (centre + MEAN_SIZE, y), (centre, y + MEAN_SIZE), (centre - MEAN_SIZE, y)]
-        pygame.draw.polygon(screen, chart.colour("line"), diamond)
+        painter.polygon(chart.colour("line"), diamond)
 
         for outlier in stats["outliers"]:
-            pygame.draw.circle(screen, chart.colour("line"), (centre, to_y(outlier)), chart.point_radius(), width=1)
-    screen.set_clip(None)
+            painter.circle(chart.colour("line"), (centre, to_y(outlier)), chart.point_radius(), width=1)
+    painter.set_clip(None)
 
-    draw_category_names(screen, plot, font, [label for label, values in groups])
-    draw_labels(screen, plot, font, group or "", value)
+    draw_category_names(painter, plot, font, [label for label, values in groups])
+    draw_labels(painter, plot, font, group or "", value)
 
 
 # Lists the columns with buttons to choose the variable and grouping, then draws the boxes and test note
@@ -222,8 +222,8 @@ def show_boxes(panel):
         )
 
     # Draws the chart into the space the panel gives it
-    def draw(screen, area):
-        draw_boxes(screen, area, panel.table_font, groups, value, group)
+    def draw(painter, area):
+        draw_boxes(painter, area, panel.table_font, groups, value, group)
 
     panel.chart = draw
 

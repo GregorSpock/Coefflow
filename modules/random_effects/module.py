@@ -1,10 +1,12 @@
 from engine import panel_data
-from ui import panel_models
-from ui.panel_models import FIELD_SETTINGS
+from engine import model_panel as panel_models
+from engine.model_panel import FIELD_SETTINGS
 
 
 INPUTS = 1
 OUTPUTS = 2
+# Out 1 carries the fit as well as the coefficients, so Forecast and Reg Table can use it (see engine/ports.py)
+OUTPUT_TYPES = ["model", "table"]
 INPUT_SPECS = [
     ("Data", "a panel table: a numeric column for Y, numeric or text columns for X and any controls (C), a field naming each entity (E) and optionally a time field (T). Rows missing any of them are dropped"),
 ]

@@ -1,8 +1,8 @@
 import re
 
 from engine import conditions
-from ui.fields import add_field_buttons, apply_fields, output_name, show_fields
-from ui.panel import Panel
+from engine.field_panel import add_field_buttons, apply_fields, output_name, show_fields
+from engine.panel import Panel
 
 
 INPUTS = 1

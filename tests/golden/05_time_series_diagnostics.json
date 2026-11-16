@@ -1,0 +1,290 @@
+{
+ "nodes": {
+  "1": {
+   "error": null,
+   "name": "Input Data",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours"
+     ],
+     "shape": [
+      600,
+      12
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "2": {
+   "error": null,
+   "name": "Filter",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours"
+     ],
+     "shape": [
+      30,
+      12
+     ],
+     "sums": {
+      "avg_weekly_hours": 911.8,
+      "bank_rate": 78.16999999999999,
+      "degree_share": 1400.9,
+      "gdp_growth": 40.800000000000004,
+      "house_price_k": 9181.0,
+      "inflation": 135.2,
+      "median_weekly_wage": 16355.0,
+      "population_k": 247069.0,
+      "unemployment": 215.90000000000003,
+      "urban": 30.0,
+      "year": 60285.0
+     }
+    }
+   ]
+  },
+  "3": {
+   "error": null,
+   "name": "ADF",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "field",
+      "suggested_d",
+      "adf_d",
+      "kpss_d",
+      "observations",
+      "adf_p_d0",
+      "kpss_p_d0",
+      "adf_p_d1",
+      "kpss_p_d1",
+      "adf_p_d2",
+      "kpss_p_d2"
+     ],
+     "shape": [
+      4,
+      11
+     ],
+     "sums": {
+      "adf_d": 0.0,
+      "adf_p_d0": 0.005399996303208469,
+      "adf_p_d1": 0.08895566679120712,
+      "adf_p_d2": 0.20420922738473146,
+      "kpss_d": 0.0,
+      "kpss_p_d0": 0.4,
+      "kpss_p_d1": 0.13,
+      "kpss_p_d2": 0.13,
+      "observations": 120.0,
+      "suggested_d": 0.0
+     }
+    }
+   ]
+  },
+  "4": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "5": {
+   "error": null,
+   "name": "ACF/PACF",
+   "outputs": [
+    {
+     "attrs": {
+      "bound": 0.3578454042367085,
+      "observations": 30
+     },
+     "columns": [
+      "lag",
+      "acf",
+      "pacf",
+      "bound",
+      "ljung_box_p"
+     ],
+     "shape": [
+      12,
+      5
+     ],
+     "sums": {
+      "acf": -0.26170823644457514,
+      "bound": 4.294144850840501,
+      "lag": 78.0,
+      "ljung_box_p": 9.545042336460583,
+      "pacf": -0.33604027352213933
+     }
+    }
+   ]
+  },
+  "6": {
+   "error": null,
+   "name": "OLS",
+   "outputs": [
+    {
+     "attrs": {
+      "adj_r_squared": 0.6469352579570498,
+      "breusch_pagan_p": 0.04099778453756569,
+      "observations": 30,
+      "r_squared": 0.6712845505117361,
+      "robust": false
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      3,
+      7
+     ],
+     "sums": {
+      "coefficient": 8.66969173169298,
+      "p_value": 0.9128208334521801,
+      "std_error": 0.4263645917317158,
+      "t_stat": 22.304052166340707
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "fitted",
+      "residual"
+     ],
+     "shape": [
+      30,
+      14
+     ],
+     "sums": {
+      "avg_weekly_hours": 911.8,
+      "bank_rate": 78.16999999999999,
+      "degree_share": 1400.9,
+      "fitted": 215.9,
+      "gdp_growth": 40.800000000000004,
+      "house_price_k": 9181.0,
+      "inflation": 135.2,
+      "median_weekly_wage": 16355.0,
+      "population_k": 247069.0,
+      "residual": 2.042810365310288e-14,
+      "unemployment": 215.90000000000003,
+      "urban": 30.0,
+      "year": 60285.0
+     }
+    }
+   ]
+  },
+  "7": {
+   "error": null,
+   "name": "Durbin-Watson",
+   "outputs": [
+    {
+     "attrs": {
+      "verdict": "d = 1.73, close enough to 2 that there is no evidence of autocorrelation at the 5% level."
+     },
+     "columns": [
+      "series",
+      "observations",
+      "durbin_watson",
+      "rho",
+      "z_stat",
+      "p_value"
+     ],
+     "shape": [
+      1,
+      6
+     ],
+     "sums": {
+      "durbin_watson": 1.733312465464266,
+      "observations": 30.0,
+      "p_value": 0.472709093917685,
+      "rho": 0.133343767267867,
+      "z_stat": 0.7180781627416511
+     }
+    }
+   ]
+  },
+  "8": {
+   "error": null,
+   "name": "ACF/PACF",
+   "outputs": [
+    {
+     "attrs": {
+      "bound": 0.36396286282702167,
+      "observations": 29
+     },
+     "columns": [
+      "lag",
+      "acf",
+      "pacf",
+      "bound",
+      "ljung_box_p"
+     ],
+     "shape": [
+      12,
+      5
+     ],
+     "sums": {
+      "acf": -0.4875759717345909,
+      "bound": 4.36755435392426,
+      "lag": 78.0,
+      "ljung_box_p": 0.5005512329359652,
+      "pacf": -2.1305690818767666
+     }
+    }
+   ]
+  }
+ },
+ "problems": []
+}

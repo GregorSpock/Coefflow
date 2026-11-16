@@ -2,12 +2,12 @@ import math
 
 import numpy as np
 import pandas as pd
-import pygame
 from statsmodels.stats.stattools import jarque_bera
 
-from ui import chart
-from ui.chart import draw_axes, draw_labels
-from ui.panel import Panel
+from engine.draw import Rect
+from engine import chart
+from engine.chart import draw_axes, draw_labels
+from engine.panel import Panel
 
 
 INPUTS = 1
@@ -111,7 +111,7 @@ def describe_values(name, values):
 
 
 # Draws the bars inside area, with the normal curve for the values' mean and sd if curve is on
-def draw_histogram(screen, area, font, values, table, name, curve):
+def draw_histogram(painter, area, font, values, table, name, curve):
     font = chart.text_font(font)
     plot = chart.plot_rect(area, font)
     x_low, x_high = table["bin_start"].iloc[0], table["bin_end"].iloc[-1]
@@ -133,26 +133,26 @@ def draw_histogram(screen, area, font, values, table, name, curve):
     def to_screen(x, y):
         return plot.left + (x - x_low) / (x_high - x_low) * plot.width, plot.bottom - (y - y_low) / (y_high - y_low) * plot.height
 
-    draw_axes(screen, plot, font, x_low, x_high, y_low, y_high)
+    draw_axes(painter, plot, font, x_low, x_high, y_low, y_high)
 
-    screen.set_clip(plot)
+    painter.set_clip(plot)
     for start, end, count in zip(table["bin_start"], table["bin_end"], table["count"]):
         left, top = to_screen(start, count)
         right, bottom = to_screen(end, 0)
-        bar = pygame.Rect(round(left), round(top), max(1, round(right) - round(left)), round(bottom) - round(top))
-        pygame.draw.rect(screen, chart.colour("point"), bar)
+        bar = Rect(round(left), round(top), max(1, round(right) - round(left)), round(bottom) - round(top))
+        painter.rect(chart.colour("point"), bar)
         if bar.width > 3:
-            pygame.draw.rect(screen, chart.colour("background"), bar, width=1)
+            painter.rect(chart.colour("background"), bar, width=1)
 
     if show_curve:
         points = []
         for step in range(CURVE_STEPS + 1):
             x = x_low + (x_high - x_low) * step / CURVE_STEPS
             points.append(to_screen(x, normal_count(x)))
-        pygame.draw.lines(screen, chart.colour("line"), False, points, chart.line_width())
-    screen.set_clip(None)
+        painter.lines(chart.colour("line"), points, chart.line_width())
+    painter.set_clip(None)
 
-    draw_labels(screen, plot, font, name, "Count")
+    draw_labels(painter, plot, font, name, "Count")
 
 
 # Lists the numeric variables with a button each, then draws the histogram and the normality note
@@ -199,8 +199,8 @@ def show_histogram(panel):
     panel.message = ""
 
     # Draws the chart into the space the panel gives it
-    def draw(screen, area):
-        draw_histogram(screen, area, panel.table_font, values, table, name, curve)
+    def draw(painter, area):
+        draw_histogram(painter, area, panel.table_font, values, table, name, curve)
 
     panel.chart = draw
 

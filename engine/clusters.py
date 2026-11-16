@@ -155,11 +155,38 @@ def warnings_for(summary, column, parameters):
     return notes
 
 
+# The number of lags Newey-West HAC errors use when none is set: Newey and West's (1994) rule
+# of thumb, the whole part of 4 (N / 100) ^ (2/9), which grows slowly with the number of rows
+def automatic_lags(rows):
+    return max(1, int(4 * (rows / 100) ** (2 / 9)))
+
+
+# The lags for HAC errors: the whole number in settings["hac_lags"], or the automatic number
+def hac_lags(settings, rows):
+    lags = settings.get("hac_lags")
+    if lags in (None, ""):
+        return automatic_lags(rows)
+    try:
+        lags = int(lags)
+    except (TypeError, ValueError):
+        raise ValueError(f"HAC lags must be a whole number, not {lags!r}")
+    if lags < 0 or lags >= rows:
+        raise ValueError(f"HAC lags must be between 0 and {rows - 1}")
+    return lags
+
+
 # The covariance settings for a statsmodels fit, with the clusters' summary and warnings.
-# used must already be complete for the cluster field. Returns (cov_type, cov_kwds, info)
+# used must already be complete for the cluster field. Returns (cov_type, cov_kwds, info).
+# settings["hac"] asks for Newey-West errors, robust to both heteroscedasticity and
+# autocorrelation up to settings["hac_lags"] periods apart, with the rows taken in time order.
+# Clustered errors and HAC errors answer different worries, so only one can be chosen
 def covariance(used, settings, parameters):
     column = settings.get("cluster")
     robust = settings.get("robust", False)
+    if settings.get("hac"):
+        if column:
+            raise ValueError("Choose either clustered or HAC standard errors, not both")
+        return "HAC", {"maxlags": hac_lags(settings, len(used)), "use_correction": True}, None
     if not column:
         return ("HC1" if robust else "nonrobust"), None, None
 
@@ -184,6 +211,8 @@ def cluster_columns(data, settings):
 # Describes the standard errors used in a fit, for the panel's info lines
 def errors_text(fit):
     cluster = fit.get("cluster")
+    if fit.get("hac_lags") is not None:
+        return f"Newey-West HAC ({fit['hac_lags']} lags)"
     if cluster:
         return f"clustered by {cluster['column']} ({cluster['clusters']} clusters)"
     return "robust (HC1)" if fit.get("robust") else "ordinary"

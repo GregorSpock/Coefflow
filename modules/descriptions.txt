@@ -3,14 +3,25 @@
 # A blank line starts a new paragraph.
 
 [Input Data]
-Loads a table from a CSV or Excel file to start a workflow. Click Select to choose the file, then use Keep and Rename to choose which fields come out and what they are called.
+Loads a table from a file to start a workflow. Click Select to choose the file, then use Keep and Rename to choose which fields come out and what they are called.
+
+It reads CSV and text files (tab, semicolon or pipe separated), Excel and OpenDocument spreadsheets, Stata (.dta, with value labels as text), SPSS (.sav, .por), SAS (.sas7bdat, .xpt), Parquet, Feather, JSON, gretl (.gdt) and SQLite databases. A workbook with several sheets or a database with several tables gets a Sheet or Table button to move between them. SPSS needs the pyreadstat package and Parquet and Feather need pyarrow; the panel says how to install one if it is missing.
 
 If no file is chosen, the built-in sample data is used.
 
 [Output Data]
-Saves the table it receives as a CSV or Excel file. Choose the folder, type a file name and switch between CSV and Excel in its panel.
+Saves the table it receives. Choose the folder, type a file name and click the file type to move between CSV, Excel, Stata, Parquet, JSON and LaTeX.
+
+LaTeX saves the table as a booktabs table ready to \input into a paper (it needs \usepackage{booktabs}). For side-by-side regression tables, use Reg Table's Export LaTeX instead.
 
 If no folder is chosen, the data is printed instead of saved.
+
+[Database]
+Runs a SQL query and gives back its rows, to start a workflow from a database. Click SQLite file to choose a .sqlite or .db file, which is opened read-only so nothing in it can change, or click Edit: Server URL and type a server's address, such as postgresql://user@host/dbname, which needs the sqlalchemy package and the database's own driver.
+
+A server's password is never saved in the workflow file. Type it in the address (postgresql://user:password@host/dbname) and it is used until Coefflow closes, with the address kept without it; or put it in the COEFFLOW_DB_PASSWORD environment variable, which also works when a workflow is run from the command line.
+
+Type the query in the box, e.g. SELECT region, year, gdp FROM accounts WHERE year >= 2000. Only queries that read data are run: one statement starting with SELECT (or WITH), with nothing that adds, changes or removes data. Tables lists the database's tables and starts the query from the first. Preview runs the query for its first 10 rows; typing alone never runs it. A server's query runs again every time the workflow runs, as its data can change; a SQLite file's only when the file or the query changes.
 
 [Join]
 Combines two tables side by side, matching rows on the key columns they share. Choose the relationship (1:1, M:1, 1:M or M:M) to check keys are unique where they should be, and whether to keep only matched rows or every Left, Right or All rows.
@@ -53,12 +64,37 @@ log, log10 and sqrt give missing values where they don't work, such as log(0). i
 
 For panel data, lag, lead, diff and growth look back or forward a number of rows, 1 unless set, within each group given by by=, e.g. growth(rgdpna, by=countrycode). Sort the rows by group and time first. mean, median, sum, std, min, max and count give a statistic of the whole field on every row, or of each group with by=.
 
+[Group By]
+Summarises the rows in groups, like a pivot table or Stata's collapse. Click G on the fields to group by, then click the statistics wanted for each other field: mean, sum, median, sd, min, max, n (values present), distinct, first or last. Each comes out as a column named like unemployment_mean, with a rows column counting the rows in each group.
+
+With no G field the whole table is one group. Switch Every row on to keep every row of the input and add each group's statistics to it instead, as egen does, e.g. to subtract a group mean. Missing values in a group field make a group of their own.
+
+[Pivot]
+Reshapes a table between long form (a row per id and period) and wide form (a column per period).
+
+Long to wide: click I on the fields that identify a row, such as region, C on the field whose values become new columns, such as year, and V on the values to spread, such as gdp. The new columns are named like gdp_2019. If an id has more than one row for a year, Duplicates says how they are combined: first, mean, sum, count, last, min or max.
+
+Wide to long: click I on the id fields and V on the fields to stack (or none for every other field). They go into one value column beside a column naming the field they came from; type the two names in the box. Switch Stata style on to split names like gdp_2019, gdp_2020, pop_2019 into gdp and pop columns with a period column, as Stata's reshape long does.
+
+[Concat]
+Stacks tables on top of each other, matching fields by name. Connect a table to the empty input at the bottom and a new one appears, so you can keep adding tables; In 1's rows come first.
+
+All fields keeps every field any table has, leaving it empty for the rows of tables without it; Shared fields keeps only those every table has. Source column adds a column saying which input each row came from, and Drop repeats takes out rows that repeat an earlier one.
+
+[Missing Values]
+Deals with missing values field by field. For each field choose drop (drop the rows where it is missing), mean, median or mode (fill with that statistic), value (fill with the value typed in the box), prev or next (carry the last or next value across), or interp (a straight line between the values either side).
+
+Click G on a field naming each group, such as a country, to work each fill out within the group: for panel data sort the rows by group and time first, so prev, next and interp follow time. Flag adds a 0/1 field such as income_missing for each filled field, so a model can control for which values were filled in. The note says how many values were filled and how many rows dropped.
+
+[Dates]
+Turns text into dates and splits them into parts. It reads dates in most forms, such as 2020-03-31, 31/03/2020 (switch Day first on when the day comes first), 2020Q1, 2020M03, a plain year, and gretl's 1990:1 for quarters or 1990:01 for months. For any other form type its format in the box, e.g. %d.%m.%Y.
+
+For each field, Date turns it into dates in place. Year, Qtr, Month, Day, Wkday (1 is Monday), Week, YQ (like 2020Q1) and YM (like 2020-03) each add a new field, named like date_year. Click From on one date field and To on another for the time between them, and T on a date or year field for a time trend counting periods from the earliest; Unit sets days, weeks, months or years for both. Values that can't be read become missing, and the note says how many.
+
 [OLS]
 Ordinary least squares regression. Give each variable a role: Y (the dependent variable), X (independent variables) or C (controls). An intercept is always included.
 
-Switch Robust on for heteroscedasticity-robust (HC1) standard errors, or choose a field to cluster the standard errors by. The results show R squared, the number of observations and a Breusch-Pagan test for heteroscedasticity.
-
-Out 1 is the coefficient table and Out 2 is the data used, with fitted values and residuals.
+Switch Robust on for heteroscedasticity-robust (HC1) standard errors, or choose a field to cluster the standard errors by. For time series, switch HAC on for Newey-West standard errors, which are robust to autocorrelation as well as heteroscedasticity: the rows must be in time order, and the box sets how many lags apart errors can be correlated, blank for Newey and West's automatic number. The results show R squared, the number of observations and a Breusch-Pagan test for heteroscedasticity.
 
 [Auto OLS]
 OLS that picks the controls for you. Choose Y and the X variables; every other variable is tried as a control unless you skip it, and the set of controls with the highest adjusted R squared is kept.
@@ -83,11 +119,11 @@ For panel data, choose the column naming each entity (G). Each entity is tested 
 The test is not valid when a lag of Y is among the regressors, which pulls d towards 2. For ARIMAX models with AR terms, use the Ljung-Box p in its results instead.
 
 [Forecast]
-Applies a fitted model's coefficients to new data. Connect Out 1 (the coefficient table) of OLS, Auto OLS, Logit, Probit, ARIMAX, or Ologit or Oprobit from the Ordered add-on to In 1, and the new data to In 2. Forecast works out which kind of model made the coefficients by itself; the panel says which, and the Model button can choose it by hand.
+Applies a fitted model's coefficients to new data. Connect Out 1 (the coefficient table) of OLS, Auto OLS, Logit, Probit, ARIMAX, Count, Tobit, Quantile Reg, or Ologit or Oprobit from the Ordered add-on to In 1, and the new data to In 2. Forecast works out which kind of model made the coefficients by itself; the panel says which, and the Model button can choose it by hand.
 
 The new data needs the fields the model was fitted on, other than Y, with text fields holding categories the model saw. Rows with missing values, or a category the model never saw, get no forecast.
 
-Linear models give a forecast with a prediction interval for each row (lower and upper), whose width the Interval button sets. Logit and probit give the probability that Y is 1 and a 0/1 prediction. Ordered models give the probability of each category (prob_1, prob_2, ...) and the most likely one.
+Linear models give a forecast with a prediction interval for each row (lower and upper), whose width the Interval button sets. Count models forecast the expected count (allowing for exposure and excess zeros), Tobit the expected observed value given its limits (and xb, the latent value), and Quantile Reg the chosen quantile of Y. Logit and probit give the probability that Y is 1 and a 0/1 prediction. Ordered models give the probability of each category (prob_1, prob_2, ...) and the most likely one.
 
 For ARIMAX the new data is one row per future period, with the X and C values for each and the time field to put them in order; the forecasts carry on from the end of the series the model was fitted on, with intervals that widen further ahead. A plain ARIMA model only needs the future times. ARIMAX's Out 1 must be connected directly, as a saved and reloaded table no longer holds the series.
 
@@ -95,6 +131,8 @@ If the new data also has the Y field, such as data held back from the fit, each 
 
 [ARIMAX]
 A regression with ARIMA(p, d, q) errors for time series data. Set the AR order (p), differencing (d) and MA order (q), and give each variable a role: Y, X, C, T (the time column) or G (the column naming each series if the data holds several).
+
+For seasonal data, set the season length (s), e.g. 4 for quarterly or 12 for monthly data, to fit a SARIMA model: the seasonal AR (P), differencing (D) and MA (Q) orders act at lags s, 2s and so on. SARIMA(0, 1, 1)(0, 1, 1)[12], the "airline model", is a good start for monthly data with a trend and a season. Forecast carries seasonal models on too.
 
 X and C variables can be lagged, and the constant (or drift when d is 1) can be switched on or off. Out 1 is the coefficient table and Out 2 has the actual, fitted and residual values for each period.
 
@@ -166,3 +204,93 @@ Draws one or more numeric fields as lines against another, such as several indic
 Each line skips the rows where it or the X field is missing, and is drawn in the order of the X field, so the data doesn't need sorting first.
 
 Settings, beside the chart, changes its title, axis labels, scales, sizes and colours, and Export PNG saves the chart as a picture.
+
+[Diagnostics]
+Checks a linear regression after it is fitted. Connect Out 1 of OLS or Auto OLS to In 1 and its fitted data (Out 2) to In 2.
+
+It runs the Jarque-Bera test of normal errors, the Breusch-Pagan and White tests for heteroscedasticity, Ramsey's RESET test of the functional form, the Breusch-Godfrey and ARCH-LM tests for autocorrelation and volatility clustering (Lags sets how many lags they look at), the Durbin-Watson statistic, the CUSUM test of stable coefficients, and the Chow test for a structural break at the condition typed in the box, such as year >= 2008. Click On beside a test to leave it out. Each result says in plain words what it means for the model and what to do, and the note sums up the problems found.
+
+Out 2 gives each regressor's variance inflation factor (VIF), flagged above 5 and 10, for collinearity. Out 3 gives every row's leverage, studentized residual, Cook's distance and DFFITS, flagged when unusual or influential. Show moves between the tests and plots of the residuals against the fitted values, a normal Q-Q plot, the CUSUM path with its 5% bounds, and leverage against the studentized residuals. The time series tests take the rows in the order they arrive.
+
+[Wald Test]
+Tests restrictions on a fitted model's coefficients. Connect Out 1 of a regression (OLS, Logit, Probit, Count, Tobit, Heckman, Quantile Reg, GARCH, VAR, Dynamic Panel, an add-on model...) and type the restrictions, separated by commas: gdp_growth = 0 for one coefficient, gdp_growth = 0, inflation = 0 to test both together, gdp_growth = inflation for two being equal, or 2*a + b = 1 for any linear combination. A restriction with no = means = 0. Click Add beside a coefficient to put its name in; names with spaces or symbols, such as region=London, are written in backticks. All = 0 tests every coefficient but the intercept.
+
+The first row is the joint test of every restriction, then each one on its own with its estimated value. Linear models are tested with F and the others with chi-squared, using the model's own standard errors, so robust, clustered or HAC errors carry through.
+
+Connect the same model fitted without some of its variables, on the same rows, to In 2 for a likelihood ratio (LR) test of whether the left-out variables matter.
+
+In a system of equations, such as a VAR, a coefficient is named with its equation first, like gdp: L1.inflation, so cross-equation restrictions can be tested. VECM keeps only each coefficient's own standard error, so it can be tested one coefficient at a time.
+
+[Online Data]
+Downloads economic series straight into a workflow. Click Source to choose FRED (the St Louis Fed), the World Bank, the OECD or DBnomics (which gathers series from many statistics offices and central banks), and type the series codes in the box, separated by commas. Options go after a semicolon: from= and to= limit the dates, and for the World Bank countries= takes ISO codes such as GBR,USA (all countries if left out). Example puts in a code that works.
+
+FRED codes are those on each series' page, such as UNRATE or GDPC1. World Bank codes are indicator codes such as NY.GDP.MKTP.KD.ZG (GDP growth). OECD codes are the dataflow and key from the OECD Data Explorer's Developer API box, written dataflow/key, several apart by spaces. DBnomics codes are provider/dataset/series, as on db.nomics.world.
+
+Long shape gives a row per series and period (and country); Wide gives a column per series. A download is kept until its settings change; click Refresh to download again. FRED works without a key, but setting a free API key in the FRED_API_KEY environment variable uses FRED's official API. Only the codes and dates you type are sent.
+
+[Count]
+Regression for counts, such as patents filed, doctor visits or accidents: whole numbers of 0 or more. Give a count Y and X and C fields, and click Model to choose Poisson, negative binomial (whose variance can grow faster than its mean), or their zero-inflated forms for data with more zeros than they expect.
+
+Coefficients are effects on the log of the expected count; irr (the incidence rate ratio, exp of the coefficient) is the factor the count is multiplied by when a field rises by one. An exposure field (E), such as population or months observed, makes the coefficients effects on the rate per unit of exposure. In zero-inflated models a logit on the Z fields gives each row's chance of being an excess zero (the Inflate rows).
+
+The panel gives an overdispersion test for Poisson (if the variance grows faster than the mean, use Robust errors or negative binomial), the LR test of negative binomial against Poisson, and how many zeros there are against how many Poisson expects.
+
+[Tobit]
+Regression for a Y that piles up at a limit, such as hours worked (many at 0) or test scores at a maximum. Type the limits in the box as lower, upper with either left blank: 0, for Y censored below at 0, or 0, 100 for both. min and max stand for the lowest and highest Y.
+
+The coefficients are effects on the uncensored (latent) Y; marginal_effect is the average effect on the Y actually seen, which is smaller. sigma is the spread of the latent Y. Robust errors are sandwich errors. Out 2 has each row's xb, expected value allowing for the limits, and chance of being between them.
+
+[Heckman]
+Corrects for sample selection: when Y is only seen for some rows, chosen in a way linked to Y, such as wages only for people in work. Connect every row, selected or not. Give Y (missing for rows not selected, or choose a 0/1 selection field S), the outcome equation's X fields, and the Z fields that predict selection. At least one Z field should affect selection but not Y.
+
+Two-step is Heckman's original method (a probit, then OLS with the inverse Mills ratio), with standard errors corrected for it; Maximum likelihood fits both equations together. lambda measures the selection bias: if it is significant, OLS on the selected rows alone would be biased. rho is the correlation between the two equations' errors.
+
+[Quantile Reg]
+Fits the line through a quantile of Y given the fields, rather than its mean: 0.5 is median regression, which outliers in Y barely move, and 0.1 or 0.9 show how the fields affect the low or high end of Y. Give Y, X and C, and type the quantiles separated by commas.
+
+Out 1 holds the first quantile typed, ready for Forecast, Wald Test or Bootstrap. Out 2 has every quantile's coefficients with 95% bands beside OLS's; View: Chart draws them across the quantiles, one term at a time (Chart chooses the term). Effects whose bands don't overlap differ across the distribution of Y. Errors are robust (Hendricks-Koenker) unless switched to ordinary.
+
+[VAR]
+A vector autoregression: two or more time series that move together, each explained by its own past and the others' past. Give the Y fields (ideally stationary, such as growth rates), the time field (T), and optionally exogenous X fields and a group field (G) to fit one series at a time. Lags fixes the lag order or picks it by AIC, BIC or HQ up to the number set.
+
+Out 2 traces how a shock to each Y feeds through all of them over the horizon, with 95% bands; View: Chart draws the responses to one shock, and Shock chooses which. Orthogonal shocks are one standard deviation, and depend on the order the Y fields were chosen in: earlier fields can move later ones in the same period, not the other way round. Out 3 splits each Y's forecast error into the shares due to each shock.
+
+Out 4 has Granger causality tests (does the past of one field help predict another?), the lag order criteria, a stability check (shocks must die out) and residual tests.
+
+[VECM]
+A vector error correction model, for fields that trend but share long-run relationships (cointegration; see the Cointegration module). Give the Y fields in levels and the time field (T). Rank is the number of long-run relations, by Johansen's test unless set by hand; Terms says where the constant or trend goes.
+
+In Out 1, the Adjustment rows (alpha) show how fast each field moves back towards each relation ec1, ec2...; a field with no significant adjustment drives the others. The Short run rows are effects of past changes. Out 2 has the long-run relations themselves (beta), Out 3 the rank test, and Out 4 how each field's level responds to a shock.
+
+[Cointegration]
+Tests whether trending fields share long-run relationships that keep them from drifting apart, as the prices of one good in two markets do. Give two or more Y fields in levels (not differenced) and the time field (T).
+
+Johansen tests the number of relations (the rank) with the trace and maximum eigenvalue tests, with critical values; no relation means using a VAR in differences, and one or more means a VECM. Engle-Granger regresses the first Y on the others and tests whether the residuals are stationary, with MacKinnon's p value. Out 2 has the relations. Lags is the number of lagged differences; Terms the deterministic terms.
+
+[GARCH]
+Models volatility that comes in clusters, as in financial returns: calm and turbulent spells. Give Y, usually returns in percent (100 times the change in log prices), the time field (T), and optionally X fields for the mean.
+
+GARCH lets this period's variance depend on last period's shock (alpha) and last period's variance (beta). GJR-GARCH adds an extra effect of bad news (gamma), and EGARCH models the log variance so bad news can raise volatility more than good news. Mean chooses a constant, zero or an AR(1) mean, and Errors normal or Student t (fat tails). Standard errors are robust (Bollerslev-Wooldridge).
+
+Persistence (alpha + beta) near 1 means shocks to volatility last a long time; the panel gives the half-life. Out 2 has each period's volatility and standardised residual, which should show no ARCH effects left, and Out 3 forecasts volatility. View: Chart draws the volatility against the size of the residuals.
+
+[TS Filter]
+Splits time series into a smooth trend and a cycle, or removes their season. Give the Y fields, the time field (T) and a group field (G) to filter each series on its own, and choose the data's frequency, which sets the usual settings.
+
+Hodrick-Prescott gives a smooth trend (lambda sets how smooth: 1600 for quarterly data). Baxter-King and Christiano-Fitzgerald keep cycles between 6 and 32 quarters (or the band you set with low= and high=); Baxter-King loses K periods at each end. Hamilton's filter regresses Y two years ahead on its recent values, avoiding some of HP's problems. STL seasonal splits each series into trend, seasonal and remainder parts and gives the seasonally adjusted series.
+
+Type other settings in the box, e.g. lambda=100, or low=6, high=32, K=12, or h=8, p=4, or period=7. View: Chart draws a Y with its trend.
+
+[Dynamic Panel]
+Panel regressions with last period's Y as a regressor, by the generalised method of moments (GMM). Fixed effects are biased when Y's own past is a regressor, so Difference GMM (Arellano-Bond) uses deeper lags of Y as instruments for the differenced equation, and System GMM (Blundell-Bond) adds the levels equation, which helps when Y is very persistent.
+
+Give Y, the entity (E) and time (T) fields, X fields that are exogenous, and N fields that may be endogenous (instrumented by their own lags, like Y). Two-step estimates have Windmeijer-corrected standard errors. Collapse and the deepest instrument lag keep the number of instruments down; more instruments than entities weakens the tests.
+
+Out 2 has the tests that check the model: AR(2) should not be significant (if it is, the instruments are invalid), and Hansen's p should be neither small (instruments rejected) nor very close to 1 (too many instruments).
+
+[Bootstrap]
+Works out standard errors, confidence intervals and p values by refitting a model many times, without leaning on the usual formulas. Connect Out 1 of a regression straight from its module to In 1, and the same data that went into it to In 2. Any model that takes one table works, including those from add-ons.
+
+Pairs resamples rows with replacement. Cluster resamples whole groups (choose G), for data with groups such as regions. Block resamples runs of consecutive periods, for time series (T gives the order; Block length is automatic at 0). Permutation shuffles Y and refits, giving the chance of a coefficient as large as the real one if Y had nothing to do with the fields.
+
+Out 1 compares the usual standard errors with the bootstrap ones and gives percentile intervals and bootstrap p values; Out 2 has every draw. Use 999 or more draws for results to rely on. The draws are the same every run.

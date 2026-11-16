@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from engine import clusters, dummies, panel_data
-from ui import chart
+from engine import chart
 from .. import common
 
 
@@ -113,19 +113,19 @@ def show_model(panel):
     show = settings.get("show", SHOW[0])
     if show == "Chart":
         panel.preview_title = "Event Study" if design == "Event study" else "Mean of Y by Period"
-        panel.chart = lambda screen, area: draw_chart(screen, area, panel.table_font, results, means, settings)
+        panel.chart = lambda painter, area: draw_chart(painter, area, panel.table_font, results, means, settings)
     else:
         panel.preview_title = "Results"
         panel.preview = results if show == "Coefficients" else means
 
 
 # The event study's coefficients with 95% confidence intervals, or the mean of Y over time for each group
-def draw_chart(screen, area, font, results, means, settings):
+def draw_chart(painter, area, font, results, means, settings):
     fit = results.attrs
     if fit["design"] == "Event study":
         plot = fit["plot"]
         common.draw_lines(
-            screen, area, font, [(plot["time"], plot["estimate"], chart.colour("line"), "Effect")],
+            painter, area, font, [(plot["time"], plot["estimate"], chart.colour("line"), "Effect")],
             "Periods relative to treatment", settings.get("dependent"),
             intervals=(plot["time"], plot["low"], plot["high"]), vertical=-0.5, horizontal=0.0,
         )
@@ -135,13 +135,13 @@ def draw_chart(screen, area, font, results, means, settings):
         for group, label, colour in [(1.0, "Treated", chart.colour("line")), (0.0, "Control", chart.colour("point"))]:
             rows = means[(means["group"] == group)]
             series.append((list(rows["period"]), list(rows["mean_y"]), colour, label))
-        common.draw_lines(screen, area, font, series, "Post period (P)", settings.get("dependent"), vertical=0.5)
+        common.draw_lines(painter, area, font, series, "Post period (P)", settings.get("dependent"), vertical=0.5)
         return
     series = [
         (fit["periods"], list(means["ever_treated"]), chart.colour("line"), "Ever treated"),
         (fit["periods"], list(means["never_treated"]), chart.colour("point"), "Never treated"),
     ]
-    common.draw_lines(screen, area, font, series, settings.get("time"), settings.get("dependent"))
+    common.draw_lines(painter, area, font, series, settings.get("time"), settings.get("dependent"))
 
 
 # Difference in differences with two groups and two periods: OLS of Y on G, P and G x P, whose

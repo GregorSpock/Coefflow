@@ -3,12 +3,14 @@ import statsmodels.api as sm
 from statsmodels.stats.diagnostic import het_breuschpagan
 
 from engine import clusters, dummies, fits, significance
-from ui.clusters import add_cluster_button
-from ui.panel import Panel
+from engine.cluster_panel import add_cluster_button
+from engine.panel import Panel
 
 
 INPUTS = 1
 OUTPUTS = 2
+# Out 1 carries the fit as well as the coefficients, so Forecast and Reg Table can use it (see engine/ports.py)
+OUTPUT_TYPES = ["model", "table"]
 INPUT_SPECS = [
     ("Data", "a table with a numeric column for Y, numeric or text columns for X and any controls (C), and optionally a field to cluster by. Text columns enter as dummies. Rows missing any of them are dropped"),
 ]
@@ -27,6 +29,7 @@ def on_click(node):
     panel = Panel(node, "OLS")
     panel.add_button(robust_label(node.settings), toggle_robust)
     add_cluster_button(panel)
+    add_hac_controls(panel)
     panel.preview_title = "Results"
     panel.refresh = show_model
     show_model(panel)
@@ -42,6 +45,43 @@ def toggle_robust(panel, button):
     settings = panel.node.settings
     settings["robust"] = not settings.get("robust", False)
     button.text = robust_label(settings)
+    show_model(panel)
+
+
+def hac_label(settings):
+    return "HAC: On" if settings.get("hac") else "HAC: Off"
+
+
+# The HAC button, and while HAC is on a box for the number of lags (blank for the automatic number)
+def add_hac_controls(panel):
+    panel.add_button(hac_label(panel.node.settings), toggle_hac)
+    add_hac_controls_field(panel)
+
+
+# Switches Newey-West HAC standard errors on or off. They are robust to autocorrelation as well
+# as heteroscedasticity, for time series in time order. They replace clustering
+def toggle_hac(panel, button):
+    settings = panel.node.settings
+    settings["hac"] = not settings.get("hac", False)
+    if settings["hac"]:
+        settings["cluster"] = None
+    button.text = hac_label(settings)
+    add_hac_controls_field(panel)
+    show_model(panel)
+
+
+def add_hac_controls_field(panel):
+    if panel.node.settings.get("hac"):
+        lags = panel.node.settings.get("hac_lags")
+        panel.add_text_field("HAC lags (blank for automatic)", "" if lags in (None, "") else str(lags), type_hac_lags, blocked="")
+    else:
+        panel.text_field = None
+
+
+# Keeps the number of HAC lags as typed; only digits can be typed
+def type_hac_lags(panel, text):
+    text = "".join(c for c in text if c.isdigit())
+    panel.node.settings["hac_lags"] = int(text) if text else None
     show_model(panel)
 
 
@@ -181,6 +221,8 @@ def run(inputs, settings):
         "cluster": cluster,
         "breusch_pagan_p": breusch_pagan_p,
     }
+    if cov_type == "HAC":
+        results.attrs["hac_lags"] = cov_kwds["maxlags"]
     fits.record_linear(results, "OLS", model, dependent, used, independent + controls)
 
     fitted = used.copy()

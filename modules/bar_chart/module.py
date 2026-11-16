@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from ui.chart import draw_bars
-from ui.panel import Panel
+from engine.chart import draw_bars
+from engine.panel import Panel
 
 
 INPUTS = 1
@@ -143,8 +143,8 @@ def show_chart(panel):
     names, heights = list(bars.index), bars.to_numpy(float)
 
     # Draws the chart into the space the panel gives it
-    def draw(screen, area):
-        draw_bars(screen, area, panel.table_font, names, heights, category, y_label)
+    def draw(painter, area):
+        draw_bars(painter, area, panel.table_font, names, heights, category, y_label)
 
     panel.chart = draw
 

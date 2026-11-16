@@ -6,12 +6,14 @@ import statsmodels.api as sm
 from statsmodels.stats.diagnostic import het_breuschpagan
 
 from engine import clusters, dummies, fits, significance
-from ui.clusters import add_cluster_button
-from ui.panel import Panel
+from engine.cluster_panel import add_cluster_button
+from engine.panel import Panel
 
 
 INPUTS = 1
 OUTPUTS = 2
+# Out 1 carries the fit as well as the coefficients, so Forecast and Reg Table can use it (see engine/ports.py)
+OUTPUT_TYPES = ["model", "table"]
 INPUT_SPECS = [
     ("Data", "a table with a numeric column for Y, numeric or text columns for X, and optionally a field to cluster by. Other columns are candidate controls unless skipped. Text columns enter as dummies"),
 ]

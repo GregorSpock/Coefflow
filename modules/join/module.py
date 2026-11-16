@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 INPUTS = 2

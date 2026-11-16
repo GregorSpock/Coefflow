@@ -1,33 +1,44 @@
 import ctypes
 import os
+import shutil
 import sys
+import traceback
+from pathlib import Path
 
-import pygame
+from PySide6.QtCore import Qt, QThread, QTimer, Signal
+from PySide6.QtGui import QAction, QGuiApplication, QIcon, QKeySequence
+from PySide6.QtWidgets import (
+    QApplication, QHBoxLayout, QLabel, QMainWindow, QMenu, QPushButton, QSplitter, QStackedWidget,
+    QTabBar, QVBoxLayout, QWidget,
+)
 
-from engine import addons, workflow
-from ui import colours, dialogs, display, workspace
-from ui.button import Button
+from engine import addons, catalogue, colours, runner, workspace
+from engine.configure import configure_panel
+from engine.history import History
+from engine.node import load_module
+from engine.workflow import Workflow
+from ui import dialogs, theme
 from ui.canvas import Canvas
-from ui.configure import configure_panel
 from ui.help import HelpPopup
-from ui.menu import Menu
-from ui.settings import SettingsMenu
-from ui.toolbar import Toolbar, ROW_HEIGHT
-from ui.workflow_tabs import WorkflowTabs, OpenWorkflow, clear_temp, new_untitled
+from ui.menu import StartMenu
+from ui.panel_view import PANEL_WIDTH, PanelView
+from ui.table_viewer import TableViewer
+from ui.toolbar import Toolbar
 
 
-FPS = 60
-# How often untitled workflows are written to their temp files, in milliseconds
+# How often untitled workflows are written to their temp files, and how often the app looks
+# for changes to keep in the undo history, both in milliseconds
 TEMP_SAVE_INTERVAL = 2000
-CLICK_DISTANCE = 4
-PANEL_MARGIN = 30
-# Windowed mode opens at this fraction of the screen size
-WINDOW_SCALE = 0.8
+WATCH_INTERVAL = 300
+# How long a message stays in the status bar, in milliseconds
+MESSAGE_TIME = 6000
 
-# Stops the full screen window minimising when a file dialog opens in front of it
-os.environ["SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS"] = "0"
-
-ICON_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "icon.png")
+ROOT = Path(__file__).parent.parent
+ICON_PATH = ROOT / "icon.png"
+# Untitled workflows are kept as files in temp/ while they are open, so they always have a file
+# behind them. The folder is emptied when the app starts and when it closes
+TEMP_FOLDER = ROOT / "temp"
+UNTITLED_NAME = "UntitledWorkflow"
 
 # On Windows, gives the app its own taskbar entry (with its own icon) rather than grouping it under Python
 if sys.platform == "win32":
@@ -37,208 +48,285 @@ if sys.platform == "win32":
         pass
 
 
-class App:
-    # Sets up the full screen window, toolbar, canvas and buttons
+# Deletes everything in the temp folder, making the folder if it is missing
+def clear_temp():
+    if TEMP_FOLDER.exists():
+        shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
+    TEMP_FOLDER.mkdir(exist_ok=True)
+
+
+class OpenWorkflow:
+    # One open workflow: the workflow itself, the canvas showing it, its undo history, the file
+    # it is saved to (None until it is saved somewhere), its temp file while untitled, and its
+    # state at the last save to tell if it has changed
+    def __init__(self, workflow, path=None, temp_path=None):
+        self.workflow = workflow
+        self.canvas = Canvas(workflow)
+        self.history = History(workflow)
+        self.path = path
+        self.temp_path = temp_path
+        self.saved_state = workspace.snapshot(workflow)
+        self.temp_state = self.saved_state
+
+    def has_changes(self):
+        return workspace.snapshot(self.workflow) != self.saved_state
+
+    # An untitled workflow that has never been touched, which can be replaced by an opened file
+    def is_blank(self):
+        return self.path is None and not self.workflow.nodes and not self.has_changes()
+
+    def name(self):
+        return Path(self.path or self.temp_path).stem
+
+    # The name with an asterisk added when there are unsaved changes
+    def label(self):
+        return self.name() + ("*" if self.has_changes() else "")
+
+    # Rewrites an untitled workflow's temp file if it has changed since it was last written
+    def update_temp(self):
+        if not self.temp_path:
+            return
+        state = workspace.snapshot(self.workflow)
+        if state != self.temp_state:
+            try:
+                workspace.save(self.workflow, self.temp_path, self.canvas.view())
+                self.temp_state = state
+            except OSError:
+                pass
+
+    # Deletes the temp file, once the workflow is saved somewhere real or closed
+    def remove_temp(self):
+        if self.temp_path:
+            try:
+                os.remove(self.temp_path)
+            except OSError:
+                pass
+            self.temp_path = None
+
+
+class RunThread(QThread):
+    # Does the work of a run away from the window, so the window stays in use meanwhile.
+    # status is sent as each node starts and finishes
+    status = Signal(object, str)
+
+    def __init__(self, run):
+        super().__init__()
+        self.run_plan = run
+        self.failure = None
+
+    # A module that fails is the run's business, and is reported on its node. Anything else
+    # going wrong is kept in failure, so the window can say so rather than the run just ending
+    def run(self):
+        try:
+            self.run_plan.execute(self.status.emit)
+        except Exception as error:
+            traceback.print_exc()
+            self.failure = f"{type(error).__name__}: {error}"
+
+
+class MainWindow(QMainWindow):
     def __init__(self):
-        pygame.init()
-        pygame.display.set_caption("Coefflow")
-        if os.path.exists(ICON_PATH):
-            pygame.display.set_icon(pygame.image.load(ICON_PATH))
-
-        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        self.width, self.height = self.screen.get_size()
-        self.fullscreen = True
-
-        self.clock = pygame.time.Clock()
-        self.font = pygame.font.Font(None, 28)
-        self.zoom_font = pygame.font.Font(None, 40)
-        self.running = True
-        self.dragging = None
-        self.moving_node = None
-        self.grab_x = 0
-        self.grab_y = 0
-        self.press_pos = (0, 0)
-        self.connecting = None
-        self.panel = None
-        self.help_popup = None
-
-        self.toolbar = Toolbar(self.width, self.font)
-        self.tabs = WorkflowTabs()
+        super().__init__()
+        self.setWindowTitle("Coefflow")
+        if ICON_PATH.exists():
+            self.setWindowIcon(QIcon(str(ICON_PATH)))
         self.workflows = []
         self.active = None
         self.untitled_count = 0
-        self.last_temp_save = 0
+        self.run_thread = None
+        self.run_plan = None
+        self.help_popup = None
         clear_temp()
 
-        self.exit_button = Button(0, 4, 100, ROW_HEIGHT - 8, "Exit", self.font, "EXIT", "EXIT_HOVER")
-        self.run_button = Button(0, 4, 100, ROW_HEIGHT - 8, "Run", self.font, "RUN", "RUN_HOVER")
-        self.settings_button = Button(
-            0, 4, 100, ROW_HEIGHT - 8, "Settings", self.font, "TAB", "TAB_HOVER", "TAB_SELECTED"
-        )
-        self.zoom_in_button = Button(0, 0, 50, 50, "+", self.zoom_font, "ZOOM_BUTTON", "ZOOM_BUTTON_HOVER")
-        self.zoom_out_button = Button(0, 0, 50, 50, "-", self.zoom_font, "ZOOM_BUTTON", "ZOOM_BUTTON_HOVER")
-        self.settings_menu = SettingsMenu(self.font)
-        self.new_workflow()
-        self.layout()
+        self.pages = QStackedWidget()
+        self.setCentralWidget(self.pages)
+        self.menu = StartMenu()
+        self.menu.started.connect(self.start)
+        self.menu.exit_asked.connect(self.close)
+        self.menu.theme_asked.connect(self.next_theme)
+        self.pages.addWidget(self.menu)
+        self.pages.addWidget(self.build_main())
 
-    # The canvas of the workflow on show
-    @property
-    def canvas(self):
-        return self.active.canvas
+        self.make_shortcuts()
+        self.temp_timer = QTimer(self)
+        self.temp_timer.timeout.connect(self.save_temp)
+        self.temp_timer.start(TEMP_SAVE_INTERVAL)
+        self.watch_timer = QTimer(self)
+        self.watch_timer.timeout.connect(self.watch)
+        self.watch_timer.start(WATCH_INTERVAL)
 
-    # Places the toolbar, canvas and buttons to fit the current window size
-    def layout(self):
-        self.width, self.height = self.screen.get_size()
-        self.toolbar.width = self.width
-        self.tabs.place(self.toolbar.height, self.width)
-        for open_workflow in self.workflows:
-            open_workflow.canvas.rect = self.canvas_rect()
-
-        self.exit_button.rect.x = self.width - 110
-        self.run_button.rect.x = self.width - 220
-        self.settings_button.rect.x = self.width - 330
-        self.toolbar.tab_room = self.settings_button.rect.x - 6
-        self.zoom_in_button.rect.topleft = (self.width - 60, self.height - 110)
-        self.zoom_out_button.rect.topleft = (self.width - 60, self.height - 58)
-
-        if self.panel:
-            self.open_panel(self.panel)
-
-    # The area below the toolbar and the open workflows strip
-    def canvas_rect(self):
-        top = self.toolbar.height + self.tabs.height()
-        return pygame.Rect(0, top, self.width, self.height - top)
-
-    # Switches between full screen and a resizable window. Everything is still drawn at
-    # full screen size, then scaled down to fit the window, so the layout never changes
-    def toggle_fullscreen(self):
-        self.fullscreen = not self.fullscreen
-        display.windowed = not self.fullscreen
-        if self.fullscreen:
-            self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
-        else:
-            size = (int(self.width * WINDOW_SCALE), int(self.height * WINDOW_SCALE))
-            pygame.display.set_mode(size, pygame.RESIZABLE)
-            self.screen = pygame.Surface((self.width, self.height))
-
-    # Loads the add-on packs, then shows the menu, then the main loop: handle input, draw,
-    # then wait for the next frame
-    def run(self):
         self.reload_addons()
-        self.running = Menu(self.screen, self.font).run()
+        self.new_workflow()
 
-        while self.running:
-            self.handle_events()
-            self.save_temp()
-            self.draw()
-            self.clock.tick(FPS)
+    # ----- Building the window -----
 
-        pygame.quit()
-        clear_temp()
+    # The toolbar, the open workflows strip, the canvas with the panel beside it, and the status bar
+    def build_main(self):
+        page = QWidget()
+        rows = QVBoxLayout(page)
+        rows.setContentsMargins(0, 0, 0, 0)
+        rows.setSpacing(0)
 
-    # Every few seconds, writes any changed untitled workflows to their temp files
-    def save_temp(self):
-        now = pygame.time.get_ticks()
-        if now - self.last_temp_save < TEMP_SAVE_INTERVAL:
-            return
-        self.last_temp_save = now
+        self.toolbar = Toolbar()
+        self.toolbar.action.connect(self.do_action)
+        self.toolbar.module_placed.connect(lambda name: self.canvas.add_node(name))
+        self.toolbar.help_asked.connect(self.show_help)
+        self.toolbar.undo_button.clicked.connect(self.undo)
+        self.toolbar.redo_button.clicked.connect(self.redo)
+        self.toolbar.run_button.clicked.connect(self.run_clicked)
+        self.toolbar.exit_button.clicked.connect(self.close)
+        self.toolbar.settings_button.clicked.connect(self.show_settings)
+        rows.addWidget(self.toolbar)
+
+        self.tabs = QTabBar()
+        self.tabs.setTabsClosable(True)
+        self.tabs.setExpanding(False)
+        self.tabs.setDrawBase(False)
+        self.tabs.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.tabs.currentChanged.connect(self.tab_chosen)
+        self.tabs.tabCloseRequested.connect(lambda index: self.close_workflow(self.workflows[index]))
+        rows.addWidget(self.tabs)
+
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
+        self.splitter.setHandleWidth(2)
+        self.canvases = QStackedWidget()
+        self.panel_view = PanelView()
+        self.panel_view.closed.connect(self.close_panel)
+        self.panel_view.edited.connect(self.panel_edited)
+        self.panel_view.hide()
+        self.splitter.addWidget(self.canvases)
+        self.splitter.addWidget(self.panel_view)
+        self.splitter.setStretchFactor(0, 1)
+        self.splitter.setStretchFactor(1, 0)
+        self.splitter.setCollapsible(0, False)
+        self.splitter.setCollapsible(1, False)
+        rows.addWidget(self.splitter, 1)
+
+        status = QWidget()
+        status.setObjectName("status")
+        status.setFixedHeight(34)
+        status_row = QHBoxLayout(status)
+        status_row.setContentsMargins(10, 0, 8, 0)
+        self.status_label = QLabel()
+        self.status_label.setObjectName("small")
+        self.zoom_label = QLabel("100%")
+        self.zoom_label.setObjectName("small")
+        status_row.addWidget(self.status_label, 1)
+        for text, tip, action in [
+            ("Fit", "Fit the whole workflow in the window", lambda: self.canvas.zoom_to_fit()),
+            ("-", "Zoom out", lambda: self.canvas.zoom_out()),
+        ]:
+            status_row.addWidget(self.status_button(text, tip, action))
+        status_row.addWidget(self.zoom_label)
+        status_row.addWidget(self.status_button("+", "Zoom in", lambda: self.canvas.zoom_in()))
+        rows.addWidget(status)
+
+        self.message_timer = QTimer(self)
+        self.message_timer.setSingleShot(True)
+        self.message_timer.timeout.connect(lambda: self.status_label.setText(""))
+        return page
+
+    def status_button(self, text, tip, action):
+        button = QPushButton(text)
+        button.setObjectName("small")
+        button.setFixedHeight(24)
+        button.setMinimumWidth(30)
+        button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        button.setToolTip(tip)
+        button.clicked.connect(action)
+        return button
+
+    # Ctrl+S saves, Ctrl+Shift+S saves as, Ctrl+O opens, Ctrl+T or Ctrl+N opens a new workflow,
+    # Ctrl+W closes the one on show, Ctrl+Z undoes and Ctrl+Y or Ctrl+Shift+Z redoes. F5 runs
+    # what has changed, Shift+F5 runs everything, Escape stops a run or closes the panel, and
+    # F11 switches full screen. Copy, paste and delete belong to the canvas (see ui/canvas.py)
+    def make_shortcuts(self):
+        shortcuts = [
+            ("Ctrl+S", self.save_workflow), ("Ctrl+Shift+S", self.save_workflow_as), ("Ctrl+O", self.open_workflow),
+            ("Ctrl+T", self.new_workflow), ("Ctrl+N", self.new_workflow), ("Ctrl+W", lambda: self.close_workflow(self.active)),
+            ("Ctrl+Z", self.undo), ("Ctrl+Y", self.redo), ("Ctrl+Shift+Z", self.redo),
+            ("F5", self.run_workflow), ("Shift+F5", lambda: self.run_workflow(force=True)),
+            ("Escape", self.escape), ("F11", self.toggle_fullscreen),
+        ]
+        for keys, function in shortcuts:
+            action = QAction(self)
+            action.setShortcut(QKeySequence(keys))
+            action.triggered.connect(lambda checked=False, function=function: self.shortcut(function))
+            self.addAction(action)
+
+    # Shortcuts do nothing on the opening screen
+    def shortcut(self, function):
+        if self.pages.currentIndex() == 1:
+            function()
+
+    # ----- The opening screen -----
+
+    # Leaves the opening screen for the canvas, loading every module first if asked to
+    def start(self, load_all):
+        if load_all:
+            self.load_all()
+        self.pages.setCurrentIndex(1)
+        self.canvas.setFocus()
+
+    # Loads every toolbar module in turn, showing which one is loading, then lists any that failed
+    def load_all(self):
+        names = catalogue.all_modules()
+        problems = []
+        for count, name in enumerate(names):
+            self.menu.show_loading(name, count, len(names))
+            QApplication.processEvents()
+            try:
+                load_module(name)
+            except Exception as error:
+                problems.append(f"{name} could not be loaded ({error}).")
+        self.menu.show_loading(None)
+        if problems:
+            dialogs.show_message("Module problems", "\n".join(problems))
+
+    # ----- Settings -----
+
+    # The drop-down under the Settings button: theme, full screen, Configure and the add-on packs
+    def show_settings(self):
+        menu = QMenu(self)
+        menu.addAction(f"Theme: {colours.current_theme}", self.next_theme)
+        menu.addAction("Windowed" if self.isFullScreen() else "Fullscreen", self.toggle_fullscreen)
+        menu.addAction("Configure", lambda: self.open_panel(configure_panel()))
+        packs = menu.addMenu("Add-ons")
+        packs.addAction("Core modules: Always on").setEnabled(False)
+        for pack, details in addons.packs.items():
+            label = f"{details['name']}: Remove"
+            if details["version"]:
+                label += f"   (v{details['version']})"
+            packs.addAction(label, lambda pack=pack: self.remove_pack(pack))
+        packs.addSeparator()
+        packs.addAction("Add pack...", self.add_pack)
+        button = self.toolbar.settings_button
+        menu.exec(button.mapToGlobal(button.rect().bottomLeft()))
+
+    def next_theme(self):
+        colours.next_theme()
+        self.apply_theme()
+
+    # Gives everything the current theme's look
+    def apply_theme(self):
+        QApplication.instance().setStyleSheet(theme.style_sheet())
+        self.menu.apply_theme()
         for open_workflow in self.workflows:
-            open_workflow.update_temp()
+            open_workflow.canvas.refresh()
+        if self.panel_view.panel:
+            self.panel_view.sync()
 
-    # Passes each event to the buttons, toolbar and canvas
-    def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = not self.can_close_all()
-            if hasattr(event, "pos"):
-                event.pos = display.to_screen(event.pos)
-            if self.help_popup and self.help_popup.closes_on(event):
-                self.help_popup = None
-                continue
-            if self.exit_button.is_clicked(event):
-                self.running = not self.can_close_all()
-                continue
-            if self.settings_button.is_clicked(event):
-                self.settings_menu.toggle(self.settings_button.rect.right, ROW_HEIGHT, self.fullscreen)
-                self.settings_button.selected = self.settings_menu.open
-                continue
-            if self.handle_settings(event):
-                continue
-            if self.panel and self.handle_panel(event):
-                continue
-            if self.handle_help(event):
-                continue
-            if self.handle_tabs(event):
-                continue
-            if self.handle_shortcut(event):
-                continue
-            if self.run_button.is_clicked(event):
-                self.run_workflow()
-                continue
-            if self.zoom_in_button.is_clicked(event):
-                self.canvas.zoom_in()
-                continue
-            if self.zoom_out_button.is_clicked(event):
-                self.canvas.zoom_out()
-                continue
-
-            action = self.toolbar.action_clicked(event)
-            if action == "New":
-                self.new_workflow()
-            elif action == "Open":
-                self.open_workflow()
-            elif action == "Save":
-                self.save_workflow()
-            elif action == "Save As":
-                self.save_workflow_as()
-
-            # Opening or closing a tab shows or hides the toolbar's second row, so the rest moves to fit
-            toolbar_height = self.toolbar.height
-            self.toolbar.handle_event(event)
-            if self.toolbar.height != toolbar_height:
-                self.layout()
-            self.handle_drag(event)
-            self.handle_connect(event)
-            self.handle_move(event)
-            self.canvas.handle_event(event)
-
-    # Opens the help popup for a module whose ? was clicked, on the toolbar or the canvas.
-    # Returns True if a ? was clicked
-    def handle_help(self, event):
-        name = self.toolbar.help_clicked(event)
-        if not name and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.canvas.rect.collidepoint(event.pos):
-                node = self.canvas.help_at(event.pos[0], event.pos[1])
-                name = node.name if node else None
-        if not name:
-            return False
-        self.help_popup = HelpPopup(name, event.pos, (self.width, self.height), self.font)
-        return True
-
-    # Passes events to the settings menu while it is open. Returns True if the menu used the event
-    def handle_settings(self, event):
-        choice, used = self.settings_menu.handle_event(event)
-        self.settings_button.selected = self.settings_menu.open
-        if choice == "Theme":
-            colours.next_theme()
-        elif choice == "Fullscreen":
-            self.toggle_fullscreen()
-        elif choice == "Configure":
-            self.open_panel(configure_panel())
-        elif choice == "Add pack":
-            self.add_pack()
-        elif choice == "Remove pack":
-            self.remove_pack(self.settings_menu.pack)
-        return used
+    def toggle_fullscreen(self):
+        if self.isFullScreen():
+            self.showMaximized()
+        else:
+            self.showFullScreen()
 
     # Loads every pack in the add-ons folder and remakes the toolbar tabs to match.
     # Any pack or module that fails to load is reported
     def reload_addons(self):
         problems = addons.load_all()
         self.toolbar.refresh()
-        self.layout()
-        if self.settings_menu.open:
-            self.settings_menu.show_addons()
         if problems:
             dialogs.show_message("Add-on problems", "\n".join(problems))
 
@@ -276,52 +364,118 @@ class App:
             dialogs.show_message("Could not remove the pack", str(error))
         self.reload_addons()
 
-    # Ctrl+S saves, Ctrl+Shift+S saves as, Ctrl+O opens, Ctrl+T opens a new workflow and
-    # Ctrl+W closes the one on show. Returns True if a shortcut was used
-    def handle_shortcut(self, event):
-        if event.type != pygame.KEYDOWN or not event.mod & pygame.KMOD_CTRL:
-            return False
-        if event.key == pygame.K_s and event.mod & pygame.KMOD_SHIFT:
-            self.save_workflow_as()
-        elif event.key == pygame.K_s:
-            self.save_workflow()
-        elif event.key == pygame.K_o:
-            self.open_workflow()
-        elif event.key == pygame.K_t:
-            self.new_workflow()
-        elif event.key == pygame.K_w:
-            self.close_workflow(self.active)
+    # ----- Workflows and their tabs -----
+
+    # The canvas of the workflow on show
+    @property
+    def canvas(self):
+        return self.active.canvas
+
+    def do_action(self, action):
+        if self.running():
+            return
+        {"New": self.new_workflow, "Open": self.open_workflow, "Save": self.save_workflow, "Save As": self.save_workflow_as}[action]()
+
+    # Adds a workflow's canvas and tab, and shows it
+    def add_workflow(self, open_workflow, replacing=None):
+        canvas = open_workflow.canvas
+        canvas.node_clicked.connect(self.node_clicked)
+        canvas.help_asked.connect(self.show_help)
+        canvas.run_to_here.connect(lambda node: self.run_workflow(only=[node]))
+        canvas.view_asked.connect(self.view_data)
+        canvas.changed.connect(self.watch)
+        canvas.message.connect(self.say)
+        canvas.zoomed.connect(self.show_zoom)
+        self.canvases.addWidget(canvas)
+
+        self.tabs.blockSignals(True)
+        if replacing:
+            index = self.workflows.index(replacing)
+            self.workflows[index] = open_workflow
+            self.canvases.removeWidget(replacing.canvas)
+            replacing.canvas.deleteLater()
+            self.tabs.setTabText(index, open_workflow.label())
         else:
-            return False
-        return True
+            self.workflows.append(open_workflow)
+            self.tabs.addTab(open_workflow.label())
+        self.tabs.blockSignals(False)
+        self.switch_to(open_workflow)
 
-    # Shows the open workflow's name in the window title
-    def update_title(self):
-        pygame.display.set_caption(f"Coefflow - {self.active.name()}")
-
-    # Passes clicks to the open workflows strip and its show/hide box.
-    # Returns True if the event landed on either
-    def handle_tabs(self, event):
-        click, used = self.tabs.handle_event(event, self.workflows)
-        if click:
-            kind, index = click
-            if kind == "toggle":
-                self.tabs.expanded = not self.tabs.expanded
-                self.layout()
-            elif kind == "select":
-                self.switch_to(self.workflows[index])
-            elif kind == "close":
-                self.close_workflow(self.workflows[index])
-        return used
-
-    # Shows another open workflow, dropping anything half done on the one being left
+    # Shows another open workflow, closing the panel of the one being left
     def switch_to(self, open_workflow):
         self.active = open_workflow
-        self.panel = None
-        self.connecting = None
-        self.moving_node = None
-        self.dragging = None
+        self.close_panel()
+        self.canvases.setCurrentWidget(open_workflow.canvas)
+        self.tabs.blockSignals(True)
+        self.tabs.setCurrentIndex(self.workflows.index(open_workflow))
+        self.tabs.blockSignals(False)
+        self.show_zoom()
         self.update_title()
+
+    def tab_chosen(self, index):
+        if 0 <= index < len(self.workflows) and self.workflows[index] is not self.active:
+            if self.running():
+                self.tabs.blockSignals(True)
+                self.tabs.setCurrentIndex(self.workflows.index(self.active))
+                self.tabs.blockSignals(False)
+                self.say("Wait for the run to finish, or stop it, before changing workflow")
+            else:
+                self.switch_to(self.workflows[index])
+
+    # Shows the open workflow's name in the window title, each tab's name with an asterisk if it
+    # has unsaved changes, and whether there is anything to undo or redo
+    def update_title(self):
+        if not self.active:
+            return
+        self.setWindowTitle(f"Coefflow - {self.active.name()}")
+        for index, open_workflow in enumerate(self.workflows):
+            if self.tabs.tabText(index) != open_workflow.label():
+                self.tabs.setTabText(index, open_workflow.label())
+        self.toolbar.undo_button.setEnabled(self.active.history.can_undo() and not self.running())
+        self.toolbar.redo_button.setEnabled(self.active.history.can_redo() and not self.running())
+
+    # Opens a fresh untitled workflow in a new tab, kept in the temp folder until it is saved
+    def new_workflow(self):
+        if self.running():
+            return
+        self.untitled_count += 1
+        temp_path = TEMP_FOLDER / f"{UNTITLED_NAME}_{self.untitled_count}.confw"
+        open_workflow = OpenWorkflow(Workflow(), temp_path=str(temp_path))
+        try:
+            TEMP_FOLDER.mkdir(exist_ok=True)
+            workspace.save(open_workflow.workflow, temp_path)
+        except OSError:
+            pass
+        self.add_workflow(open_workflow)
+
+    # Opens a workflow from a file in a new tab, or shows it if it is already open.
+    # An untouched untitled workflow on show is replaced rather than left behind.
+    # Results are not stored in the file, so Run the workflow to see them again
+    def open_workflow(self, path=None):
+        if self.running():
+            return
+        path = path or dialogs.choose_workflow()
+        if not path:
+            return
+        for open_workflow in self.workflows:
+            if open_workflow.path and os.path.exists(open_workflow.path) and os.path.samefile(open_workflow.path, path):
+                self.switch_to(open_workflow)
+                return
+
+        try:
+            workflow, view, problems = workspace.load(path)
+        except (OSError, ValueError) as error:
+            dialogs.show_message("Could not open", str(error))
+            return
+
+        opened = OpenWorkflow(workflow, path)
+        blank = self.active if self.active and self.active.is_blank() else None
+        if blank:
+            blank.remove_temp()
+        self.add_workflow(opened, replacing=blank)
+        opened.canvas.set_view(view)
+        if problems:
+            dialogs.show_message("Opened with problems", "\n".join(problems))
 
     # Offers to save a workflow with changes before it is closed, showing it first.
     # Returns False if the user cancels, or chose to save and then cancelled the save
@@ -329,26 +483,31 @@ class App:
         if not open_workflow.has_changes():
             return True
         self.switch_to(open_workflow)
-        answer = dialogs.ask_save_changes()
+        answer = dialogs.ask_save_changes(open_workflow.name())
         if answer is None:
             return False
         return self.save_workflow() if answer else True
 
-    # Before the app closes, offers to save each workflow with changes in turn
-    def can_close_all(self):
-        return all(self.can_discard(open_workflow) for open_workflow in list(self.workflows))
-
     # Closes a workflow's tab after offering to save it, deleting its temp file.
     # Closing the last one leaves a fresh untitled workflow open
     def close_workflow(self, open_workflow):
+        if self.running():
+            self.say("Wait for the run to finish, or stop it, before closing a workflow")
+            return
         shown = self.active
         if not self.can_discard(open_workflow):
             return
         index = self.workflows.index(open_workflow)
         self.workflows.remove(open_workflow)
         open_workflow.remove_temp()
+        self.tabs.blockSignals(True)
+        self.tabs.removeTab(index)
+        self.tabs.blockSignals(False)
+        self.canvases.removeWidget(open_workflow.canvas)
+        open_workflow.canvas.deleteLater()
 
         if not self.workflows:
+            self.active = None
             self.new_workflow()
         elif shown is open_workflow:
             self.switch_to(self.workflows[min(index, len(self.workflows) - 1)])
@@ -361,13 +520,14 @@ class App:
         if not self.active.path:
             return self.save_workflow_as()
         try:
-            workspace.save(self.canvas, self.active.path)
+            workspace.save(self.active.workflow, self.active.path, self.canvas.view())
         except OSError as error:
             dialogs.show_message("Could not save", str(error))
             return False
-        self.active.saved_state = workspace.snapshot(self.canvas)
+        self.active.saved_state = workspace.snapshot(self.active.workflow)
         self.active.remove_temp()
         self.update_title()
+        self.say(f"Saved {self.active.path}")
         return True
 
     def save_workflow_as(self):
@@ -381,178 +541,213 @@ class App:
         self.active.path = previous
         return False
 
-    # Opens a fresh untitled workflow in a new tab, kept in the temp folder until it is saved
-    def new_workflow(self):
-        self.untitled_count += 1
-        open_workflow = new_untitled(self.canvas_rect(), self.untitled_count)
-        self.workflows.append(open_workflow)
-        self.switch_to(open_workflow)
-
-    # Opens a workflow from a file in a new tab, or shows it if it is already open.
-    # An untouched untitled workflow on show is replaced rather than left behind.
-    # Results are not stored in the file, so Run the workflow to see them again
-    def open_workflow(self):
-        path = dialogs.choose_workflow()
-        if not path:
-            return
+    # Every few seconds, writes any changed untitled workflows to their temp files
+    def save_temp(self):
         for open_workflow in self.workflows:
-            if open_workflow.path and os.path.samefile(open_workflow.path, path):
-                self.switch_to(open_workflow)
-                return
+            open_workflow.update_temp()
 
-        canvas = Canvas(self.canvas_rect())
+    # ----- Undo and redo -----
+
+    # Looks for changes to the workflow on show: a change is kept in its undo history, and any
+    # node whose results no longer match its settings or inputs goes back to not run.
+    # Nothing is kept while the mouse is down, so a drag is one change rather than many
+    def watch(self):
+        if not self.active or self.running() or QGuiApplication.mouseButtons() != Qt.MouseButton.NoButton:
+            return
+        self.active.history.record()
+        if runner.mark_stale(self.active.workflow):
+            self.canvas.refresh()
+        self.update_title()
+
+    def undo(self):
+        self.step_history(self.active.history.undo, "Nothing to undo")
+
+    def redo(self):
+        self.step_history(self.active.history.redo, "Nothing to redo")
+
+    # Undoes or redoes, then shows the workflow as it now is. The open panel is opened again
+    # from its node, as its settings may be among what changed, or closed if its node has gone
+    def step_history(self, step, nothing):
+        if self.running():
+            return
+        if not step():
+            self.say(nothing)
+            return
+        self.canvas.rebuild()
+        runner.mark_stale(self.active.workflow)
+        panel = self.panel_view.panel if self.panel_view.isVisible() else None
+        if panel and panel.node.id is not None:
+            node = self.active.workflow.node_by_id(panel.node.id)
+            if node:
+                self.node_clicked(node)
+            else:
+                self.close_panel()
+        self.update_title()
+
+    # ----- Panels and help -----
+
+    def node_clicked(self, node):
         try:
-            problems = workspace.load(canvas, path)
-        except (OSError, ValueError) as error:
-            dialogs.show_message("Could not open", str(error))
+            panel = node.on_click()
+        except Exception as error:
+            dialogs.show_message("Could not open the settings", f"{type(error).__name__}: {error}")
+            return
+        if panel:
+            self.open_panel(panel)
+
+    # Shows a settings panel beside the canvas
+    def open_panel(self, panel):
+        first = not self.panel_view.isVisible()
+        self.panel_view.show_panel(panel, self.active.workflow)
+        self.panel_view.show()
+        self.panel_view.setEnabled(not self.running())
+        if first:
+            total = self.splitter.width()
+            self.splitter.setSizes([max(200, total - PANEL_WIDTH), PANEL_WIDTH])
+
+    def close_panel(self):
+        self.panel_view.hide()
+        self.panel_view.panel = None
+
+    # A change made in the panel may add or remove ports and lines, so the canvas is shown again
+    def panel_edited(self):
+        for node in self.active.workflow.nodes:
+            self.active.workflow.tidy_inputs(node)
+        self.canvas.rebuild()
+
+    def show_help(self, name, position):
+        self.help_popup = HelpPopup(name, position, self)
+        self.help_popup.show()
+
+    def escape(self):
+        if self.running():
+            self.stop_run()
+        elif self.panel_view.isVisible():
+            self.close_panel()
+
+    # Shows a message in the status bar for a few seconds
+    def say(self, text):
+        self.status_label.setText(text)
+        self.message_timer.start(MESSAGE_TIME)
+
+    def show_zoom(self):
+        if self.active:
+            self.zoom_label.setText(f"{round(self.canvas.zoom * 100)}%")
+
+    # ----- Running -----
+
+    def running(self):
+        return self.run_thread is not None
+
+    # The Run button runs what has changed, or everything with Shift held. While a run is under
+    # way it is the Stop button
+    def run_clicked(self):
+        if self.running():
+            self.stop_run()
+        else:
+            shift = QGuiApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
+            self.run_workflow(force=bool(shift))
+
+    # Runs the workflow on show on another thread, so the window stays in use: only the nodes
+    # that have changed since they last ran, and those below them, unless force is set.
+    # only limits the run to the given nodes and the ones they depend on.
+    # The workflow can't be edited until the run finishes
+    # Opens a window showing every table the node was given and gave back on the last run
+    def view_data(self, node):
+        viewer = TableViewer(node, self)
+        viewer.show()
+        return viewer
+
+    def run_workflow(self, only=None, force=False):
+        if self.running():
+            return
+        self.active.history.record()
+        try:
+            self.run_plan = runner.Run(self.active.workflow, only, force)
+        except ValueError as error:
+            dialogs.show_message("Could not run", str(error))
             return
 
-        opened = OpenWorkflow(canvas, path)
-        if self.active.is_blank():
-            self.active.remove_temp()
-            self.workflows[self.workflows.index(self.active)] = opened
+        self.set_locked(True)
+        self.say("Running...")
+        self.run_thread = RunThread(self.run_plan)
+        self.run_thread.status.connect(self.node_status)
+        self.run_thread.finished.connect(self.run_finished)
+        self.run_thread.start()
+
+    def stop_run(self):
+        if self.run_plan:
+            self.run_plan.cancel()
+            self.say("Stopping once the module that is running has finished...")
+
+    # Shows a node as running, done or failed as the run reaches it
+    def node_status(self, node, status):
+        node.status = status
+        if status == "running":
+            self.status_label.setText(f"Running {node.name} #{node.id}...")
+        self.canvas.refresh()
+
+    # Writes the run's results onto the nodes, then marks each node green if it worked or red if it failed
+    def run_finished(self):
+        run, self.run_plan = self.run_plan, None
+        self.run_thread.wait()
+        failure = self.run_thread.failure
+        self.run_thread = None
+        if failure:
+            dialogs.show_message("The run stopped unexpectedly", failure)
+        errors = run.apply()
+        for node_id, error in errors.items():
+            node = self.active.workflow.node_by_id(node_id)
+            print(f"{node.name} (#{node_id}): {error}")
+
+        self.set_locked(False)
+        self.canvas.refresh()
+        if self.panel_view.isVisible():
+            self.panel_view.refresh()
+
+        ran, kept = run.counts()
+        parts = [f"Ran {ran} module{'s' if ran != 1 else ''}"]
+        if kept:
+            parts.append(f"kept the results of {kept} that had not changed")
+        if errors:
+            parts.append(f"{len(errors)} failed")
+        if run.stop:
+            parts.append("stopped early")
+        self.say(", ".join(parts))
+        self.update_title()
+
+    # Stops the workflow being edited while it runs. The canvas can still be moved and zoomed
+    def set_locked(self, locked):
+        self.canvas.locked = locked
+        self.panel_view.setEnabled(not locked)
+        self.toolbar.modules.setEnabled(not locked)
+        self.toolbar.run_button.setText("Stop" if locked else "Run")
+        self.toolbar.run_button.setObjectName("exit" if locked else "run")
+        self.toolbar.run_button.style().unpolish(self.toolbar.run_button)
+        self.toolbar.run_button.style().polish(self.toolbar.run_button)
+        self.update_title()
+
+    # ----- Closing -----
+
+    # Before the app closes, stops any run and offers to save each workflow with changes in turn
+    def closeEvent(self, event):
+        if self.running():
+            self.run_plan.cancel()
+            self.run_thread.wait()
+            self.run_finished()
+        if all(self.can_discard(open_workflow) for open_workflow in list(self.workflows)):
+            clear_temp()
+            event.accept()
         else:
-            self.workflows.append(opened)
-        self.switch_to(opened)
-        if problems:
-            dialogs.show_message("Opened with problems", "\n".join(problems))
+            event.ignore()
 
-    # Picks up a module from the toolbar and drops it onto the canvas
-    def handle_drag(self, event):
-        module = self.toolbar.module_clicked(event)
-        if module:
-            self.dragging = module
 
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and self.dragging:
-            if self.canvas.rect.collidepoint(event.pos):
-                self.canvas.add_node(self.dragging, event.pos[0], event.pos[1])
-            self.dragging = None
-
-    # Drags a line from an output port to an input port.
-    # Grabbing an input that is already connected unplugs that line so it can be moved
-    def handle_connect(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            port = self.canvas.port_at(event.pos[0], event.pos[1])
-            if port and self.canvas.rect.collidepoint(event.pos):
-                node, side, index = port
-                if side == "output":
-                    self.connecting = (node, index)
-                else:
-                    existing = self.canvas.connection_into(node, index)
-                    if existing:
-                        self.canvas.disconnect(existing)
-                        self.connecting = (existing.source, existing.output_index)
-
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and self.connecting:
-            port = self.canvas.port_at(event.pos[0], event.pos[1])
-            if port and port[1] == "input":
-                source, output_index = self.connecting
-                self.canvas.connect(source, output_index, port[0], port[2])
-            self.connecting = None
-
-    # Passes events to the open panel, forgets the panel once it is closed,
-    # and swaps it for another if one of its buttons opened one
-    def handle_panel(self, event):
-        used = self.panel.handle_event(event)
-        if self.panel.closed:
-            self.panel = None
-        elif self.panel.next_panel:
-            self.open_panel(self.panel.next_panel)
-        return used
-
-    # Shows a node's settings panel on the right of the canvas
-    def open_panel(self, panel):
-        panel.canvas = self.canvas
-        x = self.width - panel.rect.width - PANEL_MARGIN
-        y = self.canvas.rect.top + PANEL_MARGIN
-        height = self.zoom_in_button.rect.top - PANEL_MARGIN - y
-        panel.place(x, y, height)
-        self.panel = panel
-
-    # Runs the workflow, then marks each node green if it worked or red if it failed
-    def run_workflow(self):
-        results, errors = workflow.run(self.canvas.nodes, self.canvas.connections)
-
-        for node in self.canvas.nodes:
-            node.error = errors.get(node.id)
-            if node.id in errors:
-                node.status = "error"
-                print(f"{node.name} (#{node.id}): {errors[node.id]}")
-            else:
-                node.status = "done"
-
-        if self.panel and self.panel.refresh:
-            self.panel.refresh(self.panel)
-
-    # Clicks or moves a placed node, and removes it if dropped on the toolbar
-    def handle_move(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            on_port = self.canvas.port_at(event.pos[0], event.pos[1])
-            if self.canvas.rect.collidepoint(event.pos) and not on_port:
-                node = self.canvas.node_at(event.pos[0], event.pos[1])
-                if node:
-                    mouse_x, mouse_y = self.canvas.to_canvas(event.pos[0], event.pos[1])
-                    self.grab_x = node.x - mouse_x
-                    self.grab_y = node.y - mouse_y
-                    self.press_pos = event.pos
-                    self.moving_node = node
-                    self.canvas.bring_to_front(node)
-
-        if event.type == pygame.MOUSEMOTION and self.moving_node:
-            mouse_x, mouse_y = self.canvas.to_canvas(event.pos[0], event.pos[1])
-            self.moving_node.x = mouse_x + self.grab_x
-            self.moving_node.y = mouse_y + self.grab_y
-
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and self.moving_node:
-            moved_x = abs(event.pos[0] - self.press_pos[0])
-            moved_y = abs(event.pos[1] - self.press_pos[1])
-
-            if event.pos[1] < self.toolbar.height:
-                self.canvas.remove_node(self.moving_node)
-                if self.panel and self.panel.node is self.moving_node:
-                    self.panel = None
-            elif moved_x <= CLICK_DISTANCE and moved_y <= CLICK_DISTANCE:
-                panel = self.moving_node.on_click()
-                if panel:
-                    self.open_panel(panel)
-
-            self.moving_node = None
-
-    # Draws the canvas first, then everything that sits on top of it
-    def draw(self):
-        self.screen.fill(colours.BACKGROUND)
-        self.canvas.draw(self.screen)
-        self.toolbar.draw(self.screen)
-        self.tabs.draw(self.screen, self.workflows, self.active)
-
-        self.exit_button.draw(self.screen)
-        self.run_button.draw(self.screen)
-        self.settings_button.draw(self.screen)
-        self.zoom_in_button.draw(self.screen)
-        self.zoom_out_button.draw(self.screen)
-
-        if self.panel:
-            self.panel.draw(self.screen)
-
-        zoom_label = self.font.render(f"{round(self.canvas.zoom * 100)}%", True, colours.TEXT)
-        zoom_rect = zoom_label.get_rect(midright=(self.width - 70, self.height - 58))
-        self.screen.blit(zoom_label, zoom_rect)
-
-        if self.connecting:
-            node, index = self.connecting
-            start = node.output_positions(self.canvas)[index]
-            end = display.mouse_pos()
-            pygame.draw.line(self.screen, colours.CONNECTION, start, end, self.canvas.line_width())
-
-        if self.moving_node:
-            self.moving_node.draw(self.screen, self.canvas)
-
-        if self.dragging:
-            mouse_x, mouse_y = display.mouse_pos()
-            self.canvas.draw_preview(self.screen, self.dragging, mouse_x, mouse_y)
-
-        self.settings_menu.draw(self.screen)
-        if self.help_popup:
-            self.help_popup.draw(self.screen)
-
-        display.present(self.screen)
+# Starts the app: the opening screen first, then the canvas
+def run():
+    app = QApplication(sys.argv)
+    app.setApplicationName("Coefflow")
+    app.setStyleSheet(theme.style_sheet())
+    dialogs.install()
+    window = MainWindow()
+    window.showMaximized()
+    sys.exit(app.exec())

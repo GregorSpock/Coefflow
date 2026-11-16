@@ -1,26 +1,21 @@
 import math
 
-import pygame
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout
 
-from ui import chart, colours, dialogs
-from ui.button import Button
-from ui.panel import PADDING, ROW_HEIGHT, Panel, TextField
+from engine import chart
+from ui import dialogs
 
 
-# The Chart Settings panel, opened by the Settings button beside any chart. It changes how that
+# The chart settings, opened by the Settings button beside any chart. They change how that
 # node's chart looks: its title and axis labels, the ends of each axis, the number of ticks, the
 # sizes of its text, points and lines, whether it has grid lines and a key, its colours, and the
-# size it is saved at as a PNG. The choices make up the chart's style (see ui/chart.py), kept in
-# the node's settings so they are saved with the workflow. A box left empty, and a colour not
-# picked, stay automatic. The chart is redrawn underneath as each choice is made
+# size it is saved at as a PNG. The choices make up the chart's style (see engine/chart.py), kept
+# in the node's settings so they are saved with the workflow. A box left empty, and a colour not
+# picked, stay automatic. The chart is redrawn as each choice is made
 
-ROW = 34
-FIELD_HEIGHT = 28
 COLUMNS = 4
-LABEL_WIDTH = 88
-SWATCH = 20
 SWATCH_COLUMNS = 6
-SWATCH_ROW = 28
 
 # Each box: the style key it sets, its label, what it holds ("text", "number" or "whole" for a
 # whole number), its row and column in the grid of boxes, how many columns wide it is, and the
@@ -49,7 +44,7 @@ LIMITS = {
     "export_width": (200, 6000),
     "export_height": (200, 6000),
 }
-# The parts of the chart that can be shown or hidden, drawn as buttons after the last boxes
+# The parts of the chart that can be shown or hidden, as buttons after the last boxes
 TOGGLES = [("grid", "Grid lines"), ("key", "Key")]
 TOGGLE_ROW = 4
 TOGGLE_COLUMN = 2
@@ -89,88 +84,110 @@ def typed_value(key, kind, text):
     return max(low, min(high, int(number)))
 
 
-# Goes back to the chart's own panel
-def go_back(panel, button):
-    panel.source.next_panel = None
-    panel.next_panel = panel.source
+class Swatch(QPushButton):
+    # A square of one of the chart's colours. A click picks another, a right-click goes back to the theme's
+    reset = Signal()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.RightButton:
+            self.reset.emit()
+        else:
+            super().mousePressEvent(event)
 
 
-# Sets every colour to one that suits a white page
-def use_print_colours(panel, button):
-    panel.set_value("colours", {name: list(colour) for name, colour in chart.PRINT_COLOURS.items()})
+class ChartSettings(QFrame):
+    # changed is sent after every choice, so the chart can be drawn again
+    changed = Signal()
 
+    def __init__(self):
+        super().__init__()
+        self.setObjectName("chartSettings")
+        self.node = None
+        self.boxes = {}
+        self.toggles = {}
+        self.swatches = {}
+        self.rows = QVBoxLayout(self)
+        self.rows.setContentsMargins(0, 0, 0, 0)
+        self.rows.setSpacing(6)
 
-# Forgets every choice, so the chart goes back to its automatic look
-def reset_style(panel, button):
-    panel.node.settings.pop(chart.STYLE_KEY, None)
-    for field in panel.fields:
-        field.set_text("")
+    # Shows the settings of a node's chart. axes names the axes the chart has: "xy", "y" or ""
+    def show_for(self, node, axes):
+        self.node = node
+        while self.rows.count():
+            item = self.rows.takeAt(0)
+            if item.widget():
+                item.widget().hide()
+                item.widget().deleteLater()
+            elif item.layout():
+                clear_layout(item.layout())
+        self.boxes, self.toggles, self.swatches = {}, {}, {}
 
+        def applies(axis):
+            return bool(axes) if axis == "any" else axis in axes
 
-# Shows or hides the part of the chart the clicked button is for
-def toggle_part(panel, button):
-    shown = panel.style().get(button.value, True)
-    panel.set_value(button.value, False if shown else None)
+        buttons = QHBoxLayout()
+        for label, action in [("Print colours", self.use_print_colours), ("Reset", self.reset_style)]:
+            button = QPushButton(label)
+            button.setObjectName("small")
+            button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            button.clicked.connect(action)
+            buttons.addWidget(button)
+        buttons.addStretch()
+        self.rows.addLayout(buttons)
 
-
-# Running the workflow redraws the chart from the new data, which is the chart panel's job
-def refresh_source(panel):
-    panel.source.refresh(panel.source)
-
-
-class ChartSettingsPanel(Panel):
-    # source is the chart's own panel, which this one replaces until Back is clicked.
-    # A panel has one text field, the one being typed in, so text_field is set to whichever
-    # box was clicked last
-    def __init__(self, source):
-        self.fields = []
-        self.toggles = []
-        self.swatches = []
-        self.hint_top = 0
-        self.row_of = {TOGGLE_ROW: 0}
-        super().__init__(source.node, "Chart Settings")
-        self.source = source
-        self.add_button("Back", go_back)
-        self.add_button("Print colours", use_print_colours)
-        self.add_button("Reset", reset_style)
-        if source.refresh:
-            self.refresh = refresh_source
-
-        style = self.style()
+        grid = QGridLayout()
+        grid.setHorizontalSpacing(8)
+        grid.setVerticalSpacing(4)
+        rows = sorted({row for key, label, kind, row, column, span, axis in FIELDS if applies(axis)} | {TOGGLE_ROW})
+        row_of = {row: i for i, row in enumerate(rows)}
         for key, label, kind, row, column, span, axis in FIELDS:
-            if not self.applies(axis):
+            if not applies(axis):
                 continue
-            field = TextField(label, value_text(style.get(key)), self.changer(key, kind), blocked="")
-            field.cell = (row, column, span)
-            self.fields.append(field)
-
-        for key, label in TOGGLES:
-            if key == "grid" and not self.applies("any"):
+            name = QLabel(label)
+            name.setObjectName("small")
+            box = QLineEdit()
+            box.setPlaceholderText("auto")
+            box.textEdited.connect(lambda text, key=key, kind=kind: self.set_value(key, typed_value(key, kind, text)))
+            grid.addWidget(name, row_of[row], column * 2)
+            grid.addWidget(box, row_of[row], column * 2 + 1, 1, span * 2 - 1)
+            self.boxes[key] = box
+        for i, (key, label) in enumerate(TOGGLES):
+            if key == "grid" and not applies("any"):
                 continue
-            button = Button(0, 0, 0, FIELD_HEIGHT, label, self.table_font, "TAB", "TAB_HOVER", "TAB_SELECTED")
-            button.value = key
-            button.label = label
-            self.toggles.append(button)
-            self.actions[button] = toggle_part
-        self.visible_buttons = self.toggles
+            button = QPushButton()
+            button.setObjectName("small")
+            button.setCheckable(True)
+            button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            button.clicked.connect(lambda checked, key=key: self.set_value(key, None if checked else False))
+            grid.addWidget(button, row_of[TOGGLE_ROW], (TOGGLE_COLUMN + i) * 2, 1, 2)
+            self.toggles[key] = (button, label)
+        for column in range(COLUMNS):
+            grid.setColumnStretch(column * 2 + 1, 1)
+        self.rows.addLayout(grid)
 
-        # Rows whose boxes don't apply to this chart are closed up
-        rows = sorted({field.cell[0] for field in self.fields} | {TOGGLE_ROW})
-        self.row_of = {row: i for i, row in enumerate(rows)}
-        self.layout()
+        colours = QGridLayout()
+        colours.setHorizontalSpacing(6)
+        colours.setVerticalSpacing(4)
+        for i, (name, label) in enumerate(COLOUR_LABELS):
+            swatch = Swatch()
+            swatch.setFixedSize(20, 20)
+            swatch.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            swatch.clicked.connect(lambda checked=False, name=name: self.pick_colour(name))
+            swatch.reset.connect(lambda name=name: self.set_colour(name, None))
+            text = QLabel(label)
+            text.setObjectName("small")
+            colours.addWidget(swatch, i // SWATCH_COLUMNS, i % SWATCH_COLUMNS * 2)
+            colours.addWidget(text, i // SWATCH_COLUMNS, i % SWATCH_COLUMNS * 2 + 1)
+            self.swatches[name] = swatch
+        for column in range(SWATCH_COLUMNS):
+            colours.setColumnStretch(column * 2 + 1, 1)
+        self.rows.addLayout(colours)
 
-    # True if a setting for the given axis applies to this chart
-    def applies(self, axis):
-        axes = self.source.chart_axes
-        if axis == "any":
-            return bool(axes)
-        return axis in axes
-
-    # The function a box calls with its text after every edit
-    def changer(self, key, kind):
-        def change(panel, text):
-            panel.set_value(key, typed_value(key, kind, text))
-        return change
+        hint = QLabel("Click a colour to change it, right-click it for the theme's. Empty boxes are automatic.")
+        hint.setObjectName("hint")
+        self.rows.addWidget(hint)
+        self.fill_boxes()
+        self.refresh()
 
     # The chart's style: the choices made so far
     def style(self):
@@ -186,6 +203,8 @@ class ChartSettingsPanel(Panel):
             style[key] = value
         if not style:
             del self.node.settings[chart.STYLE_KEY]
+        self.refresh()
+        self.changed.emit()
 
     # Sets one colour, or puts it back to the theme's if colour is None
     def set_colour(self, name, colour):
@@ -196,104 +215,49 @@ class ChartSettingsPanel(Panel):
             chosen[name] = colour
         self.set_value("colours", chosen or None)
 
-    # Places the boxes in their grid, then the show/hide buttons and the colours below them
-    def layout(self):
-        super().layout()
-        left = self.rect.left + PADDING
-        top = self.rect.top + ROW_HEIGHT + PADDING * 3
-        cell = (self.rect.width - PADDING * 2) / COLUMNS
+    def pick_colour(self, name):
+        picked = dialogs.choose_colour(chart.colour_in(self.style(), name))
+        if picked:
+            self.set_colour(name, picked)
 
-        for field in self.fields:
-            row, column, span = field.cell
-            x = round(left + column * cell)
-            y = top + self.row_of.get(row, 0) * ROW
-            field.rect = pygame.Rect(x + LABEL_WIDTH, y, round(span * cell) - LABEL_WIDTH - 8, FIELD_HEIGHT)
-            field.label_at = (x, field.rect.centery)
+    # Sets every colour to one that suits a white page
+    def use_print_colours(self):
+        self.set_value("colours", {name: list(colour) for name, colour in chart.PRINT_COLOURS.items()})
 
-        for i, button in enumerate(self.toggles):
-            x = round(left + (TOGGLE_COLUMN + i) * cell)
-            button.rect = pygame.Rect(x, top + self.row_of[TOGGLE_ROW] * ROW, round(cell) - 8, FIELD_HEIGHT)
+    # Forgets every choice, so the chart goes back to its automatic look
+    def reset_style(self):
+        self.node.settings.pop(chart.STYLE_KEY, None)
+        self.fill_boxes()
+        self.refresh()
+        self.changed.emit()
 
-        swatch_top = top + len(self.row_of) * ROW + 4
-        cell = (self.rect.width - PADDING * 2) / SWATCH_COLUMNS
-        self.swatches = []
-        for i, (name, label) in enumerate(COLOUR_LABELS):
-            x = round(left + i % SWATCH_COLUMNS * cell)
-            y = swatch_top + i // SWATCH_COLUMNS * SWATCH_ROW
-            self.swatches.append((name, label, pygame.Rect(x, y, SWATCH, SWATCH)))
-        rows = (len(COLOUR_LABELS) + SWATCH_COLUMNS - 1) // SWATCH_COLUMNS
-        self.hint_top = swatch_top + rows * SWATCH_ROW
-
-    # The name of the colour whose swatch is at a position, or None
-    def swatch_at(self, position):
-        for name, label, rect in self.swatches:
-            if rect.collidepoint(position):
-                return name
-        return None
-
-    # A click on a box makes it the one typed in. A click on a colour opens the colour picker,
-    # and a right-click puts that colour back to the theme's. The rest is handled as in any panel
-    def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
-            name = self.swatch_at(event.pos)
-            if name and event.button == 3:
-                self.set_colour(name, None)
-                return True
-            if name and event.button == 1:
-                picked = dialogs.choose_colour(chart.colour_in(self.style(), name))
-                if picked:
-                    self.set_colour(name, picked)
-                return True
-            if event.button == 1:
-                for field in self.fields:
-                    field.focused = False
-                    if field.rect.collidepoint(event.pos):
-                        self.text_field = field
-        return super().handle_event(event)
-
-    # Draws the boxes, buttons and colours, then the chart in its style in the space left below
-    def draw(self, screen):
-        self.draw_frame(screen)
+    # Puts the style's values in the boxes
+    def fill_boxes(self):
         style = self.style()
+        for key, box in self.boxes.items():
+            box.setText(value_text(style.get(key)))
 
-        for field in self.fields:
-            label = self.table_font.render(field.label, True, colours.TEXT)
-            screen.blit(label, label.get_rect(midleft=field.label_at))
-            self.draw_text_box(screen, field)
-            if not field.text and not field.focused:
-                hint = self.table_font.render("auto", True, colours.SUBTITLE)
-                screen.blit(hint, hint.get_rect(midleft=(field.rect.left + 8, field.rect.centery)))
-
-        for button in self.toggles:
-            shown = style.get(button.value, True)
-            button.text = f"{button.label}: {'On' if shown else 'Off'}"
-            button.selected = shown
-            button.draw(screen)
-
-        # A colour that has been picked gets a bold border, to tell it from the theme's own
+    # Shows the toggles and colours as the style has them. A colour that has been picked
+    # gets a bold border, to tell it from the theme's own
+    def refresh(self):
+        style = self.style()
+        for key, (button, label) in self.toggles.items():
+            shown = style.get(key, True)
+            button.setChecked(shown)
+            button.setText(f"{label}: {'On' if shown else 'Off'}")
         picked = style.get("colours", {})
-        for name, label, rect in self.swatches:
-            pygame.draw.rect(screen, chart.colour_in(style, name), rect)
-            if name in picked:
-                pygame.draw.rect(screen, colours.TEXT, rect, width=2)
-            else:
-                pygame.draw.rect(screen, colours.TOOLBAR_LINE, rect, width=1)
-            text = self.table_font.render(label, True, colours.TEXT)
-            screen.blit(text, text.get_rect(midleft=(rect.right + 6, rect.centery)))
+        for name, swatch in self.swatches.items():
+            red, green, blue = chart.colour_in(style, name)[:3]
+            text = chart.colour_in(style, "text")
+            border = "2px solid rgb({}, {}, {})".format(*text[:3]) if name in picked else "1px solid gray"
+            swatch.setStyleSheet(f"background: rgb({red}, {green}, {blue}); border: {border}; border-radius: 0; padding: 0;")
 
-        hint = "Click a colour to change it, right-click it for the theme's. Empty boxes are automatic."
-        screen.blit(self.table_font.render(hint, True, colours.SUBTITLE), (self.rect.left + PADDING, self.hint_top))
 
-        heading_top = self.hint_top + 20 + PADDING
-        y = self.draw_heading(screen, "Preview", heading_top)
-        self.chart = self.source.chart
-        if self.chart:
-            area = pygame.Rect(self.rect.left + PADDING, y, self.rect.width - PADDING * 2, self.rect.bottom - PADDING - y)
-            chart.render(screen, area, self.chart, style)
-            self.draw_chart_buttons(screen, self.chart_buttons[1:], heading_top)
-            if not chart.has_room(area):
-                self.draw_no_room(screen, y)
-        else:
-            self.shown_chart_buttons = []
-            message = self.source.message or "Go back and choose what to draw"
-            screen.blit(self.font.render(message, True, colours.TEXT), (self.rect.left + PADDING, y))
+def clear_layout(layout):
+    while layout.count():
+        item = layout.takeAt(0)
+        if item.widget():
+            item.widget().hide()
+            item.widget().deleteLater()
+        elif item.layout():
+            clear_layout(item.layout())

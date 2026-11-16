@@ -1,10 +1,10 @@
 import math
 
 import pandas as pd
-import pygame
 
-from ui import chart, colours
-from ui.panel import Panel, fit_text
+from engine import chart, colours
+from engine.draw import Rect, fit_text
+from engine.panel import Panel
 
 
 INPUTS = 1
@@ -100,11 +100,11 @@ def slice_colours():
 
 # Draws the pie on the left of area and a legend of labels and percentages on the right.
 # Slices start at the top and go clockwise, largest first
-def draw_pie(screen, area, font, pie_slices):
+def draw_pie(painter, area, font, pie_slices):
     font = chart.text_font(font)
     legend_width = min(chart.scaled(font, LEGEND_WIDTH), area.width // 2) if chart.shows("key") else 0
     legend_row = chart.scaled(font, LEGEND_ROW)
-    pie_area = pygame.Rect(area.left, area.top, area.width - legend_width, area.height)
+    pie_area = Rect(area.left, area.top, area.width - legend_width, area.height)
     radius = max(10, min(pie_area.width, pie_area.height) // 2 - 10)
     centre = pie_area.center
     theme = slice_colours()
@@ -118,11 +118,11 @@ def draw_pie(screen, area, font, pie_slices):
         for step in range(steps + 1):
             a = angle + sweep * step / steps
             points.append((centre[0] + radius * math.cos(a), centre[1] + radius * math.sin(a)))
-        pygame.draw.polygon(screen, palette[i], points)
+        painter.polygon(palette[i], points)
         if len(pie_slices) > 1:
-            pygame.draw.polygon(screen, chart.colour("background"), points, width=2)
+            painter.polygon(chart.colour("background"), points, width=2)
         angle += sweep
-    pygame.draw.circle(screen, chart.colour("border"), centre, radius, width=2)
+    painter.circle(chart.colour("border"), centre, radius, width=2)
     if not chart.shows("key"):
         return
 
@@ -130,12 +130,12 @@ def draw_pie(screen, area, font, pie_slices):
     top = area.centery - len(pie_slices) * legend_row // 2
     for i, (label, share) in enumerate(pie_slices):
         y = top + i * legend_row
-        pygame.draw.rect(screen, palette[i], (left, y, SWATCH, SWATCH))
+        painter.rect(palette[i], (left, y, SWATCH, SWATCH))
         percent = f"{share * 100:.1f}%"
         percent_width = font.size(percent)[0]
         text = fit_text(font, label, area.right - left - SWATCH - percent_width - 24)
-        screen.blit(font.render(text, True, chart.colour("text")), (left + SWATCH + 8, y))
-        screen.blit(font.render(percent, True, chart.colour("text")), (area.right - percent_width, y))
+        painter.text(font, text, chart.colour("text"), topleft=(left + SWATCH + 8, y))
+        painter.text(font, percent, chart.colour("text"), topleft=(area.right - percent_width, y))
 
 
 # Lists the columns with buttons to choose the category and the value, then draws the pie
@@ -183,8 +183,8 @@ def show_pie(panel):
     panel.message = ""
 
     # Draws the chart into the space the panel gives it
-    def draw(screen, area):
-        draw_pie(screen, area, panel.table_font, pie_slices)
+    def draw(painter, area):
+        draw_pie(painter, area, panel.table_font, pie_slices)
 
     panel.chart = draw
 

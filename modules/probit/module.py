@@ -5,6 +5,8 @@ from modules.logit import module as logit
 
 INPUTS = 1
 OUTPUTS = 2
+# Out 1 carries the fit as well as the coefficients, so Forecast and Reg Table can use it (see engine/ports.py)
+OUTPUT_TYPES = ["model", "table"]
 INPUT_SPECS = [
     ("Data", "a table with a 0/1 Y column, numeric X and C columns, and optionally a field to cluster by"),
 ]

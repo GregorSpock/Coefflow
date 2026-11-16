@@ -1,4 +1,4 @@
-# Each theme gives a value for every name in ui/colours.py
+# Each theme gives a value for every name in engine/colours.py
 
 # Green-screen terminal look with square corners
 RETRO = {

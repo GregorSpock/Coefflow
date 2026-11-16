@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import pandas as pd
 
 from engine import significance
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 # The Configure panel, opened from Settings, for choices that apply to the whole app rather than one

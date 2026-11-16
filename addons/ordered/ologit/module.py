@@ -3,6 +3,8 @@ from .. import common
 
 INPUTS = 1
 OUTPUTS = 3
+# Out 1 carries the fit as well as the coefficients, so Forecast and Reg Table can use it (see engine/ports.py)
+OUTPUT_TYPES = ["model", "table", "table"]
 INPUT_SPECS = [
     ("Data", "a table with an ordered numeric Y column (e.g. a 1-5 rating), numeric or text X and C columns (text ones enter as dummies), and optionally a field to cluster by"),
 ]

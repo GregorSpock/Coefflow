@@ -5,6 +5,7 @@ from .. import common
 
 INPUTS = 0
 OUTPUTS = 1
+ALWAYS_RUN = common.draws_new_sample
 INPUT_SPECS = []
 OUTPUT_SPECS = [
     ("Distribution", "in Table mode x, density and cdf (P(X <= x)) across the likely values; in Sample mode one column, uniform, of random draws"),

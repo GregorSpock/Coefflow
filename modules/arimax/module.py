@@ -7,11 +7,13 @@ from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.stattools import adfuller
 
 from engine import fits, significance
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 INPUTS = 1
 OUTPUTS = 2
+# Out 1 carries the fit as well as the coefficients, so Forecast and Reg Table can use it (see engine/ports.py)
+OUTPUT_TYPES = ["model", "table"]
 INPUT_SPECS = [
     ("Data", "a time series table: numeric Y, X and C columns, a time column (T), and a group column (G) if it holds several series"),
 ]
@@ -29,6 +31,11 @@ MAX_MA = 4
 MAX_LAG = 4
 SPARE_ROWS = 10
 ORDER_ROWS = {"AR order (p)": ("p", MAX_AR), "Differencing (d)": ("d", MAX_DIFF), "MA order (q)": ("q", MAX_MA)}
+# Seasonal (SARIMA) terms: the season's length s in periods (0 for none), and with s set the
+# seasonal AR, differencing and MA orders P, D and Q, which act at lags s, 2s...
+SEASON_LABEL = "Season length (s)"
+SEASONS = [0, 2, 4, 7, 12, 24, 52]
+SEASONAL_ROWS = {"Seasonal AR (P)": ("P", 2), "Seasonal diff. (D)": ("D", 1), "Seasonal MA (Q)": ("Q", 2)}
 
 
 # Opens a panel to set the ARIMA orders and give each variable a role: Y (dependent),
@@ -162,15 +169,35 @@ def cycle_lag(panel, button):
 
 
 def order_of(settings, key):
-    defaults = {"p": 1, "d": 0, "q": 0}
+    defaults = {"p": 1, "d": 0, "q": 0, "P": 0, "D": 0, "Q": 0, "s": 0}
     return settings.get(key, defaults[key])
 
 
-# Sets p, d or q to the number clicked
+# The seasonal order (P, D, Q, s), all 0 when there is no season
+def seasonal_of(settings):
+    s = order_of(settings, "s")
+    if not s:
+        return (0, 0, 0, 0)
+    return (order_of(settings, "P"), order_of(settings, "D"), order_of(settings, "Q"), s)
+
+
+# Sets p, d, q, s, P, D or Q to the number clicked
 def choose_order(panel, button):
-    key = ORDER_ROWS[button.value][0]
+    if button.value == SEASON_LABEL:
+        key = "s"
+    else:
+        key = {**ORDER_ROWS, **SEASONAL_ROWS}[button.value][0]
     panel.node.settings[key] = int(button.text)
     panel.refresh(panel)
+
+
+# Describes the orders, e.g. ARIMA(1, 0, 0) or SARIMA(1, 0, 0)(1, 1, 0)[12]
+def order_text(settings):
+    p, d, q = order_of(settings, "p"), order_of(settings, "d"), order_of(settings, "q")
+    P, D, Q, s = seasonal_of(settings)
+    if not s:
+        return f"ARIMA({p}, {d}, {q})"
+    return f"SARIMA({p}, {d}, {q})({P}, {D}, {Q})[{s}]"
 
 
 # Describes a variable's lags as text, e.g. "inflation (0-2)"
@@ -202,7 +229,7 @@ def show_model(panel):
     series = chosen_series(data, settings)
     group = f"{settings.get('group')} = {series}" if series is not None else "none"
     panel.lines = [
-        f"ARIMA({p}, {d}, {q})    Y: {settings.get('dependent') or 'none'}    "
+        f"{order_text(settings)}    Y: {settings.get('dependent') or 'none'}    "
         f"Time: {settings.get('time') or 'row order'}    Series: {group}",
         f"X: {', '.join(lag_text(settings, c) for c in settings.get('independent', [])) or 'none'}    "
         f"C: {', '.join(lag_text(settings, c) for c in settings.get('controls', [])) or 'none'}",
@@ -211,6 +238,12 @@ def show_model(panel):
     for label, (key, highest) in ORDER_ROWS.items():
         current = order_of(settings, key)
         panel.add_option(label, [(str(n), choose_order, n == current) for n in range(highest + 1)])
+    season = order_of(settings, "s")
+    panel.add_option(SEASON_LABEL, [(str(n), choose_order, n == season) for n in SEASONS])
+    if season:
+        for label, (key, highest) in SEASONAL_ROWS.items():
+            current = order_of(settings, key)
+            panel.add_option(label, [(str(n), choose_order, n == current) for n in range(highest + 1)])
 
     numeric = data.select_dtypes("number").columns
     for column in data.columns:
@@ -402,12 +435,12 @@ def trend_name(trend):
 
 
 # Fits the model, collecting any warnings from statsmodels instead of printing them
-def fit_model(y, exog, order, trend, notes):
+def fit_model(y, exog, order, trend, notes, seasonal_order=(0, 0, 0, 0)):
     exog = exog if len(exog.columns) else None
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
         try:
-            model = ARIMA(y, exog=exog, order=order, trend=trend).fit()
+            model = ARIMA(y, exog=exog, order=order, seasonal_order=seasonal_order, trend=trend).fit()
         except (np.linalg.LinAlgError, ValueError) as error:
             raise ValueError(f"The model could not be fitted: {error}")
 
@@ -463,6 +496,10 @@ def describe_parameter(name, exog_labels):
         return "AR", "Y (AR)", int(name[4:])
     if name.startswith("ma.L"):
         return "MA", "Error (MA)", int(name[4:])
+    if name.startswith("ar.S.L"):
+        return "SAR", "Y (seasonal AR)", int(name[6:])
+    if name.startswith("ma.S.L"):
+        return "SMA", "Error (seasonal MA)", int(name[6:])
     names = {"const": "Constant", "drift": "Drift", "x1": "Drift", "sigma2": "Variance"}
     return names.get(name, ""), names.get(name, name), ""
 
@@ -478,12 +515,13 @@ def time_text(value):
 # orders and trend, the names of the parameters in the coefficient table's order, the Y and
 # exogenous columns it was fitted on, how each exogenous column was made, and the last MAX_LAG
 # rows of the X and C fields, which the lags of the first new periods reach back into
-def record_fit(results, settings, model, y, exog, exog_labels, data, order, trend, series):
+def record_fit(results, settings, model, y, exog, exog_labels, data, order, trend, series, seasonal_order=(0, 0, 0, 0)):
     columns = list(dict.fromkeys(column for role, column, lag in exog_labels.values()))
     recent = data.loc[:y.index[-1]].tail(MAX_LAG)
     fits.record(
         results, "arimax", "ARIMAX", settings["dependent"], data, [],
         order=order,
+        seasonal_order=tuple(seasonal_order),
         trend=trend,
         parameters=list(model.params.index),
         y=y.to_numpy(float),
@@ -502,6 +540,10 @@ def record_fit(results, settings, model, y, exog, exog_labels, data, order, tren
 def run(inputs, settings):
     data = inputs[0].replace([np.inf, -np.inf], np.nan)
     p, d, q = order_of(settings, "p"), order_of(settings, "d"), order_of(settings, "q")
+    seasonal = seasonal_of(settings)
+    P, D, Q, s = seasonal
+    # Seasonal differencing uses up D whole seasons at the start
+    lost = d + D * s
     notes = []
 
     check_columns(data, settings)
@@ -512,26 +554,28 @@ def run(inputs, settings):
     y, exog = trim_missing(data[settings["dependent"]].astype(float), exog, notes)
     times = times.loc[y.index]
 
-    trend = trend_for(settings, d)
-    parameters = p + q + len(exog.columns) + (trend != "n") + 1
-    usable = y.notna().sum() - d
+    trend = trend_for(settings, d + D)
+    parameters = p + q + P + Q + len(exog.columns) + (trend != "n") + 1
+    usable = y.notna().sum() - lost
     if usable < parameters + SPARE_ROWS:
         raise ValueError(
             f"{usable} usable rows for {parameters} parameters. "
-            f"Use lower orders or fewer lags, or at least {parameters + SPARE_ROWS + d} rows"
+            f"Use lower orders or fewer lags, or at least {parameters + SPARE_ROWS + lost} rows"
         )
 
     check_collinear(exog, trend)
     if exog.empty:
         notes.append("No X or C variables are chosen, so this is a plain ARIMA model.")
 
-    model = fit_model(y.reset_index(drop=True), exog.reset_index(drop=True), (p, d, q), trend, notes)
+    model = fit_model(y.reset_index(drop=True), exog.reset_index(drop=True), (p, d, q), trend, notes, seasonal)
 
     differenced = y
     for _ in range(d):
         differenced = differenced.diff()
+    for _ in range(D):
+        differenced = differenced.diff(s)
     level_p, differenced_p = adf_p(y), adf_p(differenced)
-    lag, ljung_box_p = ljung_box(model, p, d, q)
+    lag, ljung_box_p = ljung_box(model, p + P, lost, q + Q)
     add_hints(notes, level_p, differenced_p, ljung_box_p, d)
 
     described = [describe_parameter(name, exog_labels) for name in model.params.index]
@@ -556,7 +600,7 @@ def run(inputs, settings):
         "ljung_box_p": ljung_box_p,
         "warnings": notes,
     }
-    record_fit(results, settings, model, y, exog, exog_labels, data, (p, d, q), trend, chosen_series(inputs[0], settings))
+    record_fit(results, settings, model, y, exog, exog_labels, data, (p, d, q), trend, chosen_series(inputs[0], settings), seasonal)
 
     # The first d fitted values are only the model starting up, with huge residuals, so they are left blank
     fitted = pd.DataFrame({
@@ -565,7 +609,7 @@ def run(inputs, settings):
         "fitted": model.fittedvalues.to_numpy(),
         "residual": model.resid.to_numpy(),
     })
-    fitted.loc[:d - 1, ["fitted", "residual"]] = np.nan
+    fitted.loc[:lost - 1, ["fitted", "residual"]] = np.nan
     if settings.get("group"):
         fitted.insert(0, settings["group"], chosen_series(inputs[0], settings))
     return [results, fitted]

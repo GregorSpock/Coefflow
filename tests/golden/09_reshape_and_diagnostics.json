@@ -1,0 +1,412 @@
+{
+ "nodes": {
+  "1": {
+   "error": null,
+   "name": "Input Data",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours"
+     ],
+     "shape": [
+      600,
+      12
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "10": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "2": {
+   "error": null,
+   "name": "Dates",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "trend_years"
+     ],
+     "shape": [
+      600,
+      13
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "trend_years": 8700.177960301164,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "3": {
+   "error": null,
+   "name": "Group By",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "rows",
+      "unemployment_mean",
+      "unemployment_sd",
+      "gdp_growth_mean"
+     ],
+     "shape": [
+      20,
+      5
+     ],
+     "sums": {
+      "gdp_growth_mean": 28.060000000000002,
+      "rows": 600.0,
+      "unemployment_mean": 154.43,
+      "unemployment_sd": 19.766245306907443
+     }
+    }
+   ]
+  },
+  "4": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "5": {
+   "error": null,
+   "name": "Pivot",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "unemployment_1995",
+      "unemployment_1996",
+      "unemployment_1997",
+      "unemployment_1998",
+      "unemployment_1999",
+      "unemployment_2000",
+      "unemployment_2001",
+      "unemployment_2002",
+      "unemployment_2003",
+      "unemployment_2004",
+      "unemployment_2005",
+      "unemployment_2006",
+      "unemployment_2007",
+      "unemployment_2008",
+      "unemployment_2009",
+      "unemployment_2010",
+      "unemployment_2011",
+      "unemployment_2012",
+      "unemployment_2013",
+      "unemployment_2014",
+      "unemployment_2015",
+      "unemployment_2016",
+      "unemployment_2017",
+      "unemployment_2018",
+      "unemployment_2019",
+      "unemployment_2020",
+      "unemployment_2021",
+      "unemployment_2022",
+      "unemployment_2023",
+      "unemployment_2024"
+     ],
+     "shape": [
+      20,
+      31
+     ],
+     "sums": {
+      "unemployment_1995": 148.8,
+      "unemployment_1996": 154.0,
+      "unemployment_1997": 157.39999999999998,
+      "unemployment_1998": 154.79999999999998,
+      "unemployment_1999": 154.7,
+      "unemployment_2000": 158.89999999999998,
+      "unemployment_2001": 155.00000000000003,
+      "unemployment_2002": 149.7,
+      "unemployment_2003": 159.29999999999998,
+      "unemployment_2004": 156.20000000000002,
+      "unemployment_2005": 145.20000000000002,
+      "unemployment_2006": 148.5,
+      "unemployment_2007": 157.6,
+      "unemployment_2008": 159.79999999999998,
+      "unemployment_2009": 152.80000000000004,
+      "unemployment_2010": 151.0,
+      "unemployment_2011": 157.99999999999997,
+      "unemployment_2012": 155.8,
+      "unemployment_2013": 150.5,
+      "unemployment_2014": 151.3,
+      "unemployment_2015": 150.10000000000002,
+      "unemployment_2016": 157.10000000000002,
+      "unemployment_2017": 162.79999999999998,
+      "unemployment_2018": 158.00000000000003,
+      "unemployment_2019": 162.99999999999997,
+      "unemployment_2020": 146.2,
+      "unemployment_2021": 151.20000000000002,
+      "unemployment_2022": 155.7,
+      "unemployment_2023": 155.79999999999998,
+      "unemployment_2024": 153.70000000000002
+     }
+    }
+   ]
+  },
+  "6": {
+   "error": null,
+   "name": "Pivot",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "period",
+      "unemployment"
+     ],
+     "shape": [
+      600,
+      3
+     ],
+     "sums": {
+      "period": 1205700.0,
+      "unemployment": 4632.9
+     }
+    }
+   ]
+  },
+  "7": {
+   "error": null,
+   "name": "OLS",
+   "outputs": [
+    {
+     "attrs": {
+      "adj_r_squared": 0.4523864501970476,
+      "breusch_pagan_p": 5.783505864961101e-19,
+      "hac_lags": 5,
+      "observations": 600,
+      "r_squared": 0.4551290890107519,
+      "robust": false
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      4,
+      7
+     ],
+     "sums": {
+      "coefficient": 8.655888084251313,
+      "p_value": 0.30817331455232483,
+      "std_error": 0.158448274965581,
+      "t_stat": 74.84860299764972
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "fitted",
+      "residual"
+     ],
+     "shape": [
+      600,
+      14
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "fitted": 4632.899999999999,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "residual": 1.3002932064409833e-12,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "8": {
+   "error": null,
+   "name": "Diagnostics",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "test",
+      "null",
+      "statistic",
+      "df",
+      "p_value",
+      "result"
+     ],
+     "shape": [
+      9,
+      6
+     ],
+     "sums": {
+      "p_value": 0.33326065451063175,
+      "statistic": 319.3259904253749
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "variable",
+      "vif",
+      "tolerance",
+      "flag"
+     ],
+     "shape": [
+      3,
+      4
+     ],
+     "sums": {
+      "tolerance": 2.9728819615061957,
+      "vif": 3.0274043758778912
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "fitted",
+      "residual",
+      "leverage",
+      "studentized",
+      "cooks_d",
+      "dffits",
+      "flag"
+     ],
+     "shape": [
+      600,
+      19
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "cooks_d": 1.285022346463901,
+      "degree_share": 18584.1,
+      "dffits": 0.21256458797710365,
+      "fitted": 4632.899999999999,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "leverage": 3.999999999999999,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "residual": 1.3002932064409833e-12,
+      "studentized": 0.011064515717091439,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "9": {
+   "error": null,
+   "name": "Wald Test",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "test",
+      "restriction",
+      "estimate",
+      "statistic",
+      "distribution",
+      "p_value",
+      "result"
+     ],
+     "shape": [
+      3,
+      7
+     ],
+     "sums": {
+      "estimate": -0.34349956270941734,
+      "p_value": 0.05443268371214309,
+      "statistic": 378.9101554103319
+     }
+    }
+   ]
+  }
+ },
+ "problems": []
+}

@@ -1,8 +1,8 @@
 import pandas as pd
 
 from engine.fields import drop_downstream, rename_downstream
-from ui.fields import connections
-from ui.panel import Panel
+from engine.field_panel import connections
+from engine.panel import Panel
 
 
 INPUTS = 1

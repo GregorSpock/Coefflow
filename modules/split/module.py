@@ -2,7 +2,7 @@ import numpy as np
 
 from engine import conditions
 from modules.filter.module import rename_field
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 INPUTS = 1

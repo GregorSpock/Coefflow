@@ -1,0 +1,441 @@
+{
+ "nodes": {
+  "1": {
+   "error": null,
+   "name": "Input Data",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours"
+     ],
+     "shape": [
+      600,
+      12
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "10": {
+   "error": null,
+   "name": "Bar Chart",
+   "outputs": []
+  },
+  "2": {
+   "error": null,
+   "name": "Gen",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "log_house_price"
+     ],
+     "shape": [
+      600,
+      14
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_house_price": 3326.8418868710833,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "3": {
+   "error": null,
+   "name": "Fixed Effects",
+   "outputs": [
+    {
+     "attrs": {
+      "balanced": true,
+      "entities": 20,
+      "error_variance": 0.0038204533114057694,
+      "f_effects": 8.175536515548139,
+      "f_effects_p": 2.2636566912816286e-20,
+      "model": "Fixed Effects",
+      "observations": 600,
+      "periods_max": 30,
+      "periods_mean": 30.0,
+      "periods_min": 30,
+      "r_squared_between": 0.5658346232032666,
+      "r_squared_overall": 0.8561830723939894,
+      "r_squared_within": 0.9447040333525539,
+      "rho": 0.6822556857632517,
+      "robust": false,
+      "sigma_e": 0.06180981565581448,
+      "sigma_u": 0.09057162008560979,
+      "time_effects": false
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      5,
+      7
+     ],
+     "sums": {
+      "coefficient": 0.6617656784611535,
+      "p_value": 0.46294696589207784,
+      "std_error": 0.2864561882636335,
+      "t_stat": 10.45720482029904
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "log_house_price",
+      "fitted",
+      "residual",
+      "effect"
+     ],
+     "shape": [
+      600,
+      17
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "effect": -1.4299672557172016e-12,
+      "fitted": 3326.8418868710837,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_house_price": 3326.8418868710833,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "residual": -2.184918912462308e-13,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "4": {
+   "error": null,
+   "name": "Random Effects",
+   "outputs": [
+    {
+     "attrs": {
+      "balanced": true,
+      "entities": 20,
+      "error_variance": 0.004695852038459282,
+      "lm_effects": 1.2747846881821254,
+      "lm_effects_p": 0.2588709910788977,
+      "model": "Random Effects",
+      "observations": 600,
+      "periods_max": 30,
+      "periods_mean": 30.0,
+      "periods_min": 30,
+      "r_squared_between": 0.961464707600841,
+      "r_squared_overall": 0.9350823494612096,
+      "r_squared_within": 0.9329553940788138,
+      "rho": 0.0,
+      "robust": false,
+      "sigma_e": 0.06180981565581446,
+      "sigma_u": 0.0,
+      "theta_max": 0.0,
+      "theta_median": 0.0,
+      "theta_min": 0.0,
+      "time_effects": false
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      5,
+      7
+     ],
+     "sums": {
+      "coefficient": -1.0796602399915871,
+      "p_value": 0.0003896257785449067,
+      "std_error": 0.20104556906479806,
+      "t_stat": 12.352441740316904
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "log_house_price",
+      "fitted",
+      "residual",
+      "effect"
+     ],
+     "shape": [
+      600,
+      17
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "effect": 0.0,
+      "fitted": 3326.841886871085,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_house_price": 3326.8418868710833,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "residual": -2.176037128265307e-12,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "5": {
+   "error": null,
+   "name": "Hausman",
+   "outputs": [
+    {
+     "attrs": {
+      "chi_squared": 119.35038966429629,
+      "df": 3,
+      "p_value": 1.0649723031613337e-25,
+      "verdict": "p < 0.05: the coefficients differ by more than chance, so random effects is inconsistent. Use fixed effects."
+     },
+     "columns": [
+      "variable",
+      "fixed_effects",
+      "random_effects",
+      "difference",
+      "std_error"
+     ],
+     "shape": [
+      4,
+      5
+     ],
+     "sums": {
+      "difference": -0.4346335966802243,
+      "fixed_effects": 0.8441531481957103,
+      "random_effects": 1.2787867448759347,
+      "std_error": 0.04513858486943159
+     }
+    }
+   ]
+  },
+  "6": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "7": {
+   "error": null,
+   "name": "Fixed Effects",
+   "outputs": [
+    {
+     "attrs": {
+      "balanced": true,
+      "entities": 20,
+      "error_variance": 0.0027582512104276104,
+      "f_effects": 9.21028690900133,
+      "f_effects_p": 3.4435202982129345e-23,
+      "model": "Fixed Effects",
+      "observations": 600,
+      "periods_max": 30,
+      "periods_mean": 30.0,
+      "periods_min": 30,
+      "r_squared_between": 0.9598477286655731,
+      "r_squared_overall": 0.9378123841691008,
+      "r_squared_within": 0.9620186453470818,
+      "rho": 0.4287072627413459,
+      "robust": true,
+      "sigma_e": 0.05251905568865086,
+      "sigma_u": 0.04549545132730147,
+      "time_effects": true
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "t_stat",
+      "p_value"
+     ],
+     "shape": [
+      33,
+      7
+     ],
+     "sums": {
+      "coefficient": 12.920612839212081,
+      "p_value": 1.4729712795743677,
+      "std_error": 1.4002680458444146,
+      "t_stat": 324.20575028779
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "log_wage",
+      "log_house_price",
+      "fitted",
+      "residual",
+      "effect"
+     ],
+     "shape": [
+      600,
+      17
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "effect": 4.356959237838964e-12,
+      "fitted": 3326.8418868710833,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "log_house_price": 3326.8418868710833,
+      "log_wage": 3677.6554294776975,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "residual": 7.993605777301127e-14,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "8": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "9": {
+   "error": null,
+   "name": "Durbin-Watson",
+   "outputs": [
+    {
+     "attrs": {
+      "verdict": "d = 1.70 is well below 2, so the residuals are positively autocorrelated and the standard errors are too small. Cluster them, add lags, or model the errors with ARIMAX."
+     },
+     "columns": [
+      "series",
+      "observations",
+      "durbin_watson",
+      "rho",
+      "z_stat",
+      "p_value"
+     ],
+     "shape": [
+      21,
+      6
+     ],
+     "sums": {
+      "durbin_watson": 36.65328977230328,
+      "observations": 1200.0,
+      "p_value": 8.655472125996896,
+      "rho": 2.6733551138483582,
+      "z_stat": 17.17206604643878
+     }
+    }
+   ]
+  }
+ },
+ "problems": []
+}

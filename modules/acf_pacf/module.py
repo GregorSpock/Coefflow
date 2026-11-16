@@ -2,13 +2,13 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import pygame
 from statsmodels.tsa.stattools import acf, pacf
 
 from modules.arimax import module as arimax
 from modules.arimax.module import MAX_DIFF, chosen_series, next_series
-from ui.chart import draw_correlogram
-from ui.panel import Panel
+from engine.draw import Rect
+from engine.chart import draw_correlogram
+from engine.panel import Panel
 
 
 INPUTS = 1
@@ -128,10 +128,10 @@ def show_correlogram(panel):
     panel.note = " ".join(fit["hints"])
 
     # Draws the ACF in the top half of the space the panel gives it and the PACF in the bottom half
-    def draw(screen, area):
+    def draw(painter, area):
         half = area.height // 2
-        draw_correlogram(screen, pygame.Rect(area.left, area.top, area.width, half), panel.table_font, table["acf"], fit["bound"], "ACF")
-        draw_correlogram(screen, pygame.Rect(area.left, area.top + half, area.width, half), panel.table_font, table["pacf"], fit["bound"], "PACF")
+        draw_correlogram(painter, Rect(area.left, area.top, area.width, half), panel.table_font, table["acf"], fit["bound"], "ACF")
+        draw_correlogram(painter, Rect(area.left, area.top + half, area.width, half), panel.table_font, table["pacf"], fit["bound"], "PACF")
 
     panel.chart = draw
 

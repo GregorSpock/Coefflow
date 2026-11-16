@@ -8,6 +8,8 @@ from .. import common
 
 INPUTS = 1
 OUTPUTS = 3
+# Out 1 carries the fit as well as the coefficients, so Forecast and Reg Table can use it (see engine/ports.py)
+OUTPUT_TYPES = ["model", "table", "table"]
 INPUT_SPECS = [
     ("Data", "a table with a numeric Y, the endogenous variables (En), the instruments (Z) and any exogenous controls (C). Text fields enter as dummies. Rows missing any of them are dropped"),
 ]

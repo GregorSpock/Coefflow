@@ -5,7 +5,7 @@ import pandas as pd
 from scipy import stats
 
 from engine import clusters, dummies, panel_data
-from ui import chart
+from engine import chart
 from .. import common
 
 
@@ -133,17 +133,17 @@ def show_model(panel):
     show = settings.get("show", SHOW[0])
     if show == "Chart":
         panel.preview_title = "RD Plot"
-        panel.chart = lambda screen, area: draw_plot(screen, area, panel.table_font, fit, settings)
+        panel.chart = lambda painter, area: draw_plot(painter, area, panel.table_font, fit, settings)
     else:
         panel.preview_title = "Results"
         panel.preview = results if show == "Estimate" else checks
 
 
 # Bin means as dots, the fitted curve on each side within the bandwidth and a dashed line at the cutoff
-def draw_plot(screen, area, font, fit, settings):
+def draw_plot(painter, area, font, fit, settings):
     plot = fit["plot"]
     common.draw_lines(
-        screen, area, font,
+        painter, area, font,
         [(plot["left_x"], plot["left_y"], chart.colour("line"), None), (plot["right_x"], plot["right_y"], chart.colour("line"), None)],
         settings.get("running"), settings.get("dependent"),
         vertical=fit["cutoff"], points=(plot["bin_x"], plot["bin_y"]),

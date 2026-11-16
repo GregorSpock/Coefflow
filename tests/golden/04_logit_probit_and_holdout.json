@@ -1,0 +1,478 @@
+{
+ "nodes": {
+  "1": {
+   "error": null,
+   "name": "Input Data",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours"
+     ],
+     "shape": [
+      600,
+      12
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "10": {
+   "error": null,
+   "name": "Bar Chart",
+   "outputs": []
+  },
+  "11": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "2": {
+   "error": null,
+   "name": "Gen",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "high_unemployment"
+     ],
+     "shape": [
+      600,
+      13
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "high_unemployment": 284.0,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "3": {
+   "error": null,
+   "name": "Logit",
+   "outputs": [
+    {
+     "attrs": {
+      "aic": 629.3373560882343,
+      "correct": 0.77,
+      "log_likelihood": -309.66867804411714,
+      "lr_p": 1.8491703418829178e-44,
+      "observations": 600,
+      "ones": 284,
+      "pseudo_r_squared": 0.2538725677062269,
+      "robust": false
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "z_stat",
+      "p_value",
+      "odds_ratio",
+      "marginal_effect",
+      "marginal_p"
+     ],
+     "shape": [
+      5,
+      10
+     ],
+     "sums": {
+      "coefficient": 1.4495284275631748,
+      "marginal_effect": -0.13738001874973457,
+      "marginal_p": 2.376154900948437,
+      "odds_ratio": 12.84382874810595,
+      "p_value": 2.393540170885499,
+      "std_error": 1.5674790185531313,
+      "z_stat": -3.451335588523537
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "high_unemployment",
+      "probability",
+      "predicted"
+     ],
+     "shape": [
+      600,
+      15
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "high_unemployment": 284.0,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "predicted": 306.0,
+      "probability": 284.0,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "4": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "5": {
+   "error": null,
+   "name": "Probit",
+   "outputs": [
+    {
+     "attrs": {
+      "aic": 635.3654873392037,
+      "correct": 0.765,
+      "log_likelihood": -312.68274366960185,
+      "lr_p": 3.66003100541113e-43,
+      "observations": 600,
+      "ones": 284,
+      "pseudo_r_squared": 0.24661036389232582,
+      "robust": true
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "z_stat",
+      "p_value",
+      "marginal_effect",
+      "marginal_p"
+     ],
+     "shape": [
+      5,
+      9
+     ],
+     "sums": {
+      "coefficient": 0.8148278071785475,
+      "marginal_effect": -0.1378761378318318,
+      "marginal_p": 1.7895961980274944,
+      "p_value": 1.7899123798895842,
+      "std_error": 0.5004886440843491,
+      "z_stat": -5.914835207410559
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "high_unemployment",
+      "probability",
+      "predicted"
+     ],
+     "shape": [
+      600,
+      15
+     ],
+     "sums": {
+      "avg_weekly_hours": 18267.9,
+      "bank_rate": 1563.3999999999999,
+      "degree_share": 18584.1,
+      "gdp_growth": 841.8,
+      "high_unemployment": 284.0,
+      "house_price_k": 158929.0,
+      "inflation": 2464.8,
+      "median_weekly_wage": 279666.0,
+      "population_k": 3312241.0,
+      "predicted": 313.0,
+      "probability": 287.57371606724803,
+      "unemployment": 4632.900000000001,
+      "urban": 270.0,
+      "year": 1205700.0
+     }
+    }
+   ]
+  },
+  "6": {
+   "error": null,
+   "name": "Output Data",
+   "outputs": []
+  },
+  "7": {
+   "error": null,
+   "name": "Split",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "high_unemployment"
+     ],
+     "shape": [
+      480,
+      13
+     ],
+     "sums": {
+      "avg_weekly_hours": 14613.3,
+      "bank_rate": 1241.42,
+      "degree_share": 14940.2,
+      "gdp_growth": 658.5,
+      "high_unemployment": 229.0,
+      "house_price_k": 127441.5,
+      "inflation": 1983.4,
+      "median_weekly_wage": 223962.0,
+      "population_k": 2648783.0,
+      "unemployment": 3701.4,
+      "urban": 215.0,
+      "year": 964589.0
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "high_unemployment"
+     ],
+     "shape": [
+      120,
+      13
+     ],
+     "sums": {
+      "avg_weekly_hours": 3654.6,
+      "bank_rate": 321.98,
+      "degree_share": 3643.9,
+      "gdp_growth": 183.3,
+      "high_unemployment": 55.0,
+      "house_price_k": 31487.5,
+      "inflation": 481.4,
+      "median_weekly_wage": 55704.0,
+      "population_k": 663458.0,
+      "unemployment": 931.5,
+      "urban": 55.0,
+      "year": 241111.0
+     }
+    }
+   ]
+  },
+  "8": {
+   "error": null,
+   "name": "Logit",
+   "outputs": [
+    {
+     "attrs": {
+      "aic": 494.53206491972355,
+      "correct": 0.7916666666666666,
+      "log_likelihood": -242.26603245986178,
+      "lr_p": 7.910298848850099e-38,
+      "observations": 480,
+      "ones": 229,
+      "pseudo_r_squared": 0.2707361961212382,
+      "robust": false
+     },
+     "columns": [
+      "role",
+      "variable",
+      "coefficient",
+      "stars",
+      "std_error",
+      "z_stat",
+      "p_value",
+      "odds_ratio",
+      "marginal_effect",
+      "marginal_p"
+     ],
+     "shape": [
+      5,
+      10
+     ],
+     "sums": {
+      "coefficient": 1.5623068153816932,
+      "marginal_effect": -0.15684727936775597,
+      "marginal_p": 1.9325036917954015,
+      "odds_ratio": 15.427849740134446,
+      "p_value": 1.9346715000049328,
+      "std_error": 1.002847626680155,
+      "z_stat": -6.843656114274479
+     }
+    },
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "high_unemployment",
+      "probability",
+      "predicted"
+     ],
+     "shape": [
+      480,
+      15
+     ],
+     "sums": {
+      "avg_weekly_hours": 14613.3,
+      "bank_rate": 1241.42,
+      "degree_share": 14940.2,
+      "gdp_growth": 658.5,
+      "high_unemployment": 229.0,
+      "house_price_k": 127441.5,
+      "inflation": 1983.4,
+      "median_weekly_wage": 223962.0,
+      "population_k": 2648783.0,
+      "predicted": 243.0,
+      "probability": 229.0,
+      "unemployment": 3701.4,
+      "urban": 215.0,
+      "year": 964589.0
+     }
+    }
+   ]
+  },
+  "9": {
+   "error": null,
+   "name": "Forecast",
+   "outputs": [
+    {
+     "attrs": {},
+     "columns": [
+      "region",
+      "year",
+      "gdp_growth",
+      "unemployment",
+      "inflation",
+      "urban",
+      "population_k",
+      "degree_share",
+      "median_weekly_wage",
+      "house_price_k",
+      "bank_rate",
+      "avg_weekly_hours",
+      "high_unemployment",
+      "probability",
+      "predicted"
+     ],
+     "shape": [
+      120,
+      15
+     ],
+     "sums": {
+      "avg_weekly_hours": 3654.6,
+      "bank_rate": 321.98,
+      "degree_share": 3643.9,
+      "gdp_growth": 183.3,
+      "high_unemployment": 55.0,
+      "house_price_k": 31487.5,
+      "inflation": 481.4,
+      "median_weekly_wage": 55704.0,
+      "population_k": 663458.0,
+      "predicted": 69.0,
+      "probability": 58.59954114596273,
+      "unemployment": 931.5,
+      "urban": 55.0,
+      "year": 241111.0
+     }
+    }
+   ]
+  }
+ },
+ "problems": []
+}

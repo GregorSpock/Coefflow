@@ -1,0 +1,1722 @@
+{
+ "anova": [
+  {
+   "attrs": {
+    "note": "group: F(2, 174) = 0.21, p = .813, partial eta sq = .00. gender: F(1, 174) = 0.01, p = .919, partial eta sq = .00. group * gender: F(2, 174) = 0.63, p = .536, partial eta sq = .01. Levene's test: F(5, 174) = 0.78, p = .568, so the groups' variances look equal. Type 3 sums of squares."
+   },
+   "columns": [
+    "effect",
+    "sum_sq",
+    "df",
+    "mean_sq",
+    "f",
+    "stars",
+    "p_value",
+    "eta_sq",
+    "partial_eta_sq",
+    "omega_sq"
+   ],
+   "shape": [
+    5,
+    10
+   ],
+   "sums": {
+    "df": 358.0,
+    "eta_sq": 0.009538869270426442,
+    "f": 0.8428745582094991,
+    "mean_sq": 85.49314485536003,
+    "omega_sq": -0.01881994470170323,
+    "p_value": 2.2686858170247035,
+    "partial_eta_sq": 0.00957228082036631,
+    "sum_sq": 16298.333000631863
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "group",
+    "gender",
+    "n",
+    "mean",
+    "sd",
+    "se",
+    "ci_low",
+    "ci_high"
+   ],
+   "shape": [
+    6,
+    8
+   ],
+   "sums": {
+    "ci_high": 321.31172061358757,
+    "ci_low": 290.4901365292696,
+    "mean": 305.90092857142855,
+    "n": 180.0,
+    "sd": 40.87003785677659,
+    "se": 7.525731048144188
+   }
+  }
+ ],
+ "box_plot": [
+  {
+   "attrs": {},
+   "columns": [
+    "region",
+    "count",
+    "min",
+    "q1",
+    "median",
+    "q3",
+    "max",
+    "mean",
+    "outliers"
+   ],
+   "shape": [
+    12,
+    9
+   ],
+   "sums": {
+    "count": 360.0,
+    "max": 109.3,
+    "mean": 92.8733,
+    "median": 95.6,
+    "min": 60.800000000000004,
+    "outliers": 14.0,
+    "q1": 87.2,
+    "q3": 101.65000000000002
+   }
+  }
+ ],
+ "brant_test": [
+  {
+   "attrs": {
+    "observations": 177
+   },
+   "columns": [
+    "role",
+    "variable",
+    "chi2",
+    "df",
+    "p_value"
+   ],
+   "shape": [
+    3,
+    5
+   ],
+   "sums": {
+    "chi2": 13.943293004684133,
+    "df": 12.0,
+    "p_value": 1.368379947486935
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "role",
+    "variable",
+    "Y>1",
+    "Y>2",
+    "Y>3",
+    "Y>4"
+   ],
+   "shape": [
+    3,
+    6
+   ],
+   "sums": {
+    "Y>1": -1.4469533883146555,
+    "Y>2": 1.6964002369241862,
+    "Y>3": -0.6166691167569271,
+    "Y>4": 1.7600005786334103
+   }
+  }
+ ],
+ "correlations": [
+  {
+   "attrs": {
+    "note": "Pearson correlations (r), each over the rows that have both variables. Strongest: sleep_hours and wellbeing, r(175) = .60, p < .001. 3 pairs are tested, so some may pass by chance; the p values are not corrected for that."
+   },
+   "columns": [
+    "variable_1",
+    "variable_2",
+    "r",
+    "stars",
+    "p_value",
+    "ci_low",
+    "ci_high",
+    "n"
+   ],
+   "shape": [
+    3,
+    8
+   ],
+   "sums": {
+    "ci_high": -0.08110187346260112,
+    "ci_low": -0.7097672848949234,
+    "n": 534.0,
+    "p_value": 6.649653898599639e-11,
+    "r": -0.4032339335196611
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "variable",
+    "stress",
+    "sleep_hours",
+    "wellbeing"
+   ],
+   "shape": [
+    3,
+    4
+   ],
+   "sums": {
+    "sleep_hours": 1.1391,
+    "stress": -0.007800000000000029,
+    "wellbeing": 1.0623
+   }
+  }
+ ],
+ "cronbach_alpha": [
+  {
+   "attrs": {
+    "note": "Cronbach's alpha = -.11 (95% CI -.38 to .12) for 6 items and 177 people: unacceptable internal consistency. esteem_3, esteem_5 run against the rest of the scale: should they be reverse-scored (Rev)? esteem_1, esteem_4, esteem_6 correlate below 0.3 with the rest of the scale. Alpha would be higher without esteem_3, esteem_5. Left out 3 rows missing an item."
+   },
+   "columns": [
+    "alpha",
+    "ci_low",
+    "ci_high",
+    "standardised_alpha",
+    "items",
+    "n",
+    "mean_inter_item_r",
+    "scale_mean",
+    "scale_sd"
+   ],
+   "shape": [
+    1,
+    9
+   ],
+   "sums": {
+    "alpha": -0.11061296733939141,
+    "ci_high": 0.12491233256631451,
+    "ci_low": -0.38471685348588003,
+    "items": 6.0,
+    "mean_inter_item_r": -0.028654027787648313,
+    "n": 177.0,
+    "scale_mean": 18.03954802259887,
+    "scale_sd": 2.54808658587207,
+    "standardised_alpha": -0.20067488544501255
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "item",
+    "reversed",
+    "mean",
+    "sd",
+    "item_rest_r",
+    "alpha_if_deleted"
+   ],
+   "shape": [
+    6,
+    6
+   ],
+   "sums": {
+    "alpha_if_deleted": -1.3927293147585271,
+    "item_rest_r": 0.026810617251171204,
+    "mean": 18.039548022598872,
+    "sd": 6.504335629250477
+   }
+  }
+ ],
+ "crosstab": [
+  {
+   "attrs": {
+    "note": "chi-sq(2, N = 180) = 0.85, p = .654, Cramer's V = .07 (negligible): no significant evidence that group and gender are related."
+   },
+   "columns": [
+    "chi_square",
+    "stars",
+    "df",
+    "p_value",
+    "cramers_v",
+    "n",
+    "min_expected",
+    "cells_below_5",
+    "corrected_p",
+    "fisher_p",
+    "odds_ratio"
+   ],
+   "shape": [
+    1,
+    11
+   ],
+   "sums": {
+    "cells_below_5": 0.0,
+    "chi_square": 0.8495839026207925,
+    "corrected_p": 0.0,
+    "cramers_v": 0.06870160529504034,
+    "df": 2.0,
+    "fisher_p": 0.0,
+    "min_expected": 27.666666666666668,
+    "n": 180.0,
+    "odds_ratio": 0.0,
+    "p_value": 0.6539058152268972
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "group",
+    "gender",
+    "observed",
+    "expected",
+    "row_percent",
+    "column_percent",
+    "adjusted_residual"
+   ],
+   "shape": [
+    6,
+    7
+   ],
+   "sums": {
+    "adjusted_residual": -3.3306690738754696e-15,
+    "column_percent": 200.0,
+    "expected": 180.0,
+    "observed": 180.0,
+    "row_percent": 300.0
+   }
+  }
+ ],
+ "did_2x2": [
+  {
+   "attrs": {
+    "design": "2x2",
+    "observations": 720,
+    "robust": true
+   },
+   "columns": [
+    "role",
+    "variable",
+    "coefficient",
+    "stars",
+    "std_error",
+    "t_stat",
+    "p_value"
+   ],
+   "shape": [
+    4,
+    7
+   ],
+   "sums": {
+    "coefficient": 27.21398571428573,
+    "p_value": 0.6051043009073132,
+    "std_error": 0.976570127160933,
+    "t_stat": 186.8148733733141
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "group",
+    "period",
+    "mean_y",
+    "rows"
+   ],
+   "shape": [
+    7,
+    4
+   ],
+   "sums": {
+    "mean_y": 107.20838642857143,
+    "rows": 720.0
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "state",
+    "year",
+    "employment",
+    "policy",
+    "income",
+    "treated_state",
+    "post",
+    "fitted",
+    "residual"
+   ],
+   "shape": [
+    720,
+    9
+   ],
+   "sums": {
+    "employment": 17835.445,
+    "fitted": 17835.445000000014,
+    "income": 36071.84,
+    "policy": 240.0,
+    "post": 420.0,
+    "residual": -1.2896350654045818e-11,
+    "treated_state": 240.0,
+    "year": 1451160.0
+   }
+  }
+ ],
+ "did_twfe": [
+  {
+   "attrs": {
+    "design": "TWFE",
+    "observations": 720,
+    "robust": true
+   },
+   "columns": [
+    "role",
+    "variable",
+    "coefficient",
+    "stars",
+    "std_error",
+    "t_stat",
+    "p_value"
+   ],
+   "shape": [
+    1,
+    7
+   ],
+   "sums": {
+    "coefficient": 1.9290433333333301,
+    "p_value": 6.971645621058994e-17,
+    "std_error": 0.16605339113122122,
+    "t_stat": 11.617006555493543
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "period",
+    "ever_treated",
+    "never_treated",
+    "treated_rows",
+    "never_rows"
+   ],
+   "shape": [
+    12,
+    5
+   ],
+   "sums": {
+    "ever_treated": 298.75455,
+    "never_rows": 240.0,
+    "never_treated": 294.26315,
+    "period": 24186.0,
+    "treated_rows": 480.0
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "state",
+    "year",
+    "employment",
+    "policy",
+    "income",
+    "treated_state",
+    "post",
+    "residual"
+   ],
+   "shape": [
+    720,
+    8
+   ],
+   "sums": {
+    "employment": 17835.445,
+    "income": 36071.84,
+    "policy": 240.0,
+    "post": 420.0,
+    "residual": -1.270095140171179e-13,
+    "treated_state": 240.0,
+    "year": 1451160.0
+   }
+  }
+ ],
+ "dist_bernoulli": [
+  {
+   "attrs": {},
+   "columns": [
+    "k",
+    "probability",
+    "cdf"
+   ],
+   "shape": [
+    2,
+    3
+   ],
+   "sums": {
+    "cdf": 1.5,
+    "k": 1.0,
+    "probability": 1.0
+   }
+  }
+ ],
+ "dist_beta": [
+  {
+   "attrs": {},
+   "columns": [
+    "x",
+    "density",
+    "cdf"
+   ],
+   "shape": [
+    201,
+    3
+   ],
+   "sums": {
+    "cdf": 136.47723165383948,
+    "density": 226.11617899766577,
+    "x": 89.40704846132851
+   }
+  }
+ ],
+ "dist_binomial": [
+  {
+   "attrs": {},
+   "columns": [
+    "k",
+    "probability",
+    "cdf"
+   ],
+   "shape": [
+    11,
+    3
+   ],
+   "sums": {
+    "cdf": 6.0,
+    "k": 55.0,
+    "probability": 0.9999999999999998
+   }
+  }
+ ],
+ "dist_chi_square": [
+  {
+   "attrs": {},
+   "columns": [
+    "x",
+    "density",
+    "cdf"
+   ],
+   "shape": [
+    201,
+    3
+   ],
+   "sums": {
+    "cdf": 172.11814149753056,
+    "density": 9.474022262296945,
+    "x": 2121.829193998168
+   }
+  }
+ ],
+ "dist_exponential": [
+  {
+   "attrs": {},
+   "columns": [
+    "x",
+    "density",
+    "cdf"
+   ],
+   "shape": [
+    201,
+    3
+   ],
+   "sums": {
+    "cdf": 178.78554642081588,
+    "density": 22.214453579184152,
+    "x": 925.6492578861396
+   }
+  }
+ ],
+ "dist_f": [
+  {
+   "attrs": {},
+   "columns": [
+    "x",
+    "density",
+    "cdf"
+   ],
+   "shape": [
+    201,
+    3
+   ],
+   "sums": {
+    "cdf": 179.09193760354555,
+    "density": 19.991383093925286,
+    "x": 1004.5879720284887
+   }
+  }
+ ],
+ "dist_gamma": [
+  {
+   "attrs": {},
+   "columns": [
+    "x",
+    "density",
+    "cdf"
+   ],
+   "shape": [
+    201,
+    3
+   ],
+   "sums": {
+    "cdf": 166.6785039198024,
+    "density": 17.031527822993223,
+    "x": 1182.9433362417783
+   }
+  }
+ ],
+ "dist_geometric": [
+  {
+   "attrs": {},
+   "columns": [
+    "k",
+    "probability",
+    "cdf"
+   ],
+   "shape": [
+    26,
+    3
+   ],
+   "sums": {
+    "cdf": 23.666885707874545,
+    "k": 351.0,
+    "probability": 0.9999061251966233
+   }
+  }
+ ],
+ "dist_hypergeometric": [
+  {
+   "attrs": {},
+   "columns": [
+    "k",
+    "probability",
+    "cdf"
+   ],
+   "shape": [
+    6,
+    3
+   ],
+   "sums": {
+    "cdf": 5.0,
+    "k": 15.0,
+    "probability": 0.9999999999999999
+   }
+  }
+ ],
+ "dist_lognormal": [
+  {
+   "attrs": {},
+   "columns": [
+    "x",
+    "density",
+    "cdf"
+   ],
+   "shape": [
+    201,
+    3
+   ],
+   "sums": {
+    "cdf": 179.80844975162978,
+    "density": 12.84717345025371,
+    "x": 1563.8207846064843
+   }
+  }
+ ],
+ "dist_neg_binomial": [
+  {
+   "attrs": {},
+   "columns": [
+    "k",
+    "probability",
+    "cdf"
+   ],
+   "shape": [
+    23,
+    3
+   ],
+   "sums": {
+    "cdf": 20.000132674677474,
+    "k": 253.0,
+    "probability": 0.9999194475172486
+   }
+  }
+ ],
+ "dist_normal": [
+  {
+   "attrs": {},
+   "columns": [
+    "x",
+    "density",
+    "cdf"
+   ],
+   "shape": [
+    201,
+    3
+   ],
+   "sums": {
+    "cdf": 100.49999999999999,
+    "density": 26.883838409570885,
+    "x": -2.842170943040401e-14
+   }
+  }
+ ],
+ "dist_poisson": [
+  {
+   "attrs": {},
+   "columns": [
+    "k",
+    "probability",
+    "cdf"
+   ],
+   "shape": [
+    12,
+    3
+   ],
+   "sums": {
+    "cdf": 9.000020371304252,
+    "k": 66.0,
+    "probability": 0.9999286133710256
+   }
+  }
+ ],
+ "dist_student_t": [
+  {
+   "attrs": {},
+   "columns": [
+    "x",
+    "density",
+    "cdf"
+   ],
+   "shape": [
+    201,
+    3
+   ],
+   "sums": {
+    "cdf": 100.5,
+    "density": 10.331158743337202,
+    "x": 0.0
+   }
+  }
+ ],
+ "dist_uniform": [
+  {
+   "attrs": {},
+   "columns": [
+    "x",
+    "density",
+    "cdf"
+   ],
+   "shape": [
+    201,
+    3
+   ],
+   "sums": {
+    "cdf": 100.5,
+    "density": 201.0,
+    "x": 100.5
+   }
+  }
+ ],
+ "efa": [
+  {
+   "attrs": {
+    "note": "2 factors by principal axis factoring with varimax rotation, explaining 44% of the variance. Parallel analysis suggests 2; 2 eigenvalues are above 1. KMO = .81 (adequate). Bartlett's test: chi-sq(45) = 483.2, p < .001. Left out 5 rows missing a variable."
+   },
+   "columns": [
+    "variable",
+    "factor_1",
+    "factor_2",
+    "communality",
+    "uniqueness"
+   ],
+   "shape": [
+    10,
+    5
+   ],
+   "sums": {
+    "communality": 4.4415,
+    "factor_1": 1.1411000000000002,
+    "factor_2": 2.5298,
+    "uniqueness": 5.5585
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "factor",
+    "ss_loadings",
+    "share",
+    "cumulative"
+   ],
+   "shape": [
+    2,
+    4
+   ],
+   "sums": {
+    "cumulative": 0.7015219542383403,
+    "share": 0.4441444461230951,
+    "ss_loadings": 4.441444461230951
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "component",
+    "eigenvalue",
+    "random_data",
+    "keep"
+   ],
+   "shape": [
+    10,
+    4
+   ],
+   "sums": {
+    "component": 55.0,
+    "eigenvalue": 10.0,
+    "random_data": 10.664326093054383
+   }
+  }
+ ],
+ "histogram": [
+  {
+   "attrs": {},
+   "columns": [
+    "bin_start",
+    "bin_end",
+    "count",
+    "share"
+   ],
+   "shape": [
+    24,
+    4
+   ],
+   "sums": {
+    "bin_end": 149.05,
+    "bin_start": 141.35,
+    "count": 600.0,
+    "share": 1.0003
+   }
+  }
+ ],
+ "iv_2sls": [
+  {
+   "attrs": {
+    "endogenous": 1,
+    "instruments": 2,
+    "observations": 2000,
+    "r_squared": 0.2271639875931708,
+    "robust": false
+   },
+   "columns": [
+    "role",
+    "variable",
+    "coefficient",
+    "stars",
+    "std_error",
+    "t_stat",
+    "p_value"
+   ],
+   "shape": [
+    3,
+    7
+   ],
+   "sums": {
+    "coefficient": 1.3477841843118594,
+    "p_value": 3.4719950086168352e-09,
+    "std_error": 0.19931390464996082,
+    "t_stat": 9.053109708337097
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "endogenous",
+    "role",
+    "variable",
+    "coefficient",
+    "stars",
+    "std_error",
+    "t_stat",
+    "p_value"
+   ],
+   "shape": [
+    4,
+    8
+   ],
+   "sums": {
+    "coefficient": 12.929802199249885,
+    "p_value": 7.004753745988249e-06,
+    "std_error": 0.23687723903173602,
+    "t_stat": 166.87250901373878
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "test",
+    "applies_to",
+    "statistic",
+    "df1",
+    "df2",
+    "p_value",
+    "verdict"
+   ],
+   "shape": [
+    6,
+    7
+   ],
+   "sums": {
+    "df1": 6.0,
+    "df2": 5988.0,
+    "p_value": 0.6594566589989653,
+    "statistic": 498.0696403802131
+   }
+  }
+ ],
+ "lipsitz_test": [
+  {
+   "attrs": {},
+   "columns": [
+    "test",
+    "lr_statistic",
+    "df",
+    "p_value",
+    "groups",
+    "observations"
+   ],
+   "shape": [
+    1,
+    6
+   ],
+   "sums": {
+    "df": 9.0,
+    "groups": 10.0,
+    "lr_statistic": 6.778654136869989,
+    "observations": 177.0,
+    "p_value": 0.6601522371246981
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "group",
+    "rows",
+    "mean_score",
+    "observed_1",
+    "expected_1",
+    "observed_2",
+    "expected_2",
+    "observed_3",
+    "expected_3",
+    "observed_4",
+    "expected_4",
+    "observed_5",
+    "expected_5"
+   ],
+   "shape": [
+    10,
+    13
+   ],
+   "sums": {
+    "expected_1": 15.04973035831937,
+    "expected_2": 46.1631347624251,
+    "expected_3": 63.00962980428454,
+    "expected_4": 40.82379039647318,
+    "expected_5": 11.953714678497816,
+    "group": 55.0,
+    "mean_score": 29.348832578732953,
+    "observed_1": 15.0,
+    "observed_2": 46.0,
+    "observed_3": 63.0,
+    "observed_4": 41.0,
+    "observed_5": 12.0,
+    "rows": 177.0
+   }
+  }
+ ],
+ "means_plot": [
+  {
+   "attrs": {},
+   "columns": [
+    "group",
+    "n",
+    "mean",
+    "sd",
+    "se",
+    "ci_low",
+    "ci_high"
+   ],
+   "shape": [
+    3,
+    7
+   ],
+   "sums": {
+    "ci_high": 158.24078275376942,
+    "ci_low": 147.7792172462306,
+    "mean": 153.01000000000002,
+    "n": 180.0,
+    "sd": 20.24865695825139,
+    "se": 2.614090372745819
+   }
+  }
+ ],
+ "mediation": [
+  {
+   "attrs": {
+    "note": "Indirect effect = -0.301, 95% bootstrap CI [-0.434, -0.186]: the interval excludes zero, so sleep_hours mediates the effect of stress on wellbeing. It carries 38% of the total effect (partial mediation: the direct effect is still significant). The interval is from 5000 resamples; the indirect effect's p value is Sobel's test, which is less reliable than the interval. Mediation shows a pattern in the data, not that X causes M or M causes Y. Left out 3 rows with missing values."
+   },
+   "columns": [
+    "path",
+    "estimate",
+    "stars",
+    "se",
+    "statistic",
+    "p_value",
+    "ci_low",
+    "ci_high"
+   ],
+   "shape": [
+    5,
+    8
+   ],
+   "sums": {
+    "ci_high": 3.815527667823856,
+    "ci_low": 0.634836808523858,
+    "estimate": 2.234635701207757,
+    "p_value": 1.003747851790313e-06,
+    "se": 0.8071570365189839,
+    "statistic": -18.78344893399869
+   }
+  }
+ ],
+ "normality": [
+  {
+   "attrs": {
+    "note": "Shapiro-Wilk: 0 of 2 sets of values depart from normal at the 5% level. A skew or kurtosis z beyond 1.96 either way shows what kind of departure it is."
+   },
+   "columns": [
+    "variable",
+    "n",
+    "mean",
+    "sd",
+    "skew",
+    "skew_z",
+    "kurtosis",
+    "kurtosis_z",
+    "shapiro_w",
+    "p_value",
+    "normal"
+   ],
+   "shape": [
+    2,
+    11
+   ],
+   "sums": {
+    "kurtosis": -0.031856359826044844,
+    "kurtosis_z": -0.08843196741222226,
+    "mean": 70.56722222222221,
+    "n": 360.0,
+    "p_value": 0.2102559217904956,
+    "sd": 11.424309715186736,
+    "shapiro_w": 1.9738460322096472,
+    "skew": -0.1316519606207313,
+    "skew_z": -0.7270491506371282
+   }
+  }
+ ],
+ "ologit": [
+  {
+   "attrs": {
+    "aic": 522.4964748371235,
+    "categories": 5,
+    "correct": 0.3559322033898305,
+    "log_likelihood": -255.24823741856176,
+    "lr_p": 0.33314225201998876,
+    "observations": 177,
+    "pseudo_r_squared": 0.004287874961317106,
+    "robust": false
+   },
+   "columns": [
+    "role",
+    "variable",
+    "coefficient",
+    "stars",
+    "std_error",
+    "z_stat",
+    "p_value",
+    "odds_ratio"
+   ],
+   "shape": [
+    6,
+    8
+   ],
+   "sums": {
+    "coefficient": -2.082472488368208,
+    "odds_ratio": 1.9815924068614588,
+    "p_value": 2.943570254856879,
+    "std_error": 7.812850587185181,
+    "z_stat": -2.1968535912960814
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "id",
+    "group",
+    "gender",
+    "age",
+    "anxiety_pre",
+    "anxiety_mid",
+    "anxiety_post",
+    "stress",
+    "sleep_hours",
+    "wellbeing",
+    "esteem_1",
+    "esteem_2",
+    "esteem_3",
+    "esteem_4",
+    "esteem_5",
+    "esteem_6",
+    "social_1",
+    "social_2",
+    "social_3",
+    "social_4",
+    "completed",
+    "prob_1",
+    "prob_2",
+    "prob_3",
+    "prob_4",
+    "prob_5",
+    "predicted"
+   ],
+   "shape": [
+    177,
+    27
+   ],
+   "sums": {
+    "age": 6835.0,
+    "anxiety_mid": 3972.4,
+    "anxiety_post": 3830.0,
+    "anxiety_pre": 4280.200000000001,
+    "esteem_1": 520.0,
+    "esteem_2": 541.0,
+    "esteem_3": 538.0,
+    "esteem_4": 508.0,
+    "esteem_5": 538.0,
+    "esteem_6": 540.0,
+    "id": 15940.0,
+    "predicted": 531.0,
+    "prob_1": 15.049730358319371,
+    "prob_2": 46.163134762425095,
+    "prob_3": 63.009629804284536,
+    "prob_4": 40.823790396473186,
+    "prob_5": 11.953714678497814,
+    "sleep_hours": 1311.3,
+    "social_1": 509.0,
+    "social_2": 514.0,
+    "social_3": 523.0,
+    "social_4": 507.0,
+    "stress": 3455.5,
+    "wellbeing": 9024.1
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "role",
+    "variable",
+    "category",
+    "effect",
+    "stars",
+    "std_error",
+    "z_stat",
+    "p_value"
+   ],
+   "shape": [
+    10,
+    8
+   ],
+   "sums": {
+    "category": 30.0,
+    "effect": 1.0842021724855044e-18,
+    "p_value": 6.006831049235014,
+    "std_error": 0.10425828187604268,
+    "z_stat": -0.5504277549795346
+   }
+  }
+ ],
+ "oprobit": [
+  {
+   "attrs": {
+    "aic": 522.5277168836583,
+    "categories": 5,
+    "correct": 0.3559322033898305,
+    "log_likelihood": -255.26385844182911,
+    "lr_p": 0.3383871334448765,
+    "observations": 177,
+    "pseudo_r_squared": 0.0042269380379904575,
+    "robust": false
+   },
+   "columns": [
+    "role",
+    "variable",
+    "coefficient",
+    "stars",
+    "std_error",
+    "z_stat",
+    "p_value"
+   ],
+   "shape": [
+    6,
+    7
+   ],
+   "sums": {
+    "coefficient": -0.8704903204202616,
+    "p_value": 2.7984241342303924,
+    "std_error": 4.44290884338603,
+    "z_stat": -1.806646649567574
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "id",
+    "group",
+    "gender",
+    "age",
+    "anxiety_pre",
+    "anxiety_mid",
+    "anxiety_post",
+    "stress",
+    "sleep_hours",
+    "wellbeing",
+    "esteem_1",
+    "esteem_2",
+    "esteem_3",
+    "esteem_4",
+    "esteem_5",
+    "esteem_6",
+    "social_1",
+    "social_2",
+    "social_3",
+    "social_4",
+    "completed",
+    "prob_1",
+    "prob_2",
+    "prob_3",
+    "prob_4",
+    "prob_5",
+    "predicted"
+   ],
+   "shape": [
+    177,
+    27
+   ],
+   "sums": {
+    "age": 6835.0,
+    "anxiety_mid": 3972.4,
+    "anxiety_post": 3830.0,
+    "anxiety_pre": 4280.200000000001,
+    "esteem_1": 520.0,
+    "esteem_2": 541.0,
+    "esteem_3": 538.0,
+    "esteem_4": 508.0,
+    "esteem_5": 538.0,
+    "esteem_6": 540.0,
+    "id": 15940.0,
+    "predicted": 531.0,
+    "prob_1": 14.936024406117735,
+    "prob_2": 46.152617741835286,
+    "prob_3": 63.03989026572278,
+    "prob_4": 40.80938805401282,
+    "prob_5": 12.06207953231137,
+    "sleep_hours": 1311.3,
+    "social_1": 509.0,
+    "social_2": 514.0,
+    "social_3": 523.0,
+    "social_4": 507.0,
+    "stress": 3455.5,
+    "wellbeing": 9024.1
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "role",
+    "variable",
+    "category",
+    "effect",
+    "stars",
+    "std_error",
+    "z_stat",
+    "p_value"
+   ],
+   "shape": [
+    10,
+    8
+   ],
+   "sums": {
+    "category": 30.0,
+    "effect": -8.673617379884035e-19,
+    "p_value": 5.692624181910726,
+    "std_error": 0.09807057316199738,
+    "z_stat": -0.45320234675047283
+   }
+  }
+ ],
+ "ordinal_assoc": [
+  {
+   "attrs": {},
+   "columns": [
+    "variable",
+    "gamma",
+    "gamma_p",
+    "tau_b",
+    "tau_b_p",
+    "somers_d",
+    "somers_d_p",
+    "spearman",
+    "spearman_p",
+    "observations"
+   ],
+   "shape": [
+    1,
+    10
+   ],
+   "sums": {
+    "gamma": 0.5162171016708529,
+    "gamma_p": 1.87862790933061e-12,
+    "observations": 180.0,
+    "somers_d": 0.38902147971360385,
+    "somers_d_p": 1.87862790933061e-12,
+    "spearman": 0.4612212202500969,
+    "spearman_p": 7.226854037974423e-11,
+    "tau_b": 0.3917716969948786,
+    "tau_b_p": 2.6085231531129516e-10
+   }
+  }
+ ],
+ "pearson": [
+  {
+   "attrs": {},
+   "columns": [
+    "field",
+    "year",
+    "gdp_growth",
+    "unemployment",
+    "inflation",
+    "urban",
+    "population_k",
+    "degree_share",
+    "median_weekly_wage",
+    "house_price_k",
+    "bank_rate",
+    "avg_weekly_hours"
+   ],
+   "shape": [
+    11,
+    12
+   ],
+   "sums": {
+    "avg_weekly_hours": -0.7310000000000003,
+    "bank_rate": -0.7765999999999997,
+    "degree_share": 2.5862,
+    "gdp_growth": 1.4391,
+    "house_price_k": 2.6782,
+    "inflation": 0.6272,
+    "median_weekly_wage": 3.084599999999999,
+    "population_k": 1.2067,
+    "unemployment": -0.4131,
+    "urban": 1.8394,
+    "year": 2.1734999999999998
+   }
+  }
+ ],
+ "pie_chart": [
+  {
+   "attrs": {},
+   "columns": [
+    "region",
+    "total",
+    "share"
+   ],
+   "shape": [
+    20,
+    3
+   ],
+   "sums": {
+    "share": 1.0002,
+    "total": 3312241.0
+   }
+  }
+ ],
+ "post_hoc": [
+  {
+   "attrs": {
+    "note": "Tukey's HSD comparisons: 0 of 3 pairs differ at the 5% level. p values and confidence intervals are corrected for the number of pairs."
+   },
+   "columns": [
+    "group_1",
+    "group_2",
+    "mean_1",
+    "mean_2",
+    "mean_diff",
+    "se",
+    "t",
+    "stars",
+    "df",
+    "p_value",
+    "ci_low",
+    "ci_high",
+    "cohen_d"
+   ],
+   "shape": [
+    3,
+    13
+   ],
+   "sums": {
+    "ci_high": 9.977527545195434,
+    "ci_low": -7.570860878528711,
+    "cohen_d": 0.17658998079781704,
+    "df": 531.0,
+    "mean_1": 153.61166666666668,
+    "mean_2": 152.40833333333333,
+    "mean_diff": 1.2033333333333616,
+    "p_value": 2.701186342770695,
+    "se": 3.712219324930059,
+    "t": 0.9724640933138023
+   }
+  }
+ ],
+ "rank_tests": [
+  {
+   "attrs": {
+    "note": "Kruskal-Wallis H: H(2) = 0.46, p = .794, epsilon squared = .00: no significant difference at the 5% level."
+   },
+   "columns": [
+    "test",
+    "statistic",
+    "df",
+    "z",
+    "stars",
+    "p_value",
+    "effect_size",
+    "effect",
+    "n"
+   ],
+   "shape": [
+    1,
+    9
+   ],
+   "sums": {
+    "df": 2.0,
+    "effect_size": 0.0025756883581539774,
+    "n": 180.0,
+    "p_value": 0.7941172901483268,
+    "statistic": 0.461048216109562,
+    "z": 0.0
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "group",
+    "n",
+    "median",
+    "mean_rank"
+   ],
+   "shape": [
+    3,
+    4
+   ],
+   "sums": {
+    "mean_rank": 271.5,
+    "median": 152.95,
+    "n": 180.0
+   }
+  }
+ ],
+ "rdd": [
+  {
+   "attrs": {
+    "bandwidth": 12.720303174078547,
+    "bandwidth_source": "Imbens-Kalyanaraman",
+    "cutoff": 70.0,
+    "effect": -0.37886038794723187,
+    "fuzzy": false,
+    "kernel": "Triangular",
+    "left": 451,
+    "observations": 947,
+    "order": 1,
+    "p_value": 0.1034513474638214,
+    "right": 496,
+    "robust": true
+   },
+   "columns": [
+    "role",
+    "variable",
+    "coefficient",
+    "stars",
+    "std_error",
+    "t_stat",
+    "p_value"
+   ],
+   "shape": [
+    4,
+    7
+   ],
+   "sums": {
+    "coefficient": 22.69292384994714,
+    "p_value": 0.16283696443876838,
+    "std_error": 0.47211452746214116,
+    "t_stat": 135.06099101900975
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "check",
+    "setting",
+    "estimate",
+    "std_error",
+    "p_value",
+    "rows",
+    "verdict"
+   ],
+   "shape": [
+    9,
+    7
+   ],
+   "sums": {
+    "estimate": -2.290356704727826,
+    "p_value": 2.4648783266476095,
+    "rows": 11264.0,
+    "std_error": 2.1564690014995795
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "side",
+    "bin_low",
+    "bin_high",
+    "bin_mid",
+    "rows",
+    "mean_y"
+   ],
+   "shape": [
+    40,
+    6
+   ],
+   "sums": {
+    "bin_high": 2640.0,
+    "bin_low": 2560.0,
+    "bin_mid": 2600.0,
+    "mean_y": 840.3229680528939,
+    "rows": 3000.0
+   }
+  }
+ ],
+ "rm_anova": [
+  {
+   "attrs": {
+    "note": "Conditions: F(1.53, 266.90) = 51.69, p < .001, partial eta sq = .23. Mauchly's test: W = .680, chi-sq(2) = 67.20, p < .001, so sphericity is violated: report the Huynh-Feldt row. Left out 4 rows missing a condition."
+   },
+   "columns": [
+    "correction",
+    "epsilon",
+    "f",
+    "stars",
+    "df_1",
+    "df_2",
+    "p_value",
+    "partial_eta_sq",
+    "general_eta_sq"
+   ],
+   "shape": [
+    3,
+    9
+   ],
+   "sums": {
+    "df_1": 5.039852995767469,
+    "df_2": 881.974274259307,
+    "epsilon": 2.5199264978837346,
+    "f": 155.0605375679785,
+    "general_eta_sq": 0.10554237290614858,
+    "p_value": 8.211610633988434e-16,
+    "partial_eta_sq": 0.6840297106012215
+   }
+  },
+  {
+   "attrs": {},
+   "columns": [
+    "condition",
+    "n",
+    "mean",
+    "sd",
+    "se",
+    "ci_low",
+    "ci_high"
+   ],
+   "shape": [
+    3,
+    7
+   ],
+   "sums": {
+    "ci_high": 71.19814305851187,
+    "ci_low": 66.2564023960336,
+    "mean": 68.72727272727272,
+    "n": 528.0,
+    "sd": 16.609035365017757,
+    "se": 1.2519531462615325
+   }
+  }
+ ],
+ "scale_score": [
+  {
+   "attrs": {
+    "note": "score is the mean of 6 items. 3 rows skipped some items and are scored on the ones they answered."
+   },
+   "columns": [
+    "id",
+    "group",
+    "gender",
+    "age",
+    "anxiety_pre",
+    "anxiety_mid",
+    "anxiety_post",
+    "stress",
+    "sleep_hours",
+    "wellbeing",
+    "esteem_1",
+    "esteem_2",
+    "esteem_3",
+    "esteem_4",
+    "esteem_5",
+    "esteem_6",
+    "social_1",
+    "social_2",
+    "social_3",
+    "social_4",
+    "completed",
+    "score"
+   ],
+   "shape": [
+    180,
+    22
+   ],
+   "sums": {
+    "age": 6925.0,
+    "anxiety_mid": 4038.7,
+    "anxiety_post": 3895.6,
+    "anxiety_pre": 4352.1,
+    "esteem_1": 529.0,
+    "esteem_2": 549.0,
+    "esteem_3": 548.0,
+    "esteem_4": 517.0,
+    "esteem_5": 548.0,
+    "esteem_6": 549.0,
+    "id": 16290.0,
+    "score": 541.5666666666666,
+    "sleep_hours": 1311.2999999999997,
+    "social_1": 519.0,
+    "social_2": 522.0,
+    "social_3": 531.0,
+    "social_4": 514.0,
+    "stress": 3521.5,
+    "wellbeing": 9180.599999999999
+   }
+  }
+ ],
+ "summary_stats": [
+  {
+   "attrs": {},
+   "columns": [
+    "statistic",
+    "year",
+    "gdp_growth",
+    "unemployment",
+    "inflation",
+    "urban",
+    "population_k",
+    "degree_share",
+    "median_weekly_wage",
+    "house_price_k",
+    "bank_rate",
+    "avg_weekly_hours"
+   ],
+   "shape": [
+    8,
+    12
+   ],
+   "sums": {
+    "avg_weekly_hours": 783.7289799516866,
+    "bank_rate": 618.7512355942227,
+    "degree_share": 800.4494176154432,
+    "gdp_growth": 608.1584816558287,
+    "house_price_k": 2280.659151435618,
+    "inflation": 631.5353351492005,
+    "median_weekly_wage": 3527.210570549387,
+    "population_k": 36676.8031865992,
+    "unemployment": 644.4412816460772,
+    "urban": 602.9479088155956,
+    "year": 12665.662663344898
+   }
+  }
+ ],
+ "t_test": [
+  {
+   "attrs": {
+    "note": "wellbeing: female (M = 51.03, SD = 6.49) vs male (M = 50.97, SD = 7.07), t(168.2) = 0.06, p = .951, d = 0.01 (negligible). Welch's t-test (equal variances not assumed)."
+   },
+   "columns": [
+    "variable",
+    "group_1",
+    "group_2",
+    "n_1",
+    "n_2",
+    "mean_1",
+    "mean_2",
+    "sd_1",
+    "sd_2",
+    "mean_diff",
+    "t",
+    "stars",
+    "df",
+    "p_value",
+    "ci_low",
+    "ci_high",
+    "cohen_d",
+    "hedges_g",
+    "levene_p"
+   ],
+   "shape": [
+    1,
+    19
+   ],
+   "sums": {
+    "ci_high": 2.072744690485994,
+    "ci_low": -1.948586200857367,
+    "cohen_d": 0.009175318997642361,
+    "df": 168.15250902175046,
+    "hedges_g": 0.009136604571491971,
+    "levene_p": 0.6094783109620014,
+    "mean_1": 51.0319587628866,
+    "mean_2": 50.96987951807229,
+    "mean_diff": 0.06207924481431348,
+    "n_1": 97.0,
+    "n_2": 83.0,
+    "p_value": 0.9514694093510427,
+    "sd_1": 6.490723290328676,
+    "sd_2": 7.074459988695148,
+    "t": 0.06095251681834511
+   }
+  }
+ ]
+}

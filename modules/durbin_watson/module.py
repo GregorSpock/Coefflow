@@ -3,7 +3,7 @@ import pandas as pd
 from scipy import stats
 
 from modules.arimax import module as arimax
-from ui.panel import Panel
+from engine.panel import Panel
 
 
 INPUTS = 1

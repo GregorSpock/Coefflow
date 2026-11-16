@@ -1,6 +1,6 @@
 # Sample workflows
 
-Eight workflows built on the sample data (20 UK regions, 1995 to 2024). They are numbered in the order to try them: each one adds new modules and ideas to the ones before. Open one with **Open**, click **Run**, then click any module to see its results.
+Ten workflows built on the sample data (20 UK regions, 1995 to 2024). They are numbered in the order to try them: each one adds new modules and ideas to the ones before. Open one with **Open**, click **Run**, then click any module to see its results.
 
 Every Output Data module saves to the `output` folder next to this one.
 
@@ -14,3 +14,5 @@ Every Output Data module saves to the `output` folder next to this one.
 | 06 | ARIMAX forecasting | ARIMAX and Auto ARIMAX fitted on 1995 to 2019 and forecast for 2020 to 2024 with 90% intervals, scored against what happened | Split (condition), ARIMAX, Auto ARIMAX, Forecast |
 | 07 | Fixed and random effects | House prices across the regions by fixed and random effects, the Hausman test between them, a two-way fixed effects model with clustered errors, and each region's effect charted | Fixed Effects, Random Effects, Hausman |
 | 08 | Full project pipeline | A 1995 baseline table joined back onto every year, new fields from it, a train/test split by year, OLS and two-way fixed effects, and out-of-sample forecasts exported to Excel | Join, every step above together |
+| 09 | Reshape and diagnostics | Dates split into parts, regional averages, a table spread wide and stacked long again, then an OLS checked with every diagnostic test and a joint test of its coefficients | Dates, Group By, Pivot, Diagnostics, Wald Test |
+| 10 | Time series and panel GMM | A VAR with Granger causality, a cointegration test, trend and cycle by filter, a dynamic panel by GMM, quantile regression, and a bootstrap of an OLS with a forecast | VAR, Cointegration, TS Filter, Dynamic Panel, Quantile Reg, Bootstrap |
